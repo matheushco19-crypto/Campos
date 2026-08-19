@@ -3,72 +3,133 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+const dateFmt = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+function initials(name: string) {
+  return name.split(' ').slice(0, 2).map((part) => part[0]).join('').toUpperCase()
+}
+
+function categoryLabel(id: string | null, categories: Array<{ id: string; name: string }> | null | undefined) {
+  return categories?.find((category) => category.id === id)?.name ?? 'Não categorizado'
+}
 
 export default async function HomePage() {
   const supabase = await createClient()
   const { data: auth } = await supabase.auth.getClaims()
   if (!auth?.claims?.sub) redirect('/login')
 
-  const [{ data: user }, { data: clients }, { data: documents }, { data: reviews }, { data: summary }] = await Promise.all([
+  const [{ data: user }, { data: clients }, { data: documents }, { data: reviews }, { data: summary }, { data: transactions }, { data: categories }] = await Promise.all([
     supabase.from('users').select('full_name,role').eq('id', auth.claims.sub).maybeSingle(),
     supabase.from('clients').select('id,full_name,preferred_name,status,updated_at').order('updated_at', { ascending: false }),
     supabase.from('documents').select('id,file_name,document_type,processing_status,data_integrity_status,semantic_classification_status,period_start,period_end,uploaded_at,institution_id').order('uploaded_at', { ascending: false }).limit(8),
     supabase.from('reviews').select('id,reason,severity,status,created_at,client_id').eq('status', 'open').order('created_at', { ascending: false }).limit(8),
     supabase.from('vw_monthly_financial_summary').select('month,total_income,total_expenses,savings_capacity').order('month', { ascending: false }).limit(6),
+    supabase.from('transactions').select('id,transaction_date,description_original,amount,direction,category_id,expense_nature,is_transfer,is_investment_flow,is_card_payment,institution_id').eq('is_active', true).order('transaction_date', { ascending: false }).limit(10),
+    supabase.from('categories').select('id,name').eq('active', true),
   ])
 
   const clientCount = clients?.length ?? 0
   const openReviews = reviews?.length ?? 0
   const processedDocs = documents?.filter((d) => d.processing_status === 'processed').length ?? 0
   const latest = summary?.[0]
+  const latestSavings = Number(latest?.savings_capacity ?? 0)
+  const latestIncome = Number(latest?.total_income ?? 0)
+  const latestExpenses = Number(latest?.total_expenses ?? 0)
+  const savingsRate = latestIncome > 0 ? (latestSavings / latestIncome) * 100 : 0
+
+  const categoryTotals = new Map<string, number>()
+  for (const transaction of transactions ?? []) {
+    if (transaction.direction !== 'debit' || transaction.is_transfer || transaction.is_investment_flow || transaction.is_card_payment) continue
+    const key = transaction.category_id ?? 'none'
+    categoryTotals.set(key, (categoryTotals.get(key) ?? 0) + Number(transaction.amount ?? 0))
+  }
+  const topCategories = [...categoryTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5)
+  const topCategoryTotal = topCategories.reduce((sum, [, amount]) => sum + amount, 0)
 
   return (
     <main className="app-shell">
       <aside className="sidebar">
         <div className="brand"><div className="brand-mark">C</div><div><strong>Campos</strong><span>Wealth OS</span></div></div>
+        <div className="workspace-label">WORKSPACE</div>
         <nav className="nav">
-          <Link className="nav-item active" href="/">Visão geral</Link>
-          <a className="nav-item" href="#clientes">Clientes</a>
-          <a className="nav-item" href="#documentos">Documentos</a>
-          <a className="nav-item" href="#revisoes">Revisões</a>
-          <a className="nav-item" href="#financeiro">Financeiro</a>
+          <Link className="nav-item active" href="/">Visão geral <span>⌂</span></Link>
+          <a className="nav-item" href="#clientes">Clientes <span>01</span></a>
+          <a className="nav-item" href="#documentos">Documentos <span>⌁</span></a>
+          <a className="nav-item" href="#revisoes">Revisões <span>{openReviews}</span></a>
+          <a className="nav-item" href="#financeiro">Gestão Financeira <span>↗</span></a>
+        </nav>
+        <div className="sidebar-section">PLATAFORMA</div>
+        <nav className="nav compact">
+          <a className="nav-item" href="#objetivos">Objetivos <span>○</span></a>
+          <a className="nav-item" href="#investimentos">Investimentos <span>◇</span></a>
+          <a className="nav-item" href="#config">Configurações <span>⚙</span></a>
         </nav>
         <div className="sidebar-footer">
-          <div className="avatar">{(user?.full_name ?? 'M').slice(0, 1).toUpperCase()}</div>
+          <div className="avatar">{initials(user?.full_name ?? 'M')}</div>
           <div><strong>{user?.full_name ?? 'Usuário'}</strong><span>{user?.role ?? 'admin'}</span></div>
+          <span className="more">•••</span>
         </div>
       </aside>
 
       <section className="content">
         <header className="topbar">
-          <div><p className="eyebrow">Campos Wealth OS</p><h1>Gestão Financeira</h1><p className="muted">Uma visão operacional do patrimônio, documentos e fluxo financeiro.</p></div>
-          <div className="topbar-actions"><span className="status-dot"><i /> Sistema online</span><Link className="primary-btn" href="#documentos">Importar documento</Link></div>
+          <div><p className="eyebrow">Visão consolidada</p><h1>Gestão Financeira</h1><p className="muted">Acompanhe fluxo, comportamento e qualidade dos dados financeiros.</p></div>
+          <div className="topbar-actions"><button className="secondary-btn">Filtrar</button><Link className="primary-btn" href="#documentos">＋ Adicionar movimentação</Link></div>
         </header>
 
-        <section className="metrics">
-          <div className="metric-card"><span>Clientes ativos</span><strong>{clientCount}</strong><small>na carteira atual</small></div>
-          <div className="metric-card"><span>Documentos processados</span><strong>{processedDocs}</strong><small>últimos documentos</small></div>
-          <div className={`metric-card ${openReviews ? 'warning' : ''}`}><span>Revisões abertas</span><strong>{openReviews}</strong><small>{openReviews ? 'atenção necessária' : 'nenhuma pendência'}</small></div>
-          <div className="metric-card"><span>Saldo de poupança</span><strong>{latest ? brl.format(Number(latest.savings_capacity ?? 0)) : '—'}</strong><small>mês mais recente</small></div>
+        <section className="period-bar">
+          <div><span>Período analisado</span><strong>{latest ? new Date(latest.month as string).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : 'Sem dados'}</strong></div>
+          <div className="period-controls"><button>‹</button><button className="period-active">Mês</button><button>Ano</button><button>›</button></div>
         </section>
 
-        <section className="grid-2" id="financeiro">
-          <div className="panel"><div className="panel-head"><div><h2>Fluxo mensal</h2><p className="muted">Receitas, despesas e capacidade de poupança.</p></div></div>
-            <div className="table-wrap"><table><thead><tr><th>Mês</th><th>Receitas</th><th>Despesas</th><th>Poupança</th></tr></thead><tbody>
-              {(summary ?? []).map((row) => <tr key={row.month}><td>{new Date(row.month as string).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}</td><td className="positive">{brl.format(Number(row.total_income ?? 0))}</td><td>{brl.format(Number(row.total_expenses ?? 0))}</td><td className={Number(row.savings_capacity ?? 0) >= 0 ? 'positive' : 'negative'}>{brl.format(Number(row.savings_capacity ?? 0))}</td></tr>)}
-            </tbody></table></div>
+        <section className="metrics">
+          <div className="metric-card accent"><span>Receitas</span><strong>{brl.format(latestIncome)}</strong><small>entradas classificadas</small></div>
+          <div className="metric-card"><span>Despesas</span><strong>{brl.format(latestExpenses)}</strong><small>gastos operacionais</small></div>
+          <div className="metric-card"><span>Capacidade de poupança</span><strong className={latestSavings >= 0 ? 'positive' : 'negative'}>{brl.format(latestSavings)}</strong><small>{savingsRate.toFixed(1)}% da receita</small></div>
+          <div className={`metric-card ${openReviews ? 'warning' : ''}`}><span>Qualidade dos dados</span><strong>{openReviews ? 'Revisar' : 'OK'}</strong><small>{openReviews ? `${openReviews} pendência(s)` : 'sem pendências abertas'}</small></div>
+        </section>
+
+        <section className="dashboard-grid" id="financeiro">
+          <div className="panel chart-panel">
+            <div className="panel-head"><div><h2>Evolução financeira</h2><p className="muted">Receitas x despesas nos últimos meses disponíveis.</p></div><span className="legend"><i className="income-dot"/> Receita <i className="expense-dot"/> Despesa</span></div>
+            <div className="bar-chart">
+              {(summary ?? []).slice().reverse().map((row) => {
+                const income = Number(row.total_income ?? 0)
+                const expenses = Number(row.total_expenses ?? 0)
+                const max = Math.max(income, expenses, 1)
+                return <div className="bar-col" key={row.month}><div className="bars"><div className="bar income" style={{ height: `${Math.max(4, income / max * 100)}%` }}/><div className="bar expense" style={{ height: `${Math.max(4, expenses / max * 100)}%` }}/></div><span>{new Date(row.month as string).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</span></div>
+              })}
+            </div>
           </div>
 
-          <div className="panel" id="revisoes"><div className="panel-head"><div><h2>Central de revisão</h2><p className="muted">Itens que precisam de validação humana.</p></div></div>
-            {(reviews ?? []).length === 0 ? <div className="empty">Nenhuma revisão aberta.</div> : <div className="review-list">{reviews?.map((review) => <div className="review-item" key={review.id}><span className={`severity ${review.severity}`}>{review.severity}</span><div><strong>{review.reason}</strong><small>{new Date(review.created_at as string).toLocaleString('pt-BR')}</small></div></div>)}</div>}
+          <div className="panel insight-panel">
+            <div className="panel-head"><div><h2>Insights do período</h2><p className="muted">Leitura rápida do comportamento financeiro.</p></div><span className="spark">✦</span></div>
+            <div className="insight"><span>01</span><div><strong>{topCategories.length ? categoryLabel(topCategories[0][0], categories) : 'Categorias'}</strong><p>{topCategoryTotal ? `${brl.format(topCategories[0][1])} entre os principais gastos identificados.` : 'Ainda precisamos de movimentações categorizadas.'}</p></div></div>
+            <div className="insight"><span>02</span><div><strong>Capacidade de poupança</strong><p>{latestIncome ? `${savingsRate.toFixed(1)}% da receita permaneceu disponível após despesas classificadas.` : 'Aguardando histórico financeiro.'}</p></div></div>
+            <div className="insight"><span>03</span><div><strong>Qualidade da base</strong><p>{processedDocs} documento(s) processado(s) e {openReviews} pendência(s) aguardando revisão.</p></div></div>
           </div>
+        </section>
+
+        <section className="content-grid">
+          <div className="panel" id="categorias"><div className="panel-head"><div><h2>Principais categorias</h2><p className="muted">Distribuição dos gastos classificados.</p></div><span className="counter">Top 5</span></div>
+            <div className="category-list">{topCategories.map(([id, amount], index) => { const pct = topCategoryTotal ? amount / topCategoryTotal * 100 : 0; return <div className="category-row" key={id}><div className="category-icon">{['⌂','◇','◌','△','○'][index]}</div><div className="category-main"><div><strong>{categoryLabel(id, categories)}</strong><span>{brl.format(amount)}</span></div><div className="progress"><i style={{ width: `${pct}%` }}/></div><small>{pct.toFixed(0)}% dos principais gastos</small></div></div> })}</div>
+          </div>
+
+          <div className="panel" id="revisoes"><div className="panel-head"><div><h2>Central de revisão</h2><p className="muted">Itens que precisam de validação.</p></div><span className="counter">{openReviews}</span></div>
+            {(reviews ?? []).length === 0 ? <div className="empty"><div className="empty-icon">✓</div><strong>Base limpa</strong><span>Nenhuma revisão aberta no momento.</span></div> : <div className="review-list">{reviews?.map((review) => <div className="review-item" key={review.id}><span className={`severity ${review.severity}`}>{review.severity}</span><div><strong>{review.reason}</strong><small>{new Date(review.created_at as string).toLocaleString('pt-BR')}</small></div></div>)}</div>}
+          </div>
+        </section>
+
+        <section className="panel" id="movimentacoes"><div className="panel-head"><div><h2>Movimentações recentes</h2><p className="muted">Últimos lançamentos ingeridos pelo sistema.</p></div><a className="text-btn" href="#movimentacoes">Ver todas →</a></div>
+          <div className="table-wrap"><table><thead><tr><th>Data</th><th>Descrição</th><th>Instituição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>
+            {(transactions ?? []).map((transaction) => { const credit = transaction.direction === 'credit'; const neutral = transaction.is_transfer || transaction.is_investment_flow || transaction.is_card_payment; return <tr key={transaction.id}><td>{dateFmt.format(new Date(transaction.transaction_date as string))}</td><td><strong>{transaction.description_original}</strong><small>{neutral ? 'Movimentação neutra/patrimonial' : transaction.expense_nature ?? '—'}</small></td><td>{transaction.institution_id ?? '—'}</td><td>{categoryLabel(transaction.category_id, categories)}</td><td className={neutral ? '' : credit ? 'positive' : 'negative'}>{credit ? '+' : '-'}{brl.format(Number(transaction.amount ?? 0))}</td></tr> })}</tbody></table></div>
         </section>
 
         <section className="panel" id="clientes"><div className="panel-head"><div><h2>Clientes</h2><p className="muted">Acesso rápido aos dossiês financeiros.</p></div><span className="counter">{clientCount}</span></div>
-          <div className="client-grid">{(clients ?? []).map((client) => <Link href={`/clientes/${client.id}`} className="client-card" key={client.id}><div className="client-avatar">{client.full_name.slice(0, 1).toUpperCase()}</div><div><strong>{client.preferred_name || client.full_name}</strong><span>{client.status === 'active' ? 'Ativo' : client.status}</span></div><b>›</b></Link>)}</div>
+          <div className="client-grid">{(clients ?? []).map((client) => <Link href={`/clientes/${client.id}`} className="client-card" key={client.id}><div className="client-avatar">{initials(client.full_name)}</div><div><strong>{client.preferred_name || client.full_name}</strong><span>{client.status === 'active' ? 'Ativo' : client.status}</span></div><b>›</b></Link>)}</div>
         </section>
 
-        <section className="panel" id="documentos"><div className="panel-head"><div><h2>Documentos recentes</h2><p className="muted">Status do parsing e integridade de dados.</p></div><span className="counter">{documents?.length ?? 0}</span></div>
+        <section className="panel" id="documentos"><div className="panel-head"><div><h2>Documentos</h2><p className="muted">Parsing, integridade e origem dos dados.</p></div><a className="text-btn" href="#documentos">Importar PDF →</a></div>
           <div className="table-wrap"><table><thead><tr><th>Documento</th><th>Instituição</th><th>Período</th><th>Processamento</th><th>Integridade</th></tr></thead><tbody>
             {(documents ?? []).map((doc) => <tr key={doc.id}><td><strong>{doc.file_name ?? 'Documento'}</strong><small>{doc.document_type}</small></td><td>{doc.institution_id ?? '—'}</td><td>{doc.period_start && doc.period_end ? `${new Date(doc.period_start).toLocaleDateString('pt-BR')} – ${new Date(doc.period_end).toLocaleDateString('pt-BR')}` : '—'}</td><td><span className={`pill ${doc.processing_status}`}>{doc.processing_status}</span></td><td><span className={`pill ${doc.data_integrity_status}`}>{doc.data_integrity_status}</span></td></tr>)}
           </tbody></table></div>
