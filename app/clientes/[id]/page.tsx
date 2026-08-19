@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ClientActions from './ClientActions'
+import './client.css'
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 
@@ -10,7 +11,6 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
   const supabase = await createClient()
   const { data: auth } = await supabase.auth.getClaims()
   if (!auth?.claims?.sub) redirect('/login')
-
   const [{ data: client }, { data: accounts }, { data: documents }, { data: transactions }, { data: reviews }] = await Promise.all([
     supabase.from('clients').select('id,full_name,preferred_name,status,email,phone').eq('id', id).maybeSingle(),
     supabase.from('accounts').select('id,institution_id,account_type,masked_identifier,card_brand,card_product,status').eq('client_id', id).order('institution_id'),
@@ -18,11 +18,9 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
     supabase.from('transactions').select('id,transaction_date,description_original,amount,direction,expense_nature,is_transfer,is_investment_flow,is_card_payment,classification_confidence').eq('client_id', id).eq('is_active', true).order('transaction_date', { ascending: false }).limit(50),
     supabase.from('reviews').select('id,reason,severity,status,created_at').eq('client_id', id).eq('status', 'open').order('created_at', { ascending: false }),
   ])
-
   if (!client) notFound()
   const totalCredits = (transactions ?? []).filter(t => t.direction === 'credit' && !t.is_transfer && !t.is_investment_flow).reduce((s, t) => s + Number(t.amount), 0)
   const totalDebits = (transactions ?? []).filter(t => t.direction === 'debit' && !t.is_transfer && !t.is_investment_flow && !t.is_card_payment).reduce((s, t) => s + Number(t.amount), 0)
-
   return <main className="content client-page">
     <div className="detail-top"><div><Link href="/" className="back">← Visão geral</Link><p className="eyebrow">Dossiê financeiro</p><h1>{client.preferred_name || client.full_name}</h1><p className="muted">{client.status === 'active' ? 'Cliente ativo' : client.status}</p></div><ClientActions clientId={client.id} /></div>
     <section className="metrics"><div className="metric-card"><span>Contas</span><strong>{accounts?.length ?? 0}</strong><small>instituições conectadas</small></div><div className="metric-card"><span>Documentos</span><strong>{documents?.length ?? 0}</strong><small>no dossiê</small></div><div className="metric-card"><span>Entradas</span><strong>{brl.format(totalCredits)}</strong><small>amostra carregada</small></div><div className="metric-card"><span>Despesas</span><strong>{brl.format(totalDebits)}</strong><small>amostra carregada</small></div></section>
