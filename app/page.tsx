@@ -11,9 +11,17 @@ function initials(name: string) { return name.split(' ').filter(Boolean).slice(0
 function categoryLabel(id: string | null, categories: Array<{ id: string; name: string }> | null | undefined) { return categories?.find((category) => category.id === id)?.name ?? 'Não categorizado' }
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ client?: string }> }) {
- const supabase = await createClient(); const { data: auth } = await supabase.auth.getClaims(); if (!auth?.claims?.sub) redirect('/login')
- const { data: user } = await supabase.from('users').select('full_name,role').eq('id', auth.claims.sub).maybeSingle()
- if (user?.role !== 'admin') redirect('/login')
+ const supabase = await createClient()
+ const { data: auth } = await supabase.auth.getClaims()
+ if (!auth?.claims?.sub) redirect('/login')
+
+ // Use the same SECURITY DEFINER access resolver as the login action. A direct
+ // users query can be denied by RLS before the page knows that this session is staff.
+ const { data: accessRows, error: accessError } = await supabase.rpc('get_my_access')
+ const appUser = accessRows?.[0]
+ if (accessError || !appUser || !appUser.is_active || String(appUser.role).toLowerCase() !== 'admin') redirect('/login?error=unauthorized')
+
+ const { data: user } = await supabase.from('users').select('full_name').eq('id', auth.claims.sub).maybeSingle()
  const params = await searchParams; const selectedClientId = params.client || ''
  const clientsQuery = supabase.from('clients').select('id,full_name,preferred_name,status,updated_at').order('updated_at',{ascending:false}); const documentsQuery = supabase.from('documents').select('id,file_name,document_type,processing_status,data_integrity_status,semantic_classification_status,period_start,period_end,uploaded_at,institution_id,client_id').order('uploaded_at',{ascending:false}).limit(8); const reviewsQuery = supabase.from('reviews').select('id,reason,severity,status,created_at,client_id').eq('status','open').order('created_at',{ascending:false}).limit(8); const summaryQuery = supabase.from('vw_monthly_financial_summary').select('month,total_income,total_expenses,savings_capacity,client_id').order('month',{ascending:false}).limit(6); const transactionsQuery = supabase.from('transactions').select('id,transaction_date,description_original,amount,direction,category_id,expense_nature,is_transfer,is_investment_flow,is_card_payment,institution_id,client_id').eq('is_active',true).order('transaction_date',{ascending:false}).limit(10); const categoriesQuery = supabase.from('categories').select('id,name').eq('active',true)
  if(selectedClientId){documentsQuery.eq('client_id',selectedClientId);reviewsQuery.eq('client_id',selectedClientId);summaryQuery.eq('client_id',selectedClientId);transactionsQuery.eq('client_id',selectedClientId)}
