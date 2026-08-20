@@ -72,3 +72,5 @@ export async function requestPasswordReset(formData: FormData) {
   if (error) redirect('/esqueci-senha?error=request')
   redirect('/esqueci-senha?sent=1')
 }
+
+// Shared authentication is intentionally role-aware: the same login is used by admin, analyst, and client accounts.
