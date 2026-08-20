@@ -1,31 +1,51 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import DashboardActions from './DashboardActions'
+import DashboardFilters from './DashboardFilters'
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 const dateFmt = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
 function initials(name: string) {
-  return name.split(' ').slice(0, 2).map((part) => part[0]).join('').toUpperCase()
+  return name.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
 }
 
 function categoryLabel(id: string | null, categories: Array<{ id: string; name: string }> | null | undefined) {
   return categories?.find((category) => category.id === id)?.name ?? 'Não categorizado'
 }
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ client?: string }> }) {
   const supabase = await createClient()
   const { data: auth } = await supabase.auth.getClaims()
   if (!auth?.claims?.sub) redirect('/login')
 
+  const params = await searchParams
+  const selectedClientId = params.client || ''
+
+  const userQuery = supabase.from('users').select('full_name,role').eq('id', auth.claims.sub).maybeSingle()
+  const clientsQuery = supabase.from('clients').select('id,full_name,preferred_name,status,updated_at').order('updated_at', { ascending: false })
+  const documentsQuery = supabase.from('documents').select('id,file_name,document_type,processing_status,data_integrity_status,semantic_classification_status,period_start,period_end,uploaded_at,institution_id,client_id').order('uploaded_at', { ascending: false }).limit(8)
+  const reviewsQuery = supabase.from('reviews').select('id,reason,severity,status,created_at,client_id').eq('status', 'open').order('created_at', { ascending: false }).limit(8)
+  const summaryQuery = supabase.from('vw_monthly_financial_summary').select('month,total_income,total_expenses,savings_capacity,client_id').order('month', { ascending: false }).limit(6)
+  const transactionsQuery = supabase.from('transactions').select('id,transaction_date,description_original,amount,direction,category_id,expense_nature,is_transfer,is_investment_flow,is_card_payment,institution_id,client_id').eq('is_active', true).order('transaction_date', { ascending: false }).limit(10)
+  const categoriesQuery = supabase.from('categories').select('id,name').eq('active', true)
+
+  if (selectedClientId) {
+    documentsQuery.eq('client_id', selectedClientId)
+    reviewsQuery.eq('client_id', selectedClientId)
+    summaryQuery.eq('client_id', selectedClientId)
+    transactionsQuery.eq('client_id', selectedClientId)
+  }
+
   const [{ data: user }, { data: clients }, { data: documents }, { data: reviews }, { data: summary }, { data: transactions }, { data: categories }] = await Promise.all([
-    supabase.from('users').select('full_name,role').eq('id', auth.claims.sub).maybeSingle(),
-    supabase.from('clients').select('id,full_name,preferred_name,status,updated_at').order('updated_at', { ascending: false }),
-    supabase.from('documents').select('id,file_name,document_type,processing_status,data_integrity_status,semantic_classification_status,period_start,period_end,uploaded_at,institution_id').order('uploaded_at', { ascending: false }).limit(8),
-    supabase.from('reviews').select('id,reason,severity,status,created_at,client_id').eq('status', 'open').order('created_at', { ascending: false }).limit(8),
-    supabase.from('vw_monthly_financial_summary').select('month,total_income,total_expenses,savings_capacity').order('month', { ascending: false }).limit(6),
-    supabase.from('transactions').select('id,transaction_date,description_original,amount,direction,category_id,expense_nature,is_transfer,is_investment_flow,is_card_payment,institution_id').eq('is_active', true).order('transaction_date', { ascending: false }).limit(10),
-    supabase.from('categories').select('id,name').eq('active', true),
+    userQuery,
+    clientsQuery,
+    documentsQuery,
+    reviewsQuery,
+    summaryQuery,
+    transactionsQuery,
+    categoriesQuery,
   ])
 
   const clientCount = clients?.length ?? 0
@@ -45,21 +65,22 @@ export default async function HomePage() {
   }
   const topCategories = [...categoryTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5)
   const topCategoryTotal = topCategories.reduce((sum, [, amount]) => sum + amount, 0)
+  const selectedClient = clients?.find((client) => client.id === selectedClientId)
 
   return (
     <main className="app-shell">
       <aside className="sidebar">
         <div className="brand"><div className="brand-mark">C</div><div><strong>Campos</strong><span>Wealth OS</span></div></div>
         <div className="workspace-label">WORKSPACE</div>
-        <nav className="nav">
+        <nav className="nav" aria-label="Workspace">
           <Link className="nav-item active" href="/">Visão geral <span>⌂</span></Link>
-          <a className="nav-item" href="#clientes">Clientes <span>01</span></a>
+          <a className="nav-item" href="#clientes">Clientes <span>{String(clientCount).padStart(2, '0')}</span></a>
           <a className="nav-item" href="#documentos">Documentos <span>⌁</span></a>
           <a className="nav-item" href="#revisoes">Revisões <span>{openReviews}</span></a>
           <a className="nav-item" href="#financeiro">Gestão Financeira <span>↗</span></a>
         </nav>
         <div className="sidebar-section">PLATAFORMA</div>
-        <nav className="nav compact">
+        <nav className="nav compact" aria-label="Platform">
           <a className="nav-item" href="#objetivos">Objetivos <span>○</span></a>
           <a className="nav-item" href="#investimentos">Investimentos <span>◇</span></a>
           <a className="nav-item" href="#config">Configurações <span>⚙</span></a>
@@ -73,13 +94,13 @@ export default async function HomePage() {
 
       <section className="content">
         <header className="topbar">
-          <div><p className="eyebrow">Visão consolidada</p><h1>Gestão Financeira</h1><p className="muted">Acompanhe fluxo, comportamento e qualidade dos dados financeiros.</p></div>
-          <div className="topbar-actions"><button className="secondary-btn">Filtrar</button><Link className="primary-btn" href="#documentos">＋ Adicionar movimentação</Link></div>
+          <div><p className="eyebrow">{selectedClient ? 'Cliente selecionado' : 'Visão consolidada'}</p><h1>{selectedClient?.preferred_name || selectedClient?.full_name || 'Gestão Financeira'}</h1><p className="muted">Acompanhe fluxo, comportamento e qualidade dos dados financeiros.</p></div>
+          <div className="topbar-actions"><DashboardFilters clients={clients ?? []} /><DashboardActions clients={clients ?? []} /></div>
         </header>
 
         <section className="period-bar">
           <div><span>Período analisado</span><strong>{latest ? new Date(latest.month as string).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : 'Sem dados'}</strong></div>
-          <div className="period-controls"><button>‹</button><button className="period-active">Mês</button><button>Ano</button><button>›</button></div>
+          <div className="period-summary"><span>Base atual</span><strong>{selectedClient ? 'Cliente filtrado' : 'Todos os clientes'}</strong></div>
         </section>
 
         <section className="metrics">
@@ -99,6 +120,7 @@ export default async function HomePage() {
                 const max = Math.max(income, expenses, 1)
                 return <div className="bar-col" key={row.month}><div className="bars"><div className="bar income" style={{ height: `${Math.max(4, income / max * 100)}%` }}/><div className="bar expense" style={{ height: `${Math.max(4, expenses / max * 100)}%` }}/></div><span>{new Date(row.month as string).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</span></div>
               })}
+              {!summary?.length && <div className="chart-empty">Importe um extrato para começar a visualizar o fluxo financeiro.</div>}
             </div>
           </div>
 
@@ -112,7 +134,7 @@ export default async function HomePage() {
 
         <section className="content-grid">
           <div className="panel" id="categorias"><div className="panel-head"><div><h2>Principais categorias</h2><p className="muted">Distribuição dos gastos classificados.</p></div><span className="counter">Top 5</span></div>
-            <div className="category-list">{topCategories.map(([id, amount], index) => { const pct = topCategoryTotal ? amount / topCategoryTotal * 100 : 0; return <div className="category-row" key={id}><div className="category-icon">{['⌂','◇','◌','△','○'][index]}</div><div className="category-main"><div><strong>{categoryLabel(id, categories)}</strong><span>{brl.format(amount)}</span></div><div className="progress"><i style={{ width: `${pct}%` }}/></div><small>{pct.toFixed(0)}% dos principais gastos</small></div></div> })}</div>
+            {topCategories.length ? <div className="category-list">{topCategories.map(([id, amount], index) => { const pct = topCategoryTotal ? amount / topCategoryTotal * 100 : 0; return <div className="category-row" key={id}><div className="category-icon">{['⌂','◇','◌','△','○'][index]}</div><div className="category-main"><div><strong>{categoryLabel(id, categories)}</strong><span>{brl.format(amount)}</span></div><div className="progress"><i style={{ width: `${pct}%` }}/></div><small>{pct.toFixed(0)}% dos principais gastos</small></div></div> })}</div> : <div className="empty"><strong>Sem categorias ainda</strong><span>As categorias aparecerão após a ingestão de movimentações.</span></div>}
           </div>
 
           <div className="panel" id="revisoes"><div className="panel-head"><div><h2>Central de revisão</h2><p className="muted">Itens que precisam de validação.</p></div><span className="counter">{openReviews}</span></div>
@@ -122,18 +144,28 @@ export default async function HomePage() {
 
         <section className="panel" id="movimentacoes"><div className="panel-head"><div><h2>Movimentações recentes</h2><p className="muted">Últimos lançamentos ingeridos pelo sistema.</p></div><a className="text-btn" href="#movimentacoes">Ver todas →</a></div>
           <div className="table-wrap"><table><thead><tr><th>Data</th><th>Descrição</th><th>Instituição</th><th>Categoria</th><th>Valor</th></tr></thead><tbody>
-            {(transactions ?? []).map((transaction) => { const credit = transaction.direction === 'credit'; const neutral = transaction.is_transfer || transaction.is_investment_flow || transaction.is_card_payment; return <tr key={transaction.id}><td>{dateFmt.format(new Date(transaction.transaction_date as string))}</td><td><strong>{transaction.description_original}</strong><small>{neutral ? 'Movimentação neutra/patrimonial' : transaction.expense_nature ?? '—'}</small></td><td>{transaction.institution_id ?? '—'}</td><td>{categoryLabel(transaction.category_id, categories)}</td><td className={neutral ? '' : credit ? 'positive' : 'negative'}>{credit ? '+' : '-'}{brl.format(Number(transaction.amount ?? 0))}</td></tr> })}</tbody></table></div>
+            {(transactions ?? []).map((transaction) => { const credit = transaction.direction === 'credit'; const neutral = transaction.is_transfer || transaction.is_investment_flow || transaction.is_card_payment; return <tr key={transaction.id}><td>{dateFmt.format(new Date(transaction.transaction_date as string))}</td><td><strong>{transaction.description_original}</strong><small>{neutral ? 'Movimentação neutra/patrimonial' : transaction.expense_nature ?? '—'}</small></td><td>{transaction.institution_id ?? '—'}</td><td>{categoryLabel(transaction.category_id, categories)}</td><td className={neutral ? '' : credit ? 'positive' : 'negative'}>{neutral ? '' : credit ? '+' : '-'}{brl.format(Number(transaction.amount ?? 0))}</td></tr> })}
+            {!transactions?.length && <tr><td colSpan={5} className="table-empty">Nenhuma movimentação encontrada. Use “Adicionar movimentação” ou importe um PDF.</td></tr>}
+          </tbody></table></div>
         </section>
 
         <section className="panel" id="clientes"><div className="panel-head"><div><h2>Clientes</h2><p className="muted">Acesso rápido aos dossiês financeiros.</p></div><span className="counter">{clientCount}</span></div>
           <div className="client-grid">{(clients ?? []).map((client) => <Link href={`/clientes/${client.id}`} className="client-card" key={client.id}><div className="client-avatar">{initials(client.full_name)}</div><div><strong>{client.preferred_name || client.full_name}</strong><span>{client.status === 'active' ? 'Ativo' : client.status}</span></div><b>›</b></Link>)}</div>
         </section>
 
-        <section className="panel" id="documentos"><div className="panel-head"><div><h2>Documentos</h2><p className="muted">Parsing, integridade e origem dos dados.</p></div><a className="text-btn" href="#documentos">Importar PDF →</a></div>
+        <section className="panel" id="documentos"><div className="panel-head"><div><h2>Documentos</h2><p className="muted">Parsing, integridade e origem dos dados.</p></div><button className="text-btn text-button" type="button" onClick={() => window.dispatchEvent(new CustomEvent('open-pdf-import'))}>Importar PDF →</button></div>
           <div className="table-wrap"><table><thead><tr><th>Documento</th><th>Instituição</th><th>Período</th><th>Processamento</th><th>Integridade</th></tr></thead><tbody>
             {(documents ?? []).map((doc) => <tr key={doc.id}><td><strong>{doc.file_name ?? 'Documento'}</strong><small>{doc.document_type}</small></td><td>{doc.institution_id ?? '—'}</td><td>{doc.period_start && doc.period_end ? `${new Date(doc.period_start).toLocaleDateString('pt-BR')} – ${new Date(doc.period_end).toLocaleDateString('pt-BR')}` : '—'}</td><td><span className={`pill ${doc.processing_status}`}>{doc.processing_status}</span></td><td><span className={`pill ${doc.data_integrity_status}`}>{doc.data_integrity_status}</span></td></tr>)}
+            {!documents?.length && <tr><td colSpan={5} className="table-empty">Nenhum documento importado.</td></tr>}
           </tbody></table></div>
         </section>
+
+        <section className="content-grid module-grid">
+          <div className="panel module-panel" id="objetivos"><div className="panel-head"><div><h2>Objetivos</h2><p className="muted">Metas financeiras e acompanhamento de progresso.</p></div><span className="module-status">Módulo</span></div><div className="module-body"><strong>Objetivos financeiros</strong><p>Esta área já está preparada para receber metas, prazo, valor-alvo e progresso calculado a partir da base financeira.</p></div></div>
+          <div className="panel module-panel" id="investimentos"><div className="panel-head"><div><h2>Investimentos</h2><p className="muted">Visão patrimonial e fluxos de investimento.</p></div><span className="module-status">Módulo</span></div><div className="module-body"><strong>Investimentos</strong><p>Os fluxos de aplicação, resgate e dividendos já são reconhecidos pelo parser. A camada de consolidação de posições será conectada aqui.</p></div></div>
+        </section>
+
+        <section className="panel" id="config"><div className="panel-head"><div><h2>Configurações</h2><p className="muted">Ambiente e perfil da sessão atual.</p></div></div><div className="settings-grid"><div><span>Usuário</span><strong>{user?.full_name ?? 'Usuário'}</strong></div><div><span>Perfil</span><strong>{user?.role ?? 'admin'}</strong></div><div><span>Segurança</span><strong>Autenticação ativa</strong></div><div><span>Documentos</span><strong>Storage privado · PDF</strong></div></div></section>
       </section>
     </main>
   )
