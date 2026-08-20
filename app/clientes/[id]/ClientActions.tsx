@@ -1,64 +1,12 @@
 'use client'
-
-import { useRef, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-
-async function sha256(file: File) {
-  const buffer = await file.arrayBuffer()
-  const digest = await crypto.subtle.digest('SHA-256', buffer)
-  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
-export default function ClientActions({ clientId }: { clientId: string }) {
-  const [open, setOpen] = useState(false)
-  const [description, setDescription] = useState('')
-  const [amount, setAmount] = useState('')
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
-  const [file, setFile] = useState<File | null>(null)
-  const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  async function addMovement() {
-    setSaving(true); setMessage('')
-    const supabase = createClient()
-    const { data: auth } = await supabase.auth.getUser()
-    if (!auth.user) { setMessage('Sessão expirada.'); setSaving(false); return }
-    const { data: profile } = await supabase.from('users').select('tenant_id').eq('id', auth.user.id).single()
-    if (!profile?.tenant_id) { setMessage('Tenant não encontrado.'); setSaving(false); return }
-    const value = Number(amount.replace('.', '').replace(',', '.'))
-    if (!description.trim() || !Number.isFinite(value) || value <= 0) { setMessage('Informe descrição e valor válidos.'); setSaving(false); return }
-    const { error } = await supabase.from('transactions').insert({ tenant_id: profile.tenant_id, client_id: clientId, transaction_date: date, posting_date: date, description_original: description.trim(), description_normalized: description.trim().toLowerCase(), amount: value, direction: 'debit', expense_nature: 'variável', is_active: true, extraction_confidence: 1, classification_confidence: 1, classification_source: 'manual', user_confirmed: true, parser_version: 'manual' })
-    setSaving(false)
-    if (error) { setMessage(error.message); return }
-    setDescription(''); setAmount(''); setOpen(false); window.location.reload()
-  }
-
-  async function importPdf() {
-    setSaving(true); setMessage('')
-    try {
-      if (!file) { setMessage('Selecione um PDF.'); return }
-      if (file.type !== 'application/pdf') { setMessage('Somente arquivos PDF são aceitos.'); return }
-      if (file.size > 50 * 1024 * 1024) { setMessage('O arquivo ultrapassa o limite de 50 MB.'); return }
-      const supabase = createClient()
-      const hash = await sha256(file)
-      const { data, error } = await supabase.functions.invoke('secure-document-upload', { body: { client_id: clientId, file_name: file.name, content_type: file.type, size: file.size, sha256: hash } })
-      if (error) throw new Error(error.message)
-      if (data?.error) throw new Error(data.error === 'duplicate_document' ? 'Este documento já foi importado.' : data.error)
-      const { error: uploadError } = await supabase.storage.from('client-documents').uploadToSignedUrl(data.path, data.token, file)
-      if (uploadError) throw uploadError
-      const { error: processError } = await supabase.functions.invoke('document-process', { body: { document_id: data.document.id } })
-      if (processError) throw processError
-      setMessage('PDF recebido com segurança e colocado na fila de processamento.')
-      setFile(null); if (inputRef.current) inputRef.current.value = ''
-      setTimeout(() => window.location.reload(), 900)
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Não foi possível importar o PDF.')
-    } finally { setSaving(false) }
-  }
-
-  return <>
-    <div className="action-row"><button className="primary-btn" onClick={() => setOpen(true)}>＋ Adicionar movimentação</button></div>
-    {open && <div className="modal-backdrop" role="dialog" aria-modal="true"><div className="modal"><div className="modal-head"><div><p className="eyebrow">Nova movimentação</p><h2>Adicionar lançamento</h2></div><button className="icon-btn" onClick={() => setOpen(false)}>×</button></div><div className="form-grid"><label>Data<input type="date" value={date} onChange={e => setDate(e.target.value)} /></label><label>Valor<input inputMode="decimal" placeholder="0,00" value={amount} onChange={e => setAmount(e.target.value)} /></label><label className="full">Descrição<input placeholder="Ex.: Restaurante, supermercado..." value={description} onChange={e => setDescription(e.target.value)} /></label></div>{message && <p className="form-error">{message}</p>}<div className="modal-actions"><button className="secondary-btn" onClick={() => setOpen(false)}>Cancelar</button><button className="primary-btn" disabled={saving} onClick={addMovement}>{saving ? 'Salvando...' : 'Salvar movimentação'}</button></div><div className="import-divider"><span>ou</span></div><div className="pdf-import"><div><strong>Importar PDF</strong><small>Extrato ou fatura · até 50 MB · armazenamento privado</small></div><input ref={inputRef} type="file" accept="application/pdf" onChange={e => setFile(e.target.files?.[0] ?? null)} />{file && <div className="file-selected">{file.name}<span>{(file.size / 1024 / 1024).toFixed(2)} MB</span></div>}<button className="secondary-btn" disabled={!file || saving} onClick={importPdf}>{saving ? 'Enviando...' : 'Enviar e processar PDF'}</button></div></div></div>}
-  </>
+import {useRef,useState} from 'react'
+import {createClient} from '@/lib/supabase/client'
+async function sha256(file:File){const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+const amount=(v:string)=>v.includes(',')?Number(v.replace(/\./g,'').replace(',','.')):Number(v)
+export default function ClientActions({clientId}:{clientId:string}){
+ const [movement,setMovement]=useState(false),[pdf,setPdf]=useState(false),[description,setDescription]=useState(''),[value,setValue]=useState(''),[date,setDate]=useState(new Date().toISOString().slice(0,10)),[direction,setDirection]=useState('debit'),[file,setFile]=useState<File|null>(null),[drag,setDrag]=useState(false),[saving,setSaving]=useState(false),[message,setMessage]=useState('');const input=useRef<HTMLInputElement>(null)
+ async function add(){setSaving(true);setMessage('');try{const s=createClient(),{data:a}=await s.auth.getUser();if(!a.user)throw Error('Sessão expirada.');const{data:u}=await s.from('users').select('tenant_id').eq('id',a.user.id).single();if(!u?.tenant_id)throw Error('Tenant não encontrado.');const v=amount(value);if(!description.trim()||!Number.isFinite(v)||v<=0)throw Error('Informe descrição e valor válidos.');const{error}=await s.from('transactions').insert({tenant_id:u.tenant_id,client_id:clientId,transaction_date:date,posting_date:date,description_original:description.trim(),description_normalized:description.trim().toLowerCase(),amount:v,direction,expense_nature:direction==='debit'?'variable':'na',is_active:true,extraction_confidence:1,classification_confidence:1,classification_source:'manual',user_confirmed:true,parser_version:'manual'});if(error)throw Error(error.message);setMovement(false);setDescription('');setValue('');location.reload()}catch(e){setMessage(e instanceof Error?e.message:'Não foi possível salvar a movimentação.')}finally{setSaving(false)}}
+ async function upload(){setSaving(true);setMessage('');try{if(!file)throw Error('Selecione um PDF.');if(file.type!=='application/pdf')throw Error('Somente arquivos PDF são aceitos.');if(file.size<=0||file.size>50*1024*1024)throw Error('O PDF deve ter até 50 MB.');const s=createClient(),hash=await sha256(file);const{data,error}=await s.functions.invoke('secure-document-upload',{body:{client_id:clientId,file_name:file.name,content_type:file.type,size:file.size,sha256:hash}});if(error)throw Error(error.message);if(data?.error)throw Error(data.error==='duplicate_document'?'Este documento já foi importado.':data.error);const{error:up}=await s.storage.from('client-documents').uploadToSignedUrl(data.path,data.token,file);if(up)throw Error(up.message);const{error:proc}=await s.functions.invoke('document-process',{body:{document_id:data.document.id}});if(proc)throw Error(proc.message);setMessage('PDF enviado e processado.');setTimeout(()=>location.reload(),900)}catch(e){setMessage(e instanceof Error?e.message:'Não foi possível importar o PDF.')}finally{setSaving(false)}}
+ function close(){if(saving)return;setMovement(false);setPdf(false);setFile(null);setMessage('')}
+ return <div className="client-fin-actions"><button className="secondary-btn" onClick={()=>{setMessage('');setPdf(true)}}>Importar PDF</button><button className="primary-btn" onClick={()=>{setMessage('');setMovement(true)}}>＋ Adicionar Movimentação</button>{movement&&<div className="modal-backdrop"><div className="modal dashboard-modal"><div className="modal-head"><div><p className="eyebrow">Gestão Financeira</p><h2>Adicionar movimentação</h2></div><button className="icon-btn" onClick={close}>×</button></div><div className="form-grid"><label>Data<input type="date" value={date} onChange={e=>setDate(e.target.value)}/></label><label>Tipo<select value={direction} onChange={e=>setDirection(e.target.value)}><option value="debit">Despesa</option><option value="credit">Receita</option></select></label><label className="full">Descrição<input value={description} onChange={e=>setDescription(e.target.value)} placeholder="Ex.: Restaurante, supermercado..."/></label><label className="full">Valor<input inputMode="decimal" value={value} onChange={e=>setValue(e.target.value)} placeholder="R$ 0,00"/></label></div>{message&&<div className="form-message error">{message}</div>}<div className="modal-actions"><button className="secondary-btn" onClick={close}>Cancelar</button><button className="primary-btn" disabled={saving} onClick={add}>{saving?'Salvando...':'Salvar movimentação'}</button></div></div></div>}{pdf&&<div className="modal-backdrop"><div className="modal dashboard-modal"><div className="modal-head"><div><p className="eyebrow">Gestão Financeira</p><h2>Importar PDF</h2><p className="muted">Extrato ou fatura. O arquivo será armazenado em bucket privado e processado automaticamente.</p></div><button className="icon-btn" onClick={close}>×</button></div><div className={`dropzone ${drag?'dragging':''}`} onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);setFile(e.dataTransfer.files?.[0]||null)}} onClick={()=>input.current?.click()}><strong>{file?'Arquivo selecionado':'Arraste o PDF aqui'}</strong><span>{file?.name||'ou clique para selecionar'}</span></div><input ref={input} hidden type="file" accept="application/pdf" onChange={e=>setFile(e.target.files?.[0]||null)}/>{message&&<div className="form-message error">{message}</div>}<div className="modal-actions"><button className="secondary-btn" onClick={close}>Cancelar</button><button className="primary-btn" disabled={!file||saving} onClick={upload}>{saving?'Processando...':'Enviar e processar PDF'}</button></div></div></div>}</div>
 }
