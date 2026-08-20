@@ -8,8 +8,21 @@ export async function requireAdmin() {
 
   if (!userId) redirect('/login')
 
+  // Prefer the centralized access RPC, but keep a direct users-table fallback.
+  // An authorization lookup hiccup must never silently send an authenticated
+  // admin back to the overview page.
   const { data: access } = await supabase.rpc('get_my_access')
-  const current = access?.[0]
+  let current = access?.[0]
+
+  if (!current?.is_active || String(current.role).toLowerCase() !== 'admin') {
+    const { data: directUser } = await supabase
+      .from('users')
+      .select('full_name,role,is_active')
+      .eq('id', userId)
+      .maybeSingle()
+
+    current = directUser ?? current
+  }
 
   if (!current?.is_active || String(current.role).toLowerCase() !== 'admin') {
     redirect('/login?error=unauthorized')
