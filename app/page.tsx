@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import DashboardActions from './DashboardActions'
 import DashboardFilters from './DashboardFilters'
+import OpenPdfButton from './OpenPdfButton'
 
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
 const dateFmt = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -153,7 +154,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <div className="client-grid">{(clients ?? []).map((client) => <Link href={`/clientes/${client.id}`} className="client-card" key={client.id}><div className="client-avatar">{initials(client.full_name)}</div><div><strong>{client.preferred_name || client.full_name}</strong><span>{client.status === 'active' ? 'Ativo' : client.status}</span></div><b>›</b></Link>)}</div>
         </section>
 
-        <section className="panel" id="documentos"><div className="panel-head"><div><h2>Documentos</h2><p className="muted">Parsing, integridade e origem dos dados.</p></div><button className="text-btn text-button" type="button" onClick={() => window.dispatchEvent(new CustomEvent('open-pdf-import'))}>Importar PDF →</button></div>
+        <section className="panel" id="documentos"><div className="panel-head"><div><h2>Documentos</h2><p className="muted">Parsing, integridade e origem dos dados.</p></div><OpenPdfButton /></div>
           <div className="table-wrap"><table><thead><tr><th>Documento</th><th>Instituição</th><th>Período</th><th>Processamento</th><th>Integridade</th></tr></thead><tbody>
             {(documents ?? []).map((doc) => <tr key={doc.id}><td><strong>{doc.file_name ?? 'Documento'}</strong><small>{doc.document_type}</small></td><td>{doc.institution_id ?? '—'}</td><td>{doc.period_start && doc.period_end ? `${new Date(doc.period_start).toLocaleDateString('pt-BR')} – ${new Date(doc.period_end).toLocaleDateString('pt-BR')}` : '—'}</td><td><span className={`pill ${doc.processing_status}`}>{doc.processing_status}</span></td><td><span className={`pill ${doc.data_integrity_status}`}>{doc.data_integrity_status}</span></td></tr>)}
             {!documents?.length && <tr><td colSpan={5} className="table-empty">Nenhum documento importado.</td></tr>}
