@@ -40,13 +40,12 @@ export async function login(formData: FormData) {
 
   if (error || !data.user) redirect('/login?error=credentials')
 
-  const { data: appUser, error: roleError } = await supabase
-    .from('users')
-    .select('id,role,is_active')
-    .eq('id', data.user.id)
-    .maybeSingle()
+  // Resolve the role through a SECURITY DEFINER RPC so RLS on public.users
+  // cannot incorrectly reject the user's own post-login authorization lookup.
+  const { data: accessRows, error: accessError } = await supabase.rpc('get_my_access')
+  const appUser = accessRows?.[0]
 
-  if (roleError || !appUser || !appUser.is_active) {
+  if (accessError || !appUser || !appUser.is_active) {
     await supabase.auth.signOut()
     redirect('/login?error=unauthorized')
   }
