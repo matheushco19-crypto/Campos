@@ -5,11 +5,12 @@ const errors: Record<string, string> = {
   credentials: 'E-mail ou senha incorretos. Confira seus dados e tente novamente.',
   unauthorized: 'Sua conta não está habilitada para acessar a plataforma.',
   missing: 'Informe seu e-mail e sua senha.',
+  recovery: 'O link de recuperação é inválido ou expirou. Solicite um novo link.',
 }
 
 const messages: Record<string, string> = {
   'password-updated': 'Senha alterada com sucesso. Você já pode entrar com a nova senha.',
-  'confirmed': 'E-mail confirmado com sucesso. Agora você pode entrar.',
+  confirmed: 'E-mail confirmado com sucesso. Agora você pode entrar.',
 }
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; message?: string }> }) {
