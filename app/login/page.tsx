@@ -1,21 +1,31 @@
+import Link from 'next/link'
 import { login } from './actions'
 
-const messages: Record<string, string> = {
-  credentials: 'E-mail ou senha não conferem com uma conta ativa.',
-  unauthorized: 'Sua conta autenticou, mas não possui permissão administrativa.',
+const errors: Record<string, string> = {
+  credentials: 'E-mail ou senha incorretos. Confira seus dados e tente novamente.',
+  unauthorized: 'Sua conta não está habilitada para acessar a plataforma.',
   missing: 'Informe seu e-mail e sua senha.',
 }
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+const messages: Record<string, string> = {
+  'password-updated': 'Senha alterada com sucesso. Você já pode entrar com a nova senha.',
+  'confirmed': 'E-mail confirmado com sucesso. Agora você pode entrar.',
+}
+
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; message?: string }> }) {
   const params = await searchParams
-  const message = params.error ? messages[params.error] : undefined
+  const error = params.error ? errors[params.error] : undefined
+  const message = params.message ? messages[params.message] : undefined
 
   return (
     <main className="page">
       <section className="card">
         <div className="logo">Campos Wealth OS</div>
-        <p className="subtitle">Acesso administrativo</p>
-        {message && <div role="alert" className="form-message error">{message}</div>}
+        <p className="subtitle">Entre para acessar sua conta</p>
+
+        {error && <div role="alert" className="form-message error">{error}</div>}
+        {message && <div role="status" className="form-message success">{message}</div>}
+
         <form action={login}>
           <div className="field">
             <label htmlFor="email">E-mail</label>
@@ -27,6 +37,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
           <button className="button" type="submit">Entrar</button>
         </form>
+
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Link className="text-btn" href="/esqueci-senha">Esqueci minha senha</Link>
+        </div>
       </section>
     </main>
   )
