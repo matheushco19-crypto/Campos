@@ -6,18 +6,31 @@ on:
   pull_request:
     branches: [main]
 
+# Avoid stacking multiple CI runs when several commits are pushed in quick succession.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_SUPABASE_URL: https://mdfjzmztawyirstpfmpt.supabase.co
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
+      NEXT_TELEMETRY_DISABLED: 1
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm install --no-audit --no-fund
-      - run: npm run typecheck
-      - run: npm run build
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      # Next.js performs the same production type/build validation used by Vercel.
+      # Run it before the standalone typecheck so generated Next types exist.
+      - name: Production build
+        run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
