@@ -1,31 +1,15 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
-Deno.serve(async (req: Request) => {
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
-  const auth = req.headers.get("authorization"); if (!auth) return json({ error: "missing_authorization" }, 401);
-  const userClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: auth } } });
-  const { data: { user }, error: userError } = await userClient.auth.getUser(); if (userError || !user) return json({ error: "unauthorized" }, 401);
-  const body = await req.json().catch(() => null) as { client_id?: string; file_name?: string; content_type?: string; size?: number; sha256?: string } | null;
-  if (!body?.client_id || !body.file_name || !body.sha256) return json({ error: "client_id_file_name_and_sha256_required" }, 400);
-  if (body.content_type !== "application/pdf") return json({ error: "pdf_only" }, 415);
-  if (!body.size || body.size <= 0 || body.size > 50 * 1024 * 1024) return json({ error: "file_size_invalid" }, 413);
-  if (!/^[a-f0-9]{64}$/i.test(body.sha256)) return json({ error: "invalid_sha256" }, 400);
-  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const { data: profile } = await db.from("users").select("tenant_id,role,is_active").eq("id", user.id).maybeSingle();
-  if (!profile?.is_active || !profile.tenant_id || !["admin", "consultant"].includes(profile.role)) return json({ error: "forbidden" }, 403);
-  const { data: client } = await db.from("clients").select("id").eq("id", body.client_id).eq("tenant_id", profile.tenant_id).maybeSingle();
-  if (!client) return json({ error: "client_not_found" }, 404);
-  const hash = body.sha256.toLowerCase();
-  const { data: duplicate } = await db.from("documents").select("id,file_name,processing_status").eq("tenant_id", profile.tenant_id).eq("file_hash", hash).maybeSingle();
-  if (duplicate) return json({ error: "duplicate_document", document_id: duplicate.id, status: duplicate.processing_status }, 409);
-  const safe = body.file_name.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const objectPath = `${profile.tenant_id}/${body.client_id}/${crypto.randomUUID()}-${safe}`;
-  const storage = db.storage.from("client-documents");
-  const { data: signed, error: signedError } = await storage.createSignedUploadUrl(objectPath);
-  if (signedError || !signed) return json({ error: "signed_upload_url_failed", detail: signedError?.message }, 500);
-  const { data: document, error: documentError } = await db.from("documents").insert({ tenant_id: profile.tenant_id, client_id: body.client_id, document_type: "checking_account_statement", file_name: body.file_name, file_hash: hash, source_type: "native_text", processing_status: "queued", data_integrity_status: "review_required", semantic_classification_status: "review_required", storage_bucket: "client-documents", storage_path: objectPath, content_type: body.content_type, file_size_bytes: body.size }).select("id,client_id,file_name,storage_path,processing_status").single();
-  if (documentError || !document) { await storage.remove([objectPath]); if (documentError?.code === "23505") return json({ error: "duplicate_document" }, 409); return json({ error: "document_create_failed", detail: documentError?.message }, 500); }
-  return json({ ok: true, document, path: objectPath, token: signed.token, signed_url: signed.signedUrl });
+const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"content-type":"application/json"}});
+Deno.serve(async(req:Request)=>{
+ if(req.method!=="POST")return json({error:"method_not_allowed"},405);const auth=req.headers.get("authorization");if(!auth)return json({error:"missing_authorization"},401);
+ const userClient=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_ANON_KEY")!,{global:{headers:{Authorization:auth}}});const{data:{user},error:userError}=await userClient.auth.getUser();if(userError||!user)return json({error:"unauthorized"},401);
+ const body=await req.json().catch(()=>null) as{client_id?:string;file_name?:string;content_type?:string;size?:number;sha256?:string}|null;if(!body?.client_id||!body.file_name||!body.sha256)return json({error:"client_id_file_name_and_sha256_required"},400);if(body.content_type!=="application/pdf")return json({error:"pdf_only"},415);if(!body.size||body.size<=0||body.size>50*1024*1024)return json({error:"file_size_invalid"},413);if(!/^[a-f0-9]{64}$/i.test(body.sha256))return json({error:"invalid_sha256"},400);
+ const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);const{data:profile}=await db.from("users").select("tenant_id,role,is_active").eq("id",user.id).maybeSingle();if(!profile?.is_active||!profile.tenant_id||!["admin","advisor","analyst"].includes(profile.role))return json({error:"forbidden"},403);
+ const{data:client}=await db.from("clients").select("id").eq("id",body.client_id).eq("tenant_id",profile.tenant_id).maybeSingle();if(!client)return json({error:"client_not_found"},404);
+ const hash=body.sha256.toLowerCase();const{data:duplicate}=await db.from("documents").select("id,file_name,processing_status").eq("tenant_id",profile.tenant_id).eq("file_hash",hash).maybeSingle();if(duplicate)return json({error:"duplicate_document",document_id:duplicate.id,status:duplicate.processing_status},409);
+ const safe=body.file_name.replace(/[^a-zA-Z0-9._-]/g,"_");const objectPath=`${profile.tenant_id}/${body.client_id}/${crypto.randomUUID()}-${safe}`;const storage=db.storage.from("client-documents");const{data:signed,error:signedError}=await storage.createSignedUploadUrl(objectPath);if(signedError||!signed)return json({error:"signed_upload_url_failed",detail:signedError?.message},500);
+ const{data:document,error:documentError}=await db.from("documents").insert({tenant_id:profile.tenant_id,client_id:body.client_id,document_type:"checking_account_statement",file_name:body.file_name,file_hash:hash,source_type:"native_text",processing_status:"queued",data_integrity_status:"review_required",semantic_classification_status:"review_required",storage_bucket:"client-documents",storage_path:objectPath,content_type:body.content_type,file_size_bytes:body.size}).select("id,client_id,file_name,storage_path,processing_status").single();if(documentError||!document){await storage.remove([objectPath]);if(documentError?.code==="23505")return json({error:"duplicate_document"},409);return json({error:"document_create_failed",detail:documentError?.message},500)}
+ return json({ok:true,document,path:objectPath,token:signed.token,signed_url:signed.signedUrl});
 });
