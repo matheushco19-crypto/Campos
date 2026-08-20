@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 type Client = { id: string; full_name: string; preferred_name: string | null; status: string }
-
 type Mode = 'movement' | 'pdf' | null
 
 function parseAmount(value: string) {
@@ -39,9 +38,18 @@ export default function DashboardActions({ clients }: { clients: Client[] }) {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') setMode(null)
+      if (event.key.toLowerCase() === 'n' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault()
+        open('movement')
+      }
     }
+    function onExternalOpen() { open('pdf') }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('open-pdf-import', onExternalOpen)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('open-pdf-import', onExternalOpen)
+    }
   }, [])
 
   function open(nextMode: Exclude<Mode, null>) {
@@ -149,10 +157,8 @@ export default function DashboardActions({ clients }: { clients: Client[] }) {
 
   return (
     <>
-      <div className="topbar-actions">
-        <button className="secondary-btn" type="button" onClick={() => open('pdf')}>Importar documento</button>
-        <button className="primary-btn" type="button" onClick={() => open('movement')}>＋ Adicionar movimentação</button>
-      </div>
+      <button className="secondary-btn" type="button" onClick={() => open('pdf')}>Importar documento</button>
+      <button className="primary-btn" type="button" onClick={() => open('movement')}>＋ Adicionar movimentação</button>
 
       {mode && (
         <div className="modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) close() }}>
