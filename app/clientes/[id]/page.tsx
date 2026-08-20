@@ -1,15 +1,5 @@
 import {notFound,redirect} from 'next/navigation'
 import {createClient} from '@/lib/supabase/server'
 import ClientProfileView from './ClientProfileView'
-import './client.css'
-export default async function ClientPage({params}:{params:Promise<{id:string}>}){
- const {id}=await params;const s=await createClient();const {data:a}=await s.auth.getClaims();if(!a?.claims?.sub)redirect('/login');const {data:u}=await s.from('users').select('role').eq('id',a.claims.sub).maybeSingle();if(u?.role!=='admin')redirect('/')
- const [{data:client},{data:family},{data:alerts},{data:accounts},{data:docs},{data:reviews}]=await Promise.all([
-  s.from('clients').select('id,full_name,email,phone,cpf_cnpj,birth_date,postal_code,address,neighborhood,city,state,client_code,status,fee_type,fee_value,contract_status,suitability_status,suitability_profile,ips_status,last_meeting_at').eq('id',id).maybeSingle(),
-  s.from('client_family_members').select('id,full_name,relationship,email,phone').eq('client_id',id).order('full_name'),
-  s.from('client_alerts').select('id,title,due_at').eq('client_id',id).eq('status','open').order('due_at').limit(8),
-  s.from('accounts').select('id,institution_id,account_type,masked_identifier,status').eq('client_id',id).order('institution_id'),
-  s.from('documents').select('id,file_name,document_type,processing_status').eq('client_id',id).order('uploaded_at',{ascending:false}).limit(8),
-  s.from('reviews').select('id,reason,severity,created_at').eq('client_id',id).eq('status','open').order('created_at',{ascending:false})
- ]);if(!client)notFound();return <ClientProfileView client={client} family={family??[]} alerts={alerts??[]} accounts={accounts??[]} docs={docs??[]} reviews={reviews??[]}/>
-}
+import ClientPageStyles from '../ClientPageStyles'
+export default async function ClientPage({params}:{params:Promise<{id:string}>}){const {id}=await params;const s=await createClient();const {data:a}=await s.auth.getClaims();if(!a?.claims?.sub)redirect('/login');const {data:u}=await s.from('users').select('role').eq('id',a.claims.sub).maybeSingle();if(u?.role!=='admin')redirect('/');const [{data:client},{data:family},{data:alerts},{data:accounts},{data:docs},{data:reviews}]=await Promise.all([s.from('clients').select('id,full_name,email,phone,cpf_cnpj,birth_date,postal_code,address,neighborhood,city,state,client_code,status,fee_type,fee_value,contract_status,suitability_status,suitability_profile,ips_status,last_meeting_at').eq('id',id).maybeSingle(),s.from('client_family_members').select('id,full_name,relationship,email,phone').eq('client_id',id).order('full_name'),s.from('client_alerts').select('id,title,due_at').eq('client_id',id).eq('status','open').order('due_at').limit(8),s.from('accounts').select('id,institution_id,account_type,masked_identifier,status').eq('client_id',id).order('institution_id'),s.from('documents').select('id,file_name,document_type,processing_status').eq('client_id',id).order('uploaded_at',{ascending:false}).limit(8),s.from('reviews').select('id,reason,severity,created_at').eq('client_id',id).eq('status','open').order('created_at',{ascending:false})]);if(!client)notFound();return <><ClientPageStyles/><ClientProfileView client={client} family={family??[]} alerts={alerts??[]} accounts={accounts??[]} docs={docs??[]} reviews={reviews??[]}/></>}
