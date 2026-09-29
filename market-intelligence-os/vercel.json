@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/cron/morning-intelligence", "schedule": "0 8 * * *" },
+    { "path": "/api/cron/market-close-refresh", "schedule": "30 21 * * 1-5" },
+    { "path": "/api/cron/weekly-social-strategy", "schedule": "0 11 * * 0" }
+  ]
+}

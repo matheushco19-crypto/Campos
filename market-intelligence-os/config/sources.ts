@@ -1,0 +1,307 @@
+import type { SourceDefinition } from '../src/core/schemas'
+
+/**
+ * SOURCE REGISTRY
+ *
+ * Every source the system may use, with its authority level and priority.
+ * To add, disable or reprioritise a source, edit this file (docs/market-intelligence.md).
+ *
+ * Rules enforced by code:
+ *  - official sources are the authority for macro numbers;
+ *  - market data needs two independent sources to be VERIFIED;
+ *  - sources marked `not_integrated` are never fetched automatically.
+ */
+export const SOURCES: SourceDefinition[] = [
+  /* ---------------------------- MARKET ---------------------------- */
+  {
+    id: 'investing',
+    name: 'Investing.com',
+    kind: 'market',
+    authority: 'data_vendor',
+    priority: 0,
+    homepage: 'https://www.investing.com',
+    access: 'not_integrated',
+    enabled: false,
+    regions: ['GLOBAL'],
+    limitation:
+      'Fonte preferencial do usuário, mas sem API pública oficial; os Termos de Uso proíbem coleta automatizada e as páginas usam proteção anti-bot. ' +
+      'Não integrada por decisão de compliance. Todos os dados de mercado usam fontes alternativas e são marcados com source_fallback = true.',
+  },
+  {
+    id: 'brapi',
+    name: 'brapi.dev (B3)',
+    kind: 'market',
+    authority: 'data_vendor',
+    priority: 1,
+    homepage: 'https://brapi.dev',
+    access: 'api',
+    enabled: true,
+    credentialEnv: 'BRAPI_TOKEN',
+    regions: ['BR'],
+    limitation: 'Plano gratuito: 1 ativo por requisição, atraso de até 30 min, câmbio e cripto só em planos pagos.',
+  },
+  {
+    id: 'stooq',
+    name: 'Stooq',
+    kind: 'market',
+    authority: 'data_vendor',
+    priority: 2,
+    homepage: 'https://stooq.com',
+    access: 'csv',
+    enabled: true,
+    regions: ['GLOBAL'],
+    limitation: 'Download CSV público de cotações. Sem SLA, e pode exigir chave ou bloquear acessos em excesso. Uma requisição por ativo, por execução.',
+  },
+  {
+    id: 'fred',
+    name: 'FRED — Federal Reserve Bank of St. Louis',
+    kind: 'market',
+    authority: 'official',
+    priority: 3,
+    homepage: 'https://fred.stlouisfed.org',
+    access: 'api',
+    enabled: true,
+    credentialEnv: 'FRED_API_KEY',
+    regions: ['US', 'GLOBAL'],
+    limitation: 'Séries diárias publicadas com 1 dia útil de defasagem. Sem chave, usa o download CSV público (fredgraph).',
+  },
+  {
+    id: 'us-treasury',
+    name: 'U.S. Department of the Treasury',
+    kind: 'market',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://home.treasury.gov',
+    access: 'csv',
+    enabled: true,
+    regions: ['US'],
+  },
+  {
+    id: 'bcb-ptax',
+    name: 'Banco Central do Brasil — PTAX (SGS)',
+    kind: 'market',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://www.bcb.gov.br',
+    access: 'api',
+    enabled: true,
+    regions: ['BR'],
+    limitation: 'PTAX é uma taxa de referência (fixing) calculada ao longo do dia, não o spot de fechamento. Usada como âncora oficial com tolerância de validação maior.',
+  },
+  {
+    id: 'coingecko',
+    name: 'CoinGecko',
+    kind: 'market',
+    authority: 'data_vendor',
+    priority: 1,
+    homepage: 'https://www.coingecko.com',
+    access: 'api',
+    enabled: true,
+    credentialEnv: 'COINGECKO_DEMO_KEY',
+    regions: ['GLOBAL'],
+  },
+  {
+    id: 'coinbase',
+    name: 'Coinbase',
+    kind: 'market',
+    authority: 'exchange',
+    priority: 2,
+    homepage: 'https://www.coinbase.com',
+    access: 'api',
+    enabled: true,
+    regions: ['GLOBAL'],
+  },
+  {
+    id: 'kraken',
+    name: 'Kraken',
+    kind: 'market',
+    authority: 'exchange',
+    priority: 3,
+    homepage: 'https://www.kraken.com',
+    access: 'api',
+    enabled: true,
+    regions: ['GLOBAL'],
+  },
+  {
+    id: 'twelvedata',
+    name: 'Twelve Data',
+    kind: 'market',
+    authority: 'data_vendor',
+    priority: 4,
+    homepage: 'https://twelvedata.com',
+    access: 'api',
+    enabled: true,
+    credentialEnv: 'TWELVEDATA_API_KEY',
+    regions: ['GLOBAL'],
+    limitation: 'Opcional. Só é usada quando TWELVEDATA_API_KEY está configurada. A cobertura de índices depende do plano.',
+  },
+
+  /* ----------------------------- MACRO ---------------------------- */
+  {
+    id: 'bcb-sgs',
+    name: 'Banco Central do Brasil — SGS',
+    kind: 'macro',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://www3.bcb.gov.br/sgspub',
+    access: 'api',
+    enabled: true,
+    regions: ['BR'],
+  },
+  {
+    id: 'bcb-focus',
+    name: 'Banco Central do Brasil — Focus (Expectativas)',
+    kind: 'macro',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://www.bcb.gov.br/publicacoes/focus',
+    access: 'api',
+    enabled: true,
+    regions: ['BR'],
+  },
+  {
+    id: 'ibge-sidra',
+    name: 'IBGE — SIDRA',
+    kind: 'macro',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://sidra.ibge.gov.br',
+    access: 'api',
+    enabled: true,
+    regions: ['BR'],
+  },
+  {
+    id: 'bls',
+    name: 'U.S. Bureau of Labor Statistics',
+    kind: 'macro',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://www.bls.gov',
+    access: 'api',
+    enabled: true,
+    regions: ['US'],
+    limitation: 'API v1 sem chave: limite diário baixo de requisições. Consultas agrupadas por execução.',
+  },
+  {
+    id: 'fred-macro',
+    name: 'FRED — Federal Reserve Bank of St. Louis',
+    kind: 'macro',
+    authority: 'official',
+    priority: 2,
+    homepage: 'https://fred.stlouisfed.org',
+    access: 'api',
+    enabled: true,
+    credentialEnv: 'FRED_API_KEY',
+    regions: ['US', 'CN', 'GLOBAL'],
+    limitation: 'Republica dados de BEA, BLS, Fed e OECD. É usada como validação secundária ou como fonte oficial do Fed.',
+  },
+  {
+    id: 'ecb',
+    name: 'European Central Bank — Data Portal',
+    kind: 'macro',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://data.ecb.europa.eu',
+    access: 'api',
+    enabled: true,
+    regions: ['EU'],
+  },
+  {
+    id: 'nbs-china',
+    name: 'National Bureau of Statistics of China',
+    kind: 'macro',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://www.stats.gov.cn/english/',
+    access: 'not_integrated',
+    enabled: false,
+    regions: ['CN'],
+    limitation: 'Sem API estruturada estável e acessível. Dados da China entram por importação manual com URL da fonte, ou como UNAVAILABLE.',
+  },
+  {
+    id: 'pboc',
+    name: "People's Bank of China",
+    kind: 'macro',
+    authority: 'official',
+    priority: 1,
+    homepage: 'http://www.pbc.gov.cn/en/',
+    access: 'not_integrated',
+    enabled: false,
+    regions: ['CN'],
+    limitation: 'Sem API estruturada. Decisões de LPR e RRR entram por importação manual com URL oficial.',
+  },
+
+  /* ----------------------------- NEWS ----------------------------- */
+  { id: 'rss-bbc-business', name: 'BBC News — Business', kind: 'news', authority: 'press', priority: 1, homepage: 'https://www.bbc.com/news/business', access: 'rss', enabled: true, regions: ['GLOBAL'] },
+  { id: 'rss-g1-economia', name: 'g1 Economia', kind: 'news', authority: 'press', priority: 1, homepage: 'https://g1.globo.com/economia/', access: 'rss', enabled: true, regions: ['BR'] },
+  { id: 'rss-infomoney', name: 'InfoMoney', kind: 'news', authority: 'press', priority: 1, homepage: 'https://www.infomoney.com.br', access: 'rss', enabled: true, regions: ['BR'] },
+  { id: 'rss-cnnbrasil-economia', name: 'CNN Brasil — Economia', kind: 'news', authority: 'press', priority: 1, homepage: 'https://www.cnnbrasil.com.br/economia/', access: 'rss', enabled: true, regions: ['BR'] },
+  { id: 'rss-exame', name: 'Exame', kind: 'news', authority: 'press', priority: 2, homepage: 'https://exame.com', access: 'rss', enabled: true, regions: ['BR'] },
+  { id: 'rss-cnbc-markets', name: 'CNBC — Markets', kind: 'news', authority: 'press', priority: 2, homepage: 'https://www.cnbc.com/markets/', access: 'rss', enabled: true, regions: ['US'] },
+  { id: 'rss-fed-press', name: 'Federal Reserve — Press Releases', kind: 'news', authority: 'official', priority: 1, homepage: 'https://www.federalreserve.gov/newsevents/pressreleases.htm', access: 'rss', enabled: true, regions: ['US'] },
+  { id: 'rss-ecb-press', name: 'ECB — Press', kind: 'news', authority: 'official', priority: 1, homepage: 'https://www.ecb.europa.eu/press/html/index.en.html', access: 'rss', enabled: true, regions: ['EU'] },
+  {
+    id: 'reuters',
+    name: 'Reuters',
+    kind: 'news',
+    authority: 'press',
+    priority: 1,
+    homepage: 'https://www.reuters.com',
+    access: 'not_integrated',
+    enabled: false,
+    regions: ['GLOBAL'],
+    limitation: 'Descontinuou os feeds RSS públicos. O acesso estruturado exige licença (Reuters Connect).',
+  },
+  {
+    id: 'ap',
+    name: 'Associated Press',
+    kind: 'news',
+    authority: 'press',
+    priority: 1,
+    homepage: 'https://apnews.com',
+    access: 'not_integrated',
+    enabled: false,
+    regions: ['GLOBAL'],
+    limitation: 'Sem feed RSS público oficial. O acesso estruturado exige licença (AP Media API).',
+  },
+  {
+    id: 'valor',
+    name: 'Valor Econômico',
+    kind: 'news',
+    authority: 'press',
+    priority: 1,
+    homepage: 'https://valor.globo.com',
+    access: 'not_integrated',
+    enabled: false,
+    regions: ['BR'],
+    limitation: 'Conteúdo sob paywall e sem feed RSS público estável confirmado. Referência manual.',
+  },
+
+  /* --------------------------- CALENDAR --------------------------- */
+  { id: 'cal-official-seed', name: 'Calendários oficiais (BCB, Fed, ECB, IBGE, BLS)', kind: 'calendar', authority: 'official', priority: 1, homepage: 'https://www.bcb.gov.br/controleinflacao/calendarioreunioescopom', access: 'manual', enabled: true, regions: ['GLOBAL'] },
+  { id: 'ibge-calendario', name: 'IBGE — Calendário de divulgações', kind: 'calendar', authority: 'official', priority: 1, homepage: 'https://www.ibge.gov.br/calendario-de-divulgacoes.html', access: 'api', enabled: true, regions: ['BR'] },
+  { id: 'cal-computed-holidays', name: 'Feriados nacionais (Lei 662/1949 e Lei 6.802/1980, calculados)', kind: 'calendar', authority: 'official', priority: 2, homepage: 'https://www.planalto.gov.br/ccivil_03/leis/l0662.htm', access: 'manual', enabled: true, regions: ['BR'] },
+]
+
+/** Public RSS endpoints. Validated at runtime; failures are logged in agent_runs, never fatal. */
+export const RSS_FEEDS: Record<string, string> = {
+  'rss-bbc-business': 'https://feeds.bbci.co.uk/news/business/rss.xml',
+  'rss-g1-economia': 'https://g1.globo.com/rss/g1/economia/',
+  'rss-infomoney': 'https://www.infomoney.com.br/feed/',
+  'rss-cnnbrasil-economia': 'https://www.cnnbrasil.com.br/economia/feed/',
+  'rss-exame': 'https://exame.com/feed/',
+  'rss-cnbc-markets': 'https://www.cnbc.com/id/15839069/device/rss/rss.html',
+  'rss-fed-press': 'https://www.federalreserve.gov/feeds/press_all.xml',
+  'rss-ecb-press': 'https://www.ecb.europa.eu/rss/press.html',
+}
+
+export function getSource(id: string): SourceDefinition {
+  const s = SOURCES.find((x) => x.id === id)
+  if (!s) throw new Error(`Unknown source "${id}"`)
+  return s
+}
+
+export function sourceName(id: string | null | undefined): string {
+  if (!id) return '—'
+  return SOURCES.find((x) => x.id === id)?.name ?? id
+}

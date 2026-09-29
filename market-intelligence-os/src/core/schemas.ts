@@ -1,0 +1,486 @@
+import { z } from 'zod'
+
+/* ------------------------------------------------------------------ */
+/* Enumerations                                                        */
+/* ------------------------------------------------------------------ */
+
+export const VerificationStatus = z.enum(['UNVERIFIED', 'VERIFIED', 'CONFLICT', 'REJECTED', 'UNAVAILABLE'])
+export type VerificationStatus = z.infer<typeof VerificationStatus>
+
+export const Confidence = z.enum(['HIGH', 'MEDIUM', 'LOW', 'NONE'])
+export type Confidence = z.infer<typeof Confidence>
+
+export const FactCategory = z.enum(['MARKET', 'MACRO', 'NEWS', 'CALENDAR', 'RESEARCH'])
+export type FactCategory = z.infer<typeof FactCategory>
+
+export const MarketStatus = z.enum(['OPEN', 'CLOSED', 'PRE_MARKET', 'UNKNOWN'])
+export type MarketStatus = z.infer<typeof MarketStatus>
+
+export const SourceKind = z.enum(['market', 'macro', 'news', 'calendar'])
+export const SourceAuthority = z.enum(['official', 'exchange', 'data_vendor', 'press', 'manual'])
+export const AccessMethod = z.enum(['api', 'rss', 'csv', 'ics', 'manual', 'not_integrated'])
+
+export const EventCategory = z.enum([
+  'MACRO',
+  'MARKET',
+  'POLICY',
+  'TAX',
+  'REGULATION',
+  'TECH',
+  'CORPORATE',
+  'GEOPOLITICS',
+  'HOLIDAY',
+  'SOCIAL',
+])
+export type EventCategory = z.infer<typeof EventCategory>
+
+export const Region = z.enum(['BR', 'US', 'EU', 'CN', 'ASIA', 'GLOBAL'])
+export type Region = z.infer<typeof Region>
+
+export const AgentName = z.enum([
+  'market-intelligence',
+  'financial-intelligence',
+  'social-strategist',
+  'orchestrator',
+  'verification-engine',
+  'research-broker',
+])
+export type AgentName = z.infer<typeof AgentName>
+
+export const RunStatus = z.enum(['RUNNING', 'SUCCESS', 'PARTIAL', 'FAILED', 'AWAITING_ANALYSIS', 'SKIPPED'])
+export type RunStatus = z.infer<typeof RunStatus>
+
+export const JobName = z.enum(['MORNING_INTELLIGENCE', 'MARKET_CLOSE_REFRESH', 'WEEKLY_SOCIAL_STRATEGY', 'ON_DEMAND_RESEARCH'])
+export type JobName = z.infer<typeof JobName>
+
+export const ResearchStatus = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CONFLICT'])
+export type ResearchStatus = z.infer<typeof ResearchStatus>
+
+export const Level = z.enum(['HIGH', 'MEDIUM', 'LOW'])
+export type Level = z.infer<typeof Level>
+
+/* ------------------------------------------------------------------ */
+/* Source registry                                                     */
+/* ------------------------------------------------------------------ */
+
+export const SourceDefinition = z.object({
+  id: z.string(),
+  name: z.string(),
+  kind: SourceKind,
+  authority: SourceAuthority,
+  /** Lower number = higher priority inside its kind. */
+  priority: z.number().int(),
+  homepage: z.string().url(),
+  access: AccessMethod,
+  enabled: z.boolean(),
+  /** Env var holding a credential, when the source needs one. Never the value. */
+  credentialEnv: z.string().optional(),
+  /** Known limitation, ToS restriction or reason for not integrating. */
+  limitation: z.string().optional(),
+  regions: z.array(Region).default([]),
+})
+export type SourceDefinition = z.infer<typeof SourceDefinition>
+
+/* ------------------------------------------------------------------ */
+/* Raw observations (output of deterministic collectors)               */
+/* ------------------------------------------------------------------ */
+
+export const RawObservation = z.object({
+  sourceId: z.string(),
+  category: z.enum(['MARKET', 'MACRO']),
+  /** Internal metric key, e.g. "SPX", "BR_SELIC_TARGET". */
+  metric: z.string(),
+  value: z.number().finite(),
+  unit: z.string(),
+  /** Period the number refers to: "2026-09-28" (daily) or "2026-08" (monthly). */
+  referencePeriod: z.string(),
+  /** Instant the value is valid for (UTC ISO). */
+  asOf: z.string(),
+  retrievedAt: z.string(),
+  url: z.string().url(),
+  previousValue: z.number().finite().nullable().optional(),
+  changePct: z.number().finite().nullable().optional(),
+  marketStatus: MarketStatus.optional(),
+  notes: z.string().optional(),
+})
+export type RawObservation = z.infer<typeof RawObservation>
+
+/* ------------------------------------------------------------------ */
+/* Verified facts: the single source of truth for agents 2 and 3       */
+/* ------------------------------------------------------------------ */
+
+export const VerifiedFact = z.object({
+  id: z.string(),
+  category: FactCategory,
+  metric: z.string(),
+  label: z.string(),
+  region: Region,
+  value: z.number().nullable(),
+  unit: z.string(),
+  reference_period: z.string().nullable(),
+  as_of: z.string().nullable(),
+  retrieved_at: z.string(),
+  primary_source: z.string().nullable(),
+  secondary_source: z.string().nullable(),
+  primary_url: z.string().nullable(),
+  secondary_url: z.string().nullable(),
+  verification_status: VerificationStatus,
+  confidence: Confidence,
+  notes: z.string().nullable(),
+  /** Extra market fields. */
+  change_pct: z.number().nullable().default(null),
+  previous_value: z.number().nullable().default(null),
+  market_status: MarketStatus.default('UNKNOWN'),
+  timezone: z.string().default('UTC'),
+  source_fallback: z.boolean().default(false),
+  single_source: z.boolean().default(false),
+  is_stale: z.boolean().default(false),
+  /** Snapshot date (America/Sao_Paulo) the fact was collected for. */
+  brief_date: z.string(),
+  run_id: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+})
+export type VerifiedFact = z.infer<typeof VerifiedFact>
+
+/* ------------------------------------------------------------------ */
+/* News & event clusters                                               */
+/* ------------------------------------------------------------------ */
+
+export const NewsTopic = z.enum([
+  'markets',
+  'economy',
+  'monetary_policy',
+  'fiscal',
+  'tax',
+  'regulation',
+  'politics',
+  'banking_credit',
+  'capital_markets',
+  'corporate',
+  'm_and_a',
+  'technology',
+  'ai',
+  'geopolitics',
+  'commodities',
+  'international',
+  'wealth',
+  'other',
+])
+export type NewsTopic = z.infer<typeof NewsTopic>
+
+export const NewsItem = z.object({
+  id: z.string(),
+  headline: z.string(),
+  original_summary: z.string(),
+  published_at: z.string(),
+  retrieved_at: z.string(),
+  source: z.string(),
+  source_id: z.string(),
+  url: z.string().url(),
+  topic: NewsTopic,
+  region: Region,
+  importance: z.number().min(0).max(100),
+  market_relevance: z.number().min(0).max(100),
+  uhnw_relevance: z.number().min(0).max(100),
+  social_relevance: z.number().min(0).max(100),
+  verification_status: VerificationStatus,
+  event_cluster_id: z.string().nullable(),
+  brief_date: z.string(),
+})
+export type NewsItem = z.infer<typeof NewsItem>
+
+export const EventCluster = z.object({
+  id: z.string(),
+  title: z.string(),
+  topic: NewsTopic,
+  region: Region,
+  first_published_at: z.string(),
+  last_published_at: z.string(),
+  item_ids: z.array(z.string()),
+  sources: z.array(z.object({ source: z.string(), url: z.string(), headline: z.string() })),
+  importance: z.number(),
+  market_relevance: z.number(),
+  uhnw_relevance: z.number(),
+  social_relevance: z.number(),
+  verification_status: VerificationStatus,
+  brief_date: z.string(),
+})
+export type EventCluster = z.infer<typeof EventCluster>
+
+/* ------------------------------------------------------------------ */
+/* Event engine (calendar)                                             */
+/* ------------------------------------------------------------------ */
+
+export const CalendarEvent = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: EventCategory,
+  region: Region,
+  date: z.string(),
+  time: z.string().nullable(),
+  timezone: z.string(),
+  source: z.string(),
+  source_url: z.string().nullable(),
+  importance: Level,
+  market_relevance: Level,
+  audience_relevance: Level,
+  content_opportunity: z.string().nullable(),
+  verification_status: VerificationStatus,
+  notes: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+})
+export type CalendarEvent = z.infer<typeof CalendarEvent>
+
+/* ------------------------------------------------------------------ */
+/* Research broker                                                     */
+/* ------------------------------------------------------------------ */
+
+export const ResearchRequest = z.object({
+  id: z.string(),
+  requested_by: AgentName,
+  question: z.string().min(5),
+  /** Optional structured target so Agent 1 can answer deterministically. */
+  metric: z.string().nullable().default(null),
+  priority: Level,
+  deadline: z.string().nullable(),
+  required_sources: z.array(z.string()).default([]),
+  status: ResearchStatus,
+  response: z
+    .object({
+      summary: z.string(),
+      fact_ids: z.array(z.string()),
+      notes: z.string().nullable(),
+    })
+    .nullable()
+    .default(null),
+  created_at: z.string(),
+  completed_at: z.string().nullable(),
+})
+export type ResearchRequest = z.infer<typeof ResearchRequest>
+
+/* ------------------------------------------------------------------ */
+/* Observability                                                       */
+/* ------------------------------------------------------------------ */
+
+export const RunError = z.object({
+  step: z.string(),
+  source: z.string().nullable(),
+  message: z.string(),
+  at: z.string(),
+})
+export type RunError = z.infer<typeof RunError>
+
+export const SourceHealth = z.object({
+  source_id: z.string(),
+  ok: z.boolean(),
+  items: z.number(),
+  latency_ms: z.number(),
+  error: z.string().nullable(),
+})
+export type SourceHealth = z.infer<typeof SourceHealth>
+
+export const AgentRun = z.object({
+  run_id: z.string(),
+  parent_run_id: z.string().nullable(),
+  agent: AgentName,
+  job: JobName.nullable(),
+  brief_date: z.string().nullable(),
+  started_at: z.string(),
+  finished_at: z.string().nullable(),
+  status: RunStatus,
+  items_collected: z.number(),
+  items_verified: z.number(),
+  items_rejected: z.number(),
+  errors: z.array(RunError),
+  sources: z.array(SourceHealth),
+  execution_metadata: z.record(z.string(), z.unknown()),
+})
+export type AgentRun = z.infer<typeof AgentRun>
+
+/* ------------------------------------------------------------------ */
+/* Agent 2 output (LLM) — every claim must cite fact ids               */
+/* ------------------------------------------------------------------ */
+
+const Cited = { fact_ids: z.array(z.string()).default([]), cluster_ids: z.array(z.string()).default([]) }
+
+export const WhatMattersItem = z.object({
+  headline: z.string().min(3).max(160),
+  why_it_matters: z.string().min(10).max(420),
+  ...Cited,
+})
+export type WhatMattersItem = z.infer<typeof WhatMattersItem>
+
+export const MacroWatchItem = z.object({ text: z.string().min(5).max(420), ...Cited })
+
+export const Insight = z.object({
+  title: z.string().min(3).max(120),
+  what_happened: z.string().min(10).max(500),
+  why_it_happened: z.string().min(10).max(600),
+  what_it_changes: z.string().min(10).max(600),
+  ...Cited,
+})
+export type Insight = z.infer<typeof Insight>
+
+export const UhnwPoint = z.object({ text: z.string().min(10).max(420), ...Cited })
+
+export const ContentIdea = z.object({
+  title: z.string().min(3).max(140),
+  hook: z.string().min(5).max(240),
+  angle: z.string().min(10).max(500),
+  ...Cited,
+})
+export type ContentIdea = z.infer<typeof ContentIdea>
+
+export const ContentLab = z.object({
+  story: ContentIdea,
+  carousel: ContentIdea,
+  reel: ContentIdea,
+  take: ContentIdea,
+  exceptional: ContentIdea.nullable().default(null),
+})
+export type ContentLab = z.infer<typeof ContentLab>
+
+export const AnalysisOutput = z.object({
+  what_matters: z.array(WhatMattersItem).min(1).max(7),
+  macro_watch: z.object({
+    BR: z.array(MacroWatchItem).max(3),
+    US: z.array(MacroWatchItem).max(3),
+    CN: z.array(MacroWatchItem).max(3),
+    EU: z.array(MacroWatchItem).max(3),
+  }),
+  insights: z.array(Insight).max(3),
+  uhnw_lens: z.array(UhnwPoint).max(3),
+  content_lab: ContentLab,
+})
+export type AnalysisOutput = z.infer<typeof AnalysisOutput>
+
+/* ------------------------------------------------------------------ */
+/* Snapshot (one per brief version; history is append-only)            */
+/* ------------------------------------------------------------------ */
+
+export const MarketRow = z.object({
+  metric: z.string(),
+  label: z.string(),
+  region: Region,
+  value: z.number().nullable(),
+  unit: z.string(),
+  change_pct: z.number().nullable(),
+  reference: z.string().nullable(),
+  market_status: MarketStatus,
+  verification_status: VerificationStatus,
+  fact_id: z.string(),
+  is_stale: z.boolean(),
+  source_fallback: z.boolean(),
+})
+export type MarketRow = z.infer<typeof MarketRow>
+
+export const MacroRow = z.object({
+  metric: z.string(),
+  label: z.string(),
+  region: Region,
+  value: z.number().nullable(),
+  unit: z.string(),
+  reference: z.string().nullable(),
+  verification_status: VerificationStatus,
+  fact_id: z.string(),
+  is_stale: z.boolean(),
+})
+export type MacroRow = z.infer<typeof MacroRow>
+
+export const AgendaItem = z.object({
+  event_id: z.string(),
+  name: z.string(),
+  date: z.string(),
+  time: z.string().nullable(),
+  category: EventCategory,
+  region: Region,
+  importance: Level,
+  source: z.string(),
+  source_url: z.string().nullable(),
+  verification_status: VerificationStatus,
+  bucket: z.enum(['today', 'tomorrow', 'upcoming']),
+})
+export type AgendaItem = z.infer<typeof AgendaItem>
+
+export const SourceReference = z.object({ name: z.string(), url: z.string(), used_for: z.string() })
+export type SourceReference = z.infer<typeof SourceReference>
+
+export const QcCheck = z.object({ id: z.string(), label: z.string(), passed: z.boolean(), detail: z.string().nullable() })
+export type QcCheck = z.infer<typeof QcCheck>
+
+export const QcReport = z.object({
+  passed: z.boolean(),
+  checks: z.array(QcCheck),
+  word_count: z.number(),
+  reading_minutes: z.number(),
+  corrections: z.array(z.string()),
+})
+export type QcReport = z.infer<typeof QcReport>
+
+export const ContentOpportunity = z.object({
+  id: z.string(),
+  event_id: z.string().nullable(),
+  cluster_id: z.string().nullable(),
+  title: z.string(),
+  angle: z.string(),
+  format: z.enum(['story', 'carousel', 'reel', 'take', 'post']),
+  target_date: z.string(),
+  priority: Level,
+  status: z.enum(['IDEA', 'PLANNED', 'PUBLISHED', 'DISCARDED']),
+  created_by: AgentName,
+  created_at: z.string(),
+})
+export type ContentOpportunity = z.infer<typeof ContentOpportunity>
+
+export const IntelligenceSnapshot = z.object({
+  id: z.string(),
+  date: z.string(),
+  version: z.number().int().min(1),
+  generated_at: z.string(),
+  run_id: z.string(),
+  status: z.enum(['PUBLISHED', 'DRAFT_FACTS_ONLY', 'AWAITING_ANALYSIS', 'FAILED_QC']),
+  analysis_mode: z.enum(['anthropic_api', 'claude_code', 'deterministic']),
+  market_snapshot: z.array(MarketRow),
+  macro_snapshot: z.array(MacroRow),
+  news_snapshot: z.array(EventCluster),
+  what_matters: z.array(WhatMattersItem),
+  macro_watch: AnalysisOutput.shape.macro_watch,
+  insights: z.array(Insight),
+  uhnw_lens: z.array(UhnwPoint),
+  content_lab: ContentLab.nullable(),
+  agenda: z.array(AgendaItem),
+  source_references: z.array(SourceReference),
+  content_opportunities: z.array(ContentOpportunity).default([]),
+  qc: QcReport,
+  limitations: z.array(z.string()).default([]),
+})
+export type IntelligenceSnapshot = z.infer<typeof IntelligenceSnapshot>
+
+/* ------------------------------------------------------------------ */
+/* Social metrics                                                      */
+/* ------------------------------------------------------------------ */
+
+export const SocialPostMetrics = z.object({
+  post_id: z.string(),
+  published_at: z.string(),
+  format: z.enum(['story', 'carousel', 'reel', 'post']),
+  content_type: z.enum(['contextual', 'news', 'educational', 'opinion', 'personal', 'other']).default('other'),
+  topic: z.string().default('other'),
+  caption: z.string().default(''),
+  reach: z.number().nonnegative().default(0),
+  impressions: z.number().nonnegative().default(0),
+  views: z.number().nonnegative().default(0),
+  watch_time_s: z.number().nonnegative().default(0),
+  avg_watch_time_s: z.number().nonnegative().default(0),
+  completion_rate: z.number().min(0).max(1).nullable().default(null),
+  likes: z.number().nonnegative().default(0),
+  comments: z.number().nonnegative().default(0),
+  shares: z.number().nonnegative().default(0),
+  saves: z.number().nonnegative().default(0),
+  profile_visits: z.number().nonnegative().default(0),
+  follows: z.number().nonnegative().default(0),
+  link_clicks: z.number().nonnegative().default(0),
+})
+export type SocialPostMetrics = z.infer<typeof SocialPostMetrics>
