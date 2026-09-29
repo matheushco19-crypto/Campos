@@ -149,6 +149,13 @@ export function parseEcbCsv(text: string): SeriesPoint[] {
     .sort((a, b) => a.period.localeCompare(b.period))
 }
 
+/** ECB EXR CSV with several currencies → rows. */
+export function parseEcbFx(text: string): { date: string; currency: string; value: number }[] {
+  return csvObjects(text)
+    .map((r) => ({ date: r.TIME_PERIOD, currency: r.CURRENCY, value: num(r.OBS_VALUE) }))
+    .filter((r): r is { date: string; currency: string; value: number } => !!r.date && !!r.currency && r.value !== null)
+}
+
 /* ------------------------------ US Treasury -------------------------- */
 export function parseTreasuryCsv(text: string, column: string): SeriesPoint[] {
   const rows = csvObjects(text)

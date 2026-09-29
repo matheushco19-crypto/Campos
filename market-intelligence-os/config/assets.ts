@@ -6,7 +6,7 @@ import type { Region } from '../src/core/schemas'
  * displayed value, the next independent one validates it.
  */
 export interface SourceMapping {
-  sourceId: 'brapi' | 'stooq' | 'fred' | 'us-treasury' | 'bcb-ptax' | 'coingecko' | 'coinbase' | 'kraken' | 'twelvedata'
+  sourceId: 'brapi' | 'stooq' | 'fred' | 'us-treasury' | 'bcb-ptax' | 'ecb-fx' | 'coingecko' | 'coinbase' | 'kraken' | 'twelvedata'
   symbol: string
 }
 
@@ -68,10 +68,10 @@ export const ASSETS: AssetConfig[] = [
   { metric: 'KOSPI', label: 'Kospi', group: 'Ásia', region: 'ASIA', unit: 'pts', exchange: KRX, tolerance: { relative: 0.005 }, maxAgeDays: 5, showInBrief: true, enabled: true,
     sources: [{ sourceId: 'stooq', symbol: '^kospi' }, { sourceId: 'twelvedata', symbol: 'KS11' }] },
   { metric: 'USDBRL', label: 'USD/BRL', group: 'Câmbio', region: 'BR', unit: 'BRL', exchange: FX, tolerance: { relative: 0.01 }, maxAgeDays: 4, showInBrief: true, enabled: true,
-    sources: [{ sourceId: 'stooq', symbol: 'usdbrl' }, { sourceId: 'bcb-ptax', symbol: '1' }, { sourceId: 'brapi', symbol: 'USD-BRL' }],
-    notes: 'Spot (Stooq) validado contra a PTAX de venda do BCB, com tolerância de 1% porque a PTAX é um fixing.' },
+    sources: [{ sourceId: 'bcb-ptax', symbol: '1' }, { sourceId: 'ecb-fx', symbol: 'USD' }, { sourceId: 'brapi', symbol: 'USD-BRL' }, { sourceId: 'stooq', symbol: 'usdbrl' }],
+    notes: 'PTAX de venda (BCB, oficial) validada pela taxa de referência do ECB (EUR/BRL ÷ EUR/USD), com tolerância de 1% porque os dois são fixings em horários diferentes.' },
   { metric: 'EURBRL', label: 'EUR/BRL', group: 'Câmbio', region: 'BR', unit: 'BRL', exchange: FX, tolerance: { relative: 0.01 }, maxAgeDays: 4, showInBrief: true, enabled: true,
-    sources: [{ sourceId: 'stooq', symbol: 'eurbrl' }, { sourceId: 'bcb-ptax', symbol: '21619' }, { sourceId: 'brapi', symbol: 'EUR-BRL' }] },
+    sources: [{ sourceId: 'bcb-ptax', symbol: '21619' }, { sourceId: 'ecb-fx', symbol: 'BRL' }, { sourceId: 'brapi', symbol: 'EUR-BRL' }, { sourceId: 'stooq', symbol: 'eurbrl' }] },
   { metric: 'BTCUSD', label: 'BTC/USD', group: 'Cripto', region: 'GLOBAL', unit: 'USD', exchange: CRYPTO, tolerance: { relative: 0.01 }, maxAgeDays: 1, showInBrief: true, enabled: true,
     sources: [{ sourceId: 'coingecko', symbol: 'bitcoin' }, { sourceId: 'coinbase', symbol: 'BTC-USD' }, { sourceId: 'kraken', symbol: 'XBTUSD' }] },
 

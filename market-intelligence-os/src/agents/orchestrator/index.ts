@@ -64,7 +64,7 @@ export async function runMorningIntelligence(repo: Repository, opts: MorningOpti
   let opportunities: ContentOpportunity[] = []
   let eventRequestIds: string[] = []
   try {
-    const a3 = await runSocialStrategist(repo, { date, now, mode: 'daily', parentRunId: orch.id, clusters: a1.clusters, skipNetwork: opts.skipNetworkCalendar })
+    const a3 = await runSocialStrategist(repo, { date, now, mode: 'daily', parentRunId: orch.id, clusters: a1.clusters, skipNetwork: opts.skipNetworkCalendar, extraEvents: opts.bundle?.calendar })
     stages.agent3 = a3.status
     opportunities = a3.opportunities
     eventRequestIds = a3.preEventReview.map((e) => e.id)

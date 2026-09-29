@@ -72,7 +72,8 @@ export const MACRO_INDICATORS: MacroIndicator[] = [
   { metric: 'EU_ECB_DEPOSIT_RATE', label: 'ECB — taxa de depósito', region: 'EU', unit: '%', frequency: 'meeting',
     official: { sourceId: 'ecb', flow: 'FM', key: 'B.U2.EUR.4F.KR.DFR.LEV' }, secondary: null, tolerance: 0.001, maxAgeDays: 120, enabled: true },
   { metric: 'EU_HICP_YOY', label: 'HICP zona do euro (12 meses)', region: 'EU', unit: '%', frequency: 'monthly',
-    official: { sourceId: 'ecb', flow: 'ICP', key: 'M.U2.N.000000.4.ANR' }, secondary: null, tolerance: 0.05, maxAgeDays: 75, enabled: true },
+    official: { sourceId: 'ecb', flow: 'ICP', key: 'M.U2.N.000000.4.ANR' }, secondary: null, tolerance: 0.05, maxAgeDays: 75, enabled: true,
+    notes: 'Validado em 29/09/2026: a série U2 termina em 2025-12, provavelmente pela mudança de composição da zona do euro. Confirmar a nova chave de área no ECB Data Portal. Enquanto isso, a detecção de defasagem mantém o dado fora dos fatos citáveis.' },
   { metric: 'EU_UNEMPLOYMENT', label: 'Desemprego zona do euro', region: 'EU', unit: '%', frequency: 'monthly',
     official: { sourceId: 'ecb', flow: 'LFSI', key: 'M.I9.S.UNEHRT.TOTAL0.15_74.T' }, secondary: null, tolerance: 0.05, maxAgeDays: 100, enabled: true },
 

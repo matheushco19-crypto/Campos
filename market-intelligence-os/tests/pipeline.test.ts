@@ -30,6 +30,7 @@ function bundle(): CollectionBundle {
     health: [{ source_id: 'stooq:^spx', ok: true, items: 1, latency_ms: 10, error: null }, { source_id: 'rss-exame', ok: false, items: 0, latency_ms: 10, error: 'HTTP 403' }],
     errors: [{ step: 'collect_news', source: 'rss-exame', message: 'HTTP 403', at: NOW.toISOString() }],
     skipped: [],
+    calendar: [],
   }
 }
 

@@ -44,7 +44,11 @@ async function fetchSeries(ind: MacroIndicator, ref: MacroSourceRef, now: Date, 
   switch (ref.sourceId) {
     case 'bcb-sgs': {
       const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${ref.code}/dados/ultimos/15?formato=json`
-      return { points: parseSgs(await fetchJson(url, http), ind.frequency === 'meeting' ? 'daily' : ind.frequency), url }
+      // Daily "meeting" series (e.g. Selic target, 432) are forward-filled by the BCB until the
+      // next Copom date. Only points up to today are observations.
+      const today = toLocalDate(now)
+      const points = parseSgs(await fetchJson(url, http), ind.frequency === 'meeting' ? 'daily' : ind.frequency).filter((p) => p.period.length !== 10 || p.period <= today)
+      return { points, url }
     }
     case 'ibge-sidra': {
       const url = `https://servicodados.ibge.gov.br/api/v3/agregados/${ref.table}/periodos/-6/variaveis/${ref.variable}?localidades=N1[all]`

@@ -145,7 +145,7 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
         id: stableId('pkt', input.date, logger.id),
         date: input.date,
         run_id: input.parentRunId ?? logger.id,
-        created_at: input.now.toISOString(),
+        created_at: new Date().toISOString(),
         status: 'PENDING',
         packet: packet as unknown as Record<string, unknown>,
         submitted_at: null,

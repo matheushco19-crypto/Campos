@@ -8,6 +8,7 @@ import {
   parseBrapiQuote,
   parseCoinbaseSpot,
   parseCoingecko,
+  parseEcbFx,
   parseFredCsv,
   parseFredJson,
   parseKraken,
@@ -77,6 +78,24 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
       const { last, prev } = lastTwo(parseSgs(await fetchJson(url, http), 'daily'))
       return { value: last.value, previous: prev?.value ?? null, changePct: pctChange(last.value, prev?.value), referenceDate: last.period, asOf: zonedToUtc(last.period, '13:30', 'America/Sao_Paulo'), url, notes: 'PTAX venda (fixing do BCB)' }
     }
+    case 'ecb-fx': {
+      // ECB reference rates: EUR/BRL directly; USD/BRL = EUR/BRL ÷ EUR/USD (same date).
+      const url = 'https://data-api.ecb.europa.eu/service/data/EXR/D.BRL+USD.EUR.SP00.A?lastNObservations=3&format=csvdata'
+      const rows = parseEcbFx(await fetchText(url, http))
+      const dates = [...new Set(rows.map((r) => r.date))].sort()
+      const pick = (d: string) => {
+        const brl = rows.find((r) => r.date === d && r.currency === 'BRL')?.value
+        const usd = rows.find((r) => r.date === d && r.currency === 'USD')?.value
+        if (!brl || !usd) return null
+        return m.symbol === 'USD' ? Math.round((brl / usd) * 10000) / 10000 : brl
+      }
+      const last = [...dates].reverse().find((d) => pick(d) !== null)
+      if (!last) throw new Error('ECB FX: no complete observation')
+      const prevDate = [...dates].reverse().find((d) => d < last && pick(d) !== null)
+      const value = pick(last)!
+      const previous = prevDate ? pick(prevDate) : null
+      return { value, previous, changePct: pctChange(value, previous), referenceDate: last, asOf: zonedToUtc(last, '14:15', 'Europe/Berlin'), url, notes: m.symbol === 'USD' ? 'Cruzamento EUR/BRL ÷ EUR/USD (ECB)' : 'Taxa de referência do ECB' }
+    }
     case 'coingecko': {
       const key = env.COINGECKO_DEMO_KEY
       const url = `https://api.coingecko.com/api/v3/simple/price?ids=${m.symbol}&vs_currencies=usd&include_24hr_change=true&include_last_updated_at=true${key ? `&x_cg_demo_api_key=${key}` : ''}`
@@ -137,7 +156,8 @@ export async function collectMarkets(now = new Date(), assets = ASSETS.filter((a
           url: f.url,
           previousValue: f.previous,
           changePct: f.changePct,
-          marketStatus: observationStatus(asset.exchange, f.referenceDate, now),
+          // Official fixings (PTAX, ECB reference rates) are final once published.
+          marketStatus: m.sourceId === 'bcb-ptax' || m.sourceId === 'ecb-fx' ? 'CLOSED' : observationStatus(asset.exchange, f.referenceDate, now),
           notes: f.notes,
         }
         result.observations.push(obs)

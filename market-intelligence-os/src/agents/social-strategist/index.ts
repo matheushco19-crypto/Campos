@@ -27,6 +27,7 @@ export const Agent3Input = z.object({
   parentRunId: z.string().nullable().optional(),
   clusters: z.array(z.any()).optional(),
   skipNetwork: z.boolean().optional(),
+  extraEvents: z.array(z.any()).optional(),
 })
 export type Agent3Input = z.input<typeof Agent3Input>
 
@@ -131,7 +132,11 @@ export async function runSocialStrategist(repo: Repository, rawInput: Agent3Inpu
   const logger = await new RunLogger(repo, 'social-strategist', { job, briefDate: input.date, parentRunId: input.parentRunId ?? null }).start()
   try {
     // Event Engine: persist calendar.
-    const cal = await buildCalendar(input.date, { skipNetwork: input.skipNetwork })
+    const cal = await buildCalendar(input.date, { skipNetwork: input.skipNetwork || Boolean(input.extraEvents?.length) })
+    if (input.extraEvents?.length) {
+      cal.events.push(...(input.extraEvents as CalendarEvent[]))
+      cal.health.push({ source_id: 'bundle-calendar', ok: true, items: input.extraEvents.length, latency_ms: 0, error: null })
+    }
     logger.sources(cal.health)
     logger.errors(cal.errors)
     await repo.upsertEvents(cal.events)

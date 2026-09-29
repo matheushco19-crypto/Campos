@@ -96,6 +96,8 @@ function factNumbers(f: VerifiedFact): number[] {
     const d = f.value - f.previous_value
     out.push(d, Math.abs(d), Math.abs(d) * 100) // level change, and in bps for rates
   }
+  // Values stored in thousands ("162 mil") may be written with the "mil" scale word.
+  if (f.unit === 'mil') return [...out, ...out.map((v) => v * 1000)]
   return out
 }
 

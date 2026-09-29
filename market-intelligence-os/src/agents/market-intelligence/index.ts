@@ -3,7 +3,7 @@ import { SOURCES } from '../../../config/sources'
 import { getEnv } from '../../core/env'
 import { stableId } from '../../core/ids'
 import { errorMessage } from '../../core/logger'
-import { NewsItem, RawObservation, RunError, SourceHealth, type EventCluster, type JobName, type VerifiedFact } from '../../core/schemas'
+import { CalendarEvent, NewsItem, RawObservation, RunError, SourceHealth, type EventCluster, type JobName, type VerifiedFact } from '../../core/schemas'
 import { clusterNews } from '../../engines/news-clustering'
 import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
@@ -31,6 +31,8 @@ export const CollectionBundle = z.object({
   health: z.array(SourceHealth),
   errors: z.array(RunError),
   skipped: z.array(z.string()).default([]),
+  /** Official calendar events collected with the bundle (e.g. IBGE releases). */
+  calendar: z.array(CalendarEvent).default([]),
 })
 export type CollectionBundle = z.infer<typeof CollectionBundle>
 
@@ -70,6 +72,7 @@ export async function collectBundle(briefDate: string, now: Date, scope: ('marke
     health: [...(markets?.health ?? []), ...(macro?.health ?? []), ...(news?.health ?? [])],
     errors: [...(markets?.errors ?? []), ...(macro?.errors ?? []), ...(news?.errors ?? [])],
     skipped: [...(markets?.skipped ?? []), ...(macro?.skipped ?? [])],
+    calendar: [],
   }
 }
 

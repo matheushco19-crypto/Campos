@@ -43,11 +43,11 @@ export default async function Page({ searchParams }: { searchParams: SP }) {
             <span aria-hidden className="grid size-6 place-items-center rounded-md bg-white text-[11px] font-black text-navy">MI</span>
             <span className="text-[11.5px] font-extrabold tracking-[0.22em] text-white/90">MARKET INTELLIGENCE OS</span>
             {s && (
-              <span className="ml-auto hidden items-center gap-2 sm:flex">
+              <span className="ml-auto flex items-center gap-2">
                 <Pill tone={SNAP_STATUS[s.status].tone} className="bg-white/10 text-white">
                   {SNAP_STATUS[s.status].label}
                 </Pill>
-                <span className="text-[11px] text-white/55">{MODE_LABEL[s.analysis_mode]} · v{s.version}</span>
+                <span className="hidden text-[11px] text-white/55 sm:inline">{MODE_LABEL[s.analysis_mode]} · v{s.version}</span>
               </span>
             )}
           </div>

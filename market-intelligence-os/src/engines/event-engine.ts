@@ -98,10 +98,10 @@ export function brazilHolidays(year: number): CalendarEvent[] {
 /* ------------------------------ IBGE release calendar ------------------------------ */
 
 const IBGE_KEY_RELEASES: [RegExp, Level, string | null][] = [
-  [/\bIPCA\b(?!-15)/, 'HIGH', 'Usar o IPCA para mostrar como inflação corrói o retorno real, e por que o que importa é o juro real e não o nominal.'],
+  [/\bIPCA\b(?!-15)|Pre[çc]os ao Consumidor Amplo(?! ?-? ?15)|SNIPC/i, 'HIGH', 'Usar o IPCA para mostrar como inflação corrói o retorno real, e por que o que importa é o juro real e não o nominal.'],
   [/IPCA-15/, 'MEDIUM', null],
   [/PIB|Contas Nacionais Trimestrais/i, 'HIGH', 'Explicar o que o PIB diz (e o que ele não diz) sobre lucro das empresas e renda das famílias.'],
-  [/PNAD Contínua/i, 'MEDIUM', null],
+  [/PNAD Cont[íi]nua|Pesquisa Nacional por Amostra de Domic[íi]lios/i, 'MEDIUM', null],
   [/Produção Industrial|PIM/i, 'MEDIUM', null],
   [/Pesquisa Mensal de Comércio|Varejo/i, 'MEDIUM', null],
   [/Pesquisa Mensal de Serviços/i, 'MEDIUM', null],
@@ -124,7 +124,8 @@ export function parseIbgeCalendar(json: unknown): CalendarEvent[] {
       category: 'MACRO',
       region: 'BR',
       date,
-      time: m[4] ? `${m[4]}:${m[5]}` : '09:00',
+      // The API's time field is ambiguous (timezone not documented), so we don't publish a time we can't confirm.
+      time: null,
       timezone: 'America/Sao_Paulo',
       source: 'IBGE — Calendário de divulgações',
       source_url: 'https://www.ibge.gov.br/calendario-de-divulgacoes.html',
@@ -133,7 +134,7 @@ export function parseIbgeCalendar(json: unknown): CalendarEvent[] {
       audience_relevance: rule[1] === 'HIGH' ? 'HIGH' : 'MEDIUM',
       content_opportunity: rule[2],
       verification_status: 'VERIFIED',
-      notes: null,
+      notes: m[4] ? `Horário informado pela API: ${m[4]}:${m[5]} (fuso não documentado; confirmar no calendário do IBGE).` : null,
       created_at: now(),
       updated_at: now(),
     })

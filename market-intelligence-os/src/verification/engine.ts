@@ -77,6 +77,8 @@ const periodAgeDays = (briefDate: string, period: string) => {
 
 function baseFact(ctx: VerificationContext, metric: string, label: string, region: VerifiedFact['region'], unit: string, category: 'MARKET' | 'MACRO'): VerifiedFact {
   const ts = ctx.now.toISOString()
+  // created/updated = processing time (orders runs); retrieved_at = when the source was read.
+  const processedAt = new Date().toISOString()
   return {
     id: stableId('fact', ctx.briefDate, metric, ctx.runId ?? 'adhoc'),
     category,
@@ -104,8 +106,8 @@ function baseFact(ctx: VerificationContext, metric: string, label: string, regio
     is_stale: false,
     brief_date: ctx.briefDate,
     run_id: ctx.runId,
-    created_at: ts,
-    updated_at: ts,
+    created_at: processedAt,
+    updated_at: processedAt,
   }
 }
 
@@ -130,7 +132,8 @@ export function verifyMarket(asset: AssetConfig, observations: RawObservation[],
   fact.retrieved_at = primary.retrievedAt
   fact.primary_source = primary.sourceId
   fact.primary_url = primary.url
-  fact.market_status = primary.marketStatus ?? 'UNKNOWN'
+  // Official fixings are final values once published.
+  fact.market_status = primary.sourceId === 'bcb-ptax' || primary.sourceId === 'ecb-fx' ? 'CLOSED' : primary.marketStatus ?? 'UNKNOWN'
   fact.source_fallback = !investingIntegrated || primary.sourceId !== 'investing'
   fact.previous_value = primary.previousValue ?? null
   fact.change_pct = primary.changePct ?? null

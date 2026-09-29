@@ -23,7 +23,7 @@ export function DateNav(props: { date: string; today: string; prevDate: string |
   })
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2 sm:gap-3', pending && 'opacity-60')}>
+    <div className={cn('flex min-w-0 flex-wrap items-center gap-2 sm:gap-3', pending && 'opacity-60')}>
       <div className="flex items-baseline gap-3">
         <div className="text-[22px] font-extrabold tracking-tight text-white tnum sm:text-[26px]">{fmtDate(props.date)}</div>
         <div className="text-[12px] font-semibold text-white/60">
@@ -31,7 +31,7 @@ export function DateNav(props: { date: string; today: string; prevDate: string |
           {props.date === props.today && <span className="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-white/80">hoje</span>}
         </div>
       </div>
-      <div className="ml-auto flex items-center gap-1.5">
+      <div className="flex w-full min-w-0 items-center gap-1.5 sm:ml-auto sm:w-auto">
         <NavBtn label="Data anterior (←)" disabled={!props.prevDate} onClick={() => go(props.prevDate)}>
           <ChevronLeft className="size-4" />
         </NavBtn>
@@ -43,7 +43,7 @@ export function DateNav(props: { date: string; today: string; prevDate: string |
             value={props.date}
             max={props.today}
             onChange={(e) => go(e.target.value)}
-            className="w-[118px] bg-transparent text-white outline-none [color-scheme:dark]"
+            className="w-[112px] min-w-0 bg-transparent text-white outline-none [color-scheme:dark]"
             list="mi-dates"
           />
           <datalist id="mi-dates">
@@ -60,7 +60,7 @@ export function DateNav(props: { date: string; today: string; prevDate: string |
             aria-label="Versão do briefing"
             value={props.version ?? props.versions[0].version}
             onChange={(e) => go(props.date, Number(e.target.value))}
-            className="h-9 rounded-lg border border-white/15 bg-white/5 px-2 text-[12.5px] font-semibold text-white outline-none [color-scheme:dark]"
+            className="h-9 min-w-0 max-w-[46vw] flex-1 truncate rounded-lg border border-white/15 bg-white/5 px-2 text-[12.5px] font-semibold text-white outline-none sm:max-w-none sm:flex-none [color-scheme:dark]"
           >
             {props.versions.map((v) => (
               <option key={v.version} value={v.version}>
