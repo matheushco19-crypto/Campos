@@ -1,6 +1,6 @@
 import { llmMode } from '../../core/env'
 import { errorMessage, log } from '../../core/logger'
-import type { AnalysisOutput, ContentOpportunity, IntelligenceSnapshot, JobName } from '../../core/schemas'
+import type { AnalysisOutput, ContentOpportunity, IntelligenceSnapshot, JobName, RawObservation } from '../../core/schemas'
 import { addDays, toLocalDate } from '../../core/time'
 import { processPendingResearch } from '../../engines/research-broker'
 import { RunLogger } from '../../observability/run-logger'
@@ -33,6 +33,8 @@ export interface MorningOptions {
   now?: Date
   date?: string
   bundle?: CollectionBundle
+  /** Observations fetched outside the collectors (e.g. BRAPI MCP), with provenance. */
+  extraObservations?: RawObservation[]
   mode?: 'anthropic_api' | 'claude_code' | 'deterministic'
   job?: JobName
   skipNetworkCalendar?: boolean
@@ -56,7 +58,7 @@ export async function runMorningIntelligence(repo: Repository, opts: MorningOpti
   orch.meta({ llm_mode: opts.mode ?? llmMode(), storage: repo.store.kind })
 
   // Agent 1
-  const a1 = await runMarketIntelligence(repo, { briefDate: date, now, job, parentRunId: orch.id, bundle: opts.bundle })
+  const a1 = await runMarketIntelligence(repo, { briefDate: date, now, job, parentRunId: orch.id, bundle: opts.bundle, extraObservations: opts.extraObservations })
   stages.agent1 = a1.status
   if (a1.status === 'FAILED') orch.error('agent1', `Agent 1 falhou: ${a1.errors.slice(-1)[0]?.message ?? 'sem dados'}. Pipeline segue com dados disponíveis.`)
 

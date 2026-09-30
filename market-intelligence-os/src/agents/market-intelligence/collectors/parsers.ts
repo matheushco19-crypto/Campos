@@ -220,6 +220,46 @@ export function parseKraken(json: unknown) {
   return { value: v, changePct: open ? ((v - open) / open) * 100 : null }
 }
 
+export function parseBitstamp(json: unknown) {
+  const j = json as { last?: string; open?: string; timestamp?: string }
+  const v = num(j?.last)
+  if (v === null) throw new Error('Bitstamp: no price')
+  const open = num(j.open)
+  return { value: v, changePct: open ? ((v - open) / open) * 100 : null, time: j.timestamp ? new Date(Number(j.timestamp) * 1000).toISOString() : null }
+}
+
+export function parseGemini(json: unknown) {
+  const j = json as { last?: string; volume?: { timestamp?: number } }
+  const v = num(j?.last)
+  if (v === null) throw new Error('Gemini: no price')
+  return { value: v, time: j.volume?.timestamp ? new Date(j.volume.timestamp).toISOString() : null }
+}
+
+/** Bank of Korea ECOS StatisticSearch → points (TIME = YYYYMMDD). */
+export function parseEcos(json: unknown): SeriesPoint[] {
+  const j = json as { StatisticSearch?: { row?: { TIME: string; DATA_VALUE: string }[] }; RESULT?: { CODE: string; MESSAGE: string } }
+  if (!j.StatisticSearch?.row) throw new Error(`ECOS: ${j.RESULT?.MESSAGE ?? 'no rows'}`)
+  return j.StatisticSearch.row
+    .map((r) => ({ period: `${r.TIME.slice(0, 4)}-${r.TIME.slice(4, 6)}-${r.TIME.slice(6, 8)}`, value: num(String(r.DATA_VALUE).replace(/,/g, '')) }))
+    .filter((p): p is SeriesPoint => p.value !== null)
+    .sort((a, b) => a.period.localeCompare(b.period))
+}
+
+/** ICE's published DXY formula applied to ECB reference rates (units of currency per EUR). */
+export const DXY_WEIGHTS = { EUR: -0.576, JPY: 0.136, GBP: -0.119, CAD: 0.091, SEK: 0.042, CHF: 0.036 } as const
+export function dxyFromEcb(perEur: Record<string, number>): number {
+  const usd = perEur.USD
+  for (const c of ['USD', 'JPY', 'GBP', 'CAD', 'SEK', 'CHF']) if (!perEur[c]) throw new Error(`DXY: missing ${c}`)
+  const eurusd = usd
+  const usdjpy = perEur.JPY / usd
+  const gbpusd = usd / perEur.GBP
+  const usdcad = perEur.CAD / usd
+  const usdsek = perEur.SEK / usd
+  const usdchf = perEur.CHF / usd
+  const v = 50.14348112 * eurusd ** DXY_WEIGHTS.EUR * usdjpy ** DXY_WEIGHTS.JPY * gbpusd ** DXY_WEIGHTS.GBP * usdcad ** DXY_WEIGHTS.CAD * usdsek ** DXY_WEIGHTS.SEK * usdchf ** DXY_WEIGHTS.CHF
+  return Math.round(v * 1000) / 1000
+}
+
 /* ------------------------------ Twelve Data -------------------------- */
 export function parseTwelveData(json: unknown) {
   const j = json as { status?: string; message?: string; close?: string; previous_close?: string; percent_change?: string; datetime?: string; is_market_open?: boolean }

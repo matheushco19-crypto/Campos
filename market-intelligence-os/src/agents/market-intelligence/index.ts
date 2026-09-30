@@ -43,6 +43,12 @@ export const Agent1Input = z.object({
   parentRunId: z.string().nullable().optional(),
   scope: z.array(z.enum(['markets', 'macro', 'news'])).default(['markets', 'macro', 'news']),
   bundle: CollectionBundle.optional(),
+  /**
+   * Observations fetched outside the backend collectors (e.g. the BRAPI MCP
+   * connected to the Claude session). They keep full provenance, must name a
+   * registered source and go through the same validation/verification.
+   */
+  extraObservations: z.array(RawObservation).default([]),
 })
 export type Agent1Input = z.input<typeof Agent1Input>
 
@@ -76,14 +82,56 @@ export async function collectBundle(briefDate: string, now: Date, scope: ('marke
   }
 }
 
+/**
+ * Merge externally fetched observations into a bundle. Unknown sources are
+ * refused; an external observation replaces a collector one only for the same
+ * source + metric (never another source's number).
+ */
+export function mergeExtraObservations(bundle: CollectionBundle, extra: RawObservation[]): CollectionBundle {
+  if (!extra.length) return bundle
+  const known = new Set(SOURCES.map((s) => s.id))
+  const accepted: RawObservation[] = []
+  const errors = [...bundle.errors]
+  for (const o of extra) {
+    if (!known.has(o.sourceId)) {
+      errors.push({ step: 'external', source: o.sourceId, message: `Fonte não registrada: ${o.metric} ignorado`, at: o.retrievedAt })
+      continue
+    }
+    accepted.push(o)
+  }
+  const key = (o: RawObservation) => `${o.sourceId}|${o.metric}`
+  const replaced = new Set(accepted.map(key))
+  const health = [...bundle.health]
+  for (const id of new Set(accepted.map((o) => o.sourceId))) {
+    const items = accepted.filter((o) => o.sourceId === id).length
+    const i = health.findIndex((h) => h.source_id === id)
+    const entry: SourceHealth = { source_id: id, ok: true, items: (i >= 0 && health[i].ok ? health[i].items : 0) + items, latency_ms: i >= 0 ? health[i].latency_ms : 0, error: null }
+    if (i >= 0) health[i] = entry
+    else health.push(entry)
+  }
+  return {
+    ...bundle,
+    observations: [...bundle.observations.filter((o) => !replaced.has(key(o))), ...accepted],
+    errors,
+    health,
+    skipped: bundle.skipped.filter((s) => !accepted.some((o) => s.startsWith(`${o.metric}@${o.sourceId}:`))),
+  }
+}
+
 export async function runMarketIntelligence(repo: Repository, rawInput: Agent1Input): Promise<Agent1Output> {
   const input = Agent1Input.parse(rawInput)
   const logger = await new RunLogger(repo, 'market-intelligence', { job: (input.job as JobName) ?? null, briefDate: input.briefDate, parentRunId: input.parentRunId ?? null }).start()
   try {
-    const bundle = input.bundle ?? (await collectBundle(input.briefDate, input.now, input.scope))
+    const collected = input.bundle ?? (await collectBundle(input.briefDate, input.now, input.scope))
+    const bundle = mergeExtraObservations(collected, input.extraObservations)
     logger.sources(bundle.health)
     logger.errors(bundle.errors)
-    logger.meta({ collector_host: bundle.collector_host, skipped_sources: bundle.skipped, from_bundle: Boolean(input.bundle) })
+    logger.meta({
+      collector_host: bundle.collector_host,
+      skipped_sources: bundle.skipped,
+      from_bundle: Boolean(input.bundle),
+      extra_observations: input.extraObservations.map((o) => `${o.sourceId}:${o.metric}`),
+    })
 
     // Raw audit trail.
     await repo.insertRawObservations(

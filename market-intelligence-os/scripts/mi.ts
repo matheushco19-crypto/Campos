@@ -1,7 +1,8 @@
 /**
  * Market Intelligence OS CLI.
  *
- *   npm run mi -- morning [--date YYYY-MM-DD] [--bundle file.json] [--mode anthropic_api|claude_code|deterministic]
+ *   npm run mi -- morning [--date YYYY-MM-DD] [--bundle file.json] [--observations obs.json] [--mode anthropic_api|claude_code|deterministic]
+ *        --observations: RawObservation[] fetched outside the collectors (e.g. BRAPI MCP in a Claude session)
  *   npm run mi -- collect --out bundle.json          # collection only (portable bundle)
  *   npm run mi -- packet [--date]                    # print pending analysis packet (Claude Code hand-off)
  *   npm run mi -- submit --date D --file analysis.json
@@ -17,7 +18,7 @@ import { z } from 'zod'
 import { collectBundle, CollectionBundle } from '../src/agents/market-intelligence'
 import { FINANCIAL_INTELLIGENCE_INSTRUCTIONS } from '../src/agents/financial-intelligence'
 import { runMarketCloseRefresh, runMorningIntelligence, runWeeklySocialStrategy, submitAnalysis } from '../src/agents/orchestrator'
-import { AnalysisOutput } from '../src/core/schemas'
+import { AnalysisOutput, RawObservation } from '../src/core/schemas'
 import { toLocalDate } from '../src/core/time'
 import { auditSnapshot } from '../src/engines/audit'
 import { createResearchRequest, processResearchRequest } from '../src/engines/research-broker'
@@ -42,8 +43,11 @@ async function main() {
     case 'morning': {
       const bundlePath = flag('bundle')
       const bundle = bundlePath ? CollectionBundle.parse(JSON.parse(readFileSync(bundlePath, 'utf8'))) : undefined
+      const obsPath = flag('observations')
+      const extraObservations = obsPath ? z.array(RawObservation).parse(JSON.parse(readFileSync(obsPath, 'utf8'))) : undefined
       const date = flag('date') ?? bundle?.brief_date
       const res = await runMorningIntelligence(repo, {
+        extraObservations,
         now: bundle ? new Date(bundle.collected_at) : now,
         date,
         bundle,

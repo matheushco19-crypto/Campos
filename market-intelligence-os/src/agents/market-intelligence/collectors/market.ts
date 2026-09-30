@@ -9,6 +9,10 @@ import {
   parseCoinbaseSpot,
   parseCoingecko,
   parseEcbFx,
+  parseBitstamp,
+  parseGemini,
+  parseEcos,
+  dxyFromEcb,
   parseFredCsv,
   parseFredJson,
   parseKraken,
@@ -63,7 +67,8 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
       const url = env.FRED_API_KEY
         ? `https://api.stlouisfed.org/fred/series/observations?series_id=${m.symbol}&api_key=${env.FRED_API_KEY}&file_type=json&observation_start=${start}`
         : `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${m.symbol}&cosd=${start}`
-      const points = env.FRED_API_KEY ? parseFredJson(await fetchJson(url, http)) : parseFredCsv(await fetchText(url, http))
+      const fredHttp = { timeoutMs: 25_000, ...http }
+      const points = env.FRED_API_KEY ? parseFredJson(await fetchJson(url, fredHttp)) : parseFredCsv(await fetchText(url, fredHttp))
       const { last, prev } = lastTwo(points)
       return { value: last.value, previous: prev?.value ?? null, changePct: asset.unit === '%' ? null : pctChange(last.value, prev?.value), referenceDate: last.period, asOf: closeInstant(asset, last.period), url: redactUrl(url) }
     }
@@ -79,6 +84,20 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
       return { value: last.value, previous: prev?.value ?? null, changePct: pctChange(last.value, prev?.value), referenceDate: last.period, asOf: zonedToUtc(last.period, '13:30', 'America/Sao_Paulo'), url, notes: 'PTAX venda (fixing do BCB)' }
     }
     case 'ecb-fx': {
+      if (m.symbol === 'DXY') {
+        // DXY approximation: ICE's public formula over ECB reference rates of the same date.
+        const url = 'https://data-api.ecb.europa.eu/service/data/EXR/D.USD+JPY+GBP+CAD+SEK+CHF.EUR.SP00.A?lastNObservations=3&format=csvdata'
+        const rows = parseEcbFx(await fetchText(url, http))
+        const byDate = new Map<string, Record<string, number>>()
+        for (const r of rows) byDate.set(r.date, { ...(byDate.get(r.date) ?? {}), [r.currency]: r.value })
+        const complete = [...byDate.entries()].filter(([, v]) => Object.keys(v).length === 6).sort((a, b) => a[0].localeCompare(b[0]))
+        const last = complete.at(-1)
+        if (!last) throw new Error('ECB DXY: no complete date')
+        const prev = complete.at(-2)
+        const value = dxyFromEcb(last[1])
+        const previous = prev ? dxyFromEcb(prev[1]) : null
+        return { value, previous, changePct: pctChange(value, previous), referenceDate: last[0], asOf: zonedToUtc(last[0], '14:15', 'Europe/Berlin'), url, notes: 'DXY calculado (fórmula ICE) com taxas de referência do ECB: aproximação, não o índice oficial da ICE.' }
+      }
       // ECB reference rates: EUR/BRL directly; USD/BRL = EUR/BRL ÷ EUR/USD (same date).
       const url = 'https://data-api.ecb.europa.eu/service/data/EXR/D.BRL+USD.EUR.SP00.A?lastNObservations=3&format=csvdata'
       const rows = parseEcbFx(await fetchText(url, http))
@@ -112,6 +131,27 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
       const url = `https://api.kraken.com/0/public/Ticker?pair=${m.symbol}`
       const r = parseKraken(await fetchJson(url, http))
       return { value: r.value, previous: null, changePct: r.changePct !== null ? Math.round(r.changePct * 100) / 100 : null, referenceDate: toLocalDate(now, 'UTC'), asOf: now.toISOString(), url, notes: 'Variação desde a abertura UTC' }
+    }
+    case 'bitstamp': {
+      const url = `https://www.bitstamp.net/api/v2/ticker/${m.symbol}/`
+      const r = parseBitstamp(await fetchJson(url, http))
+      const asOf = r.time ?? now.toISOString()
+      return { value: r.value, previous: null, changePct: r.changePct !== null ? Math.round(r.changePct * 100) / 100 : null, referenceDate: toLocalDate(asOf, 'UTC'), asOf, url, notes: 'Variação em 24h' }
+    }
+    case 'gemini': {
+      const url = `https://api.gemini.com/v1/pubticker/${m.symbol}`
+      const r = parseGemini(await fetchJson(url, http))
+      const asOf = r.time ?? now.toISOString()
+      return { value: r.value, previous: null, changePct: null, referenceDate: toLocalDate(asOf, 'UTC'), asOf, url }
+    }
+    case 'bok-ecos': {
+      const key = env.BOK_ECOS_KEY ?? 'sample'
+      const [stat, item] = m.symbol.split('/')
+      const end = toLocalDate(now, 'Asia/Seoul').replace(/-/g, '')
+      const start = addDays(toLocalDate(now, 'Asia/Seoul'), -14).replace(/-/g, '')
+      const url = `https://ecos.bok.or.kr/api/StatisticSearch/${key}/json/en/1/10/${stat}/D/${start}/${end}/${item}`
+      const { last, prev } = lastTwo(parseEcos(await fetchJson(url, http)))
+      return { value: last.value, previous: prev?.value ?? null, changePct: pctChange(last.value, prev?.value), referenceDate: last.period, asOf: closeInstant(asset, last.period), url: redactUrl(url.replace(`/${key}/`, '/KEY/')), notes: key === 'sample' ? 'Chave pública de exemplo do BOK (cadastre BOK_ECOS_KEY para produção).' : undefined }
     }
     case 'twelvedata': {
       if (!env.TWELVEDATA_API_KEY) throw new Error('TWELVEDATA_API_KEY not configured')

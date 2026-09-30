@@ -19,6 +19,7 @@ const EnvSchema = z.object({
   FRED_API_KEY: z.string().optional(),
   COINGECKO_DEMO_KEY: z.string().optional(),
   TWELVEDATA_API_KEY: z.string().optional(),
+  BOK_ECOS_KEY: z.string().optional(),
   MI_VERIFICATION_STRICT_MACRO: z.enum(['true', 'false']).default('false'),
 })
 

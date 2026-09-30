@@ -20,12 +20,12 @@ export const SOURCES: SourceDefinition[] = [
     authority: 'data_vendor',
     priority: 0,
     homepage: 'https://www.investing.com',
-    access: 'not_integrated',
+    access: 'manual',
     enabled: false,
     regions: ['GLOBAL'],
     limitation:
-      'Fonte preferencial do usuário, mas sem API pública oficial; os Termos de Uso proíbem coleta automatizada e as páginas usam proteção anti-bot. ' +
-      'Não integrada por decisão de compliance. Todos os dados de mercado usam fontes alternativas e são marcados com source_fallback = true.',
+      'Referência de mercado para validação e pesquisa MANUAL. Sem API pública oficial, os Termos de Uso proíbem coleta automatizada e as páginas retornam HTTP 403 (anti-bot), confirmado em 29/09/2026. ' +
+      'Não há crawler e não há tentativa de contornar bloqueios. Todo dado automático usa fontes estruturadas e é marcado com source_fallback = true.',
   },
   {
     id: 'brapi',
@@ -38,7 +38,47 @@ export const SOURCES: SourceDefinition[] = [
     enabled: true,
     credentialEnv: 'BRAPI_TOKEN',
     regions: ['BR'],
-    limitation: 'Plano gratuito: 1 ativo por requisição, atraso de até 30 min, câmbio e cripto só em planos pagos.',
+    limitation:
+      'Fonte prioritária para o Brasil. Auditado em 30/09/2026 com a conta conectada (plano Gratuito): Ibovespa (^BVSP) cotação e histórico diário OK, com atraso de até 30 min e 1 requisição simultânea. ' +
+      'Câmbio (/v2/currency, que segundo a BRAPI deriva da PTAX do BCB), cripto e Selic/inflação exigem o plano Startup (pago), por isso NÃO são usados. A PTAX é lida direto do BCB (fonte original). ' +
+      'A API REST exige BRAPI_TOKEN mesmo no plano gratuito (^BVSP sem token → 401). Em sessões do Claude, o conector MCP da BRAPI pode alimentar o Agent 1 via `mi morning --observations`.',
+  },
+  {
+    id: 'bitstamp',
+    name: 'Bitstamp',
+    kind: 'market',
+    authority: 'exchange',
+    priority: 3,
+    homepage: 'https://www.bitstamp.net',
+    access: 'api',
+    enabled: true,
+    regions: ['GLOBAL'],
+    limitation: 'API pública documentada, sem chave (validada em 30/09/2026).',
+  },
+  {
+    id: 'gemini',
+    name: 'Gemini',
+    kind: 'market',
+    authority: 'exchange',
+    priority: 4,
+    homepage: 'https://www.gemini.com',
+    access: 'api',
+    enabled: true,
+    regions: ['GLOBAL'],
+    limitation: 'API pública documentada, sem chave (validada em 30/09/2026).',
+  },
+  {
+    id: 'bok-ecos',
+    name: 'Bank of Korea — ECOS',
+    kind: 'market',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://ecos.bok.or.kr',
+    access: 'api',
+    enabled: true,
+    credentialEnv: 'BOK_ECOS_KEY',
+    regions: ['ASIA'],
+    limitation: 'Banco central da Coreia, série 802Y001/0001000 (KOSPI, fechamento diário). Sem BOK_ECOS_KEY, usa a chave pública de exemplo ("sample"), que o BOK oferece para testes e tem limite de linhas. Para produção, cadastre uma chave gratuita.',
   },
   {
     id: 'stooq',
@@ -99,7 +139,7 @@ export const SOURCES: SourceDefinition[] = [
     enabled: true,
     credentialEnv: 'COINGECKO_DEMO_KEY',
     regions: ['GLOBAL'],
-    limitation: 'Sem chave, responde HTTP 403 a IPs de datacenter (validado em 29/09/2026). Configure COINGECKO_DEMO_KEY (gratuita). BTC segue verificado por Coinbase + Kraken.',
+    limitation: 'Sem chave, responde HTTP 403 a IPs de datacenter (revalidado em 30/09/2026). Configure COINGECKO_DEMO_KEY (gratuita). BTC é verificado por Coinbase, Kraken, Bitstamp e Gemini.',
   },
   {
     id: 'ecb-fx',
@@ -111,7 +151,7 @@ export const SOURCES: SourceDefinition[] = [
     access: 'api',
     enabled: true,
     regions: ['EU', 'BR'],
-    limitation: 'Taxas de referência diárias (≈14:15 CET). USD/BRL é derivado deterministicamente como EUR/BRL ÷ EUR/USD, e usado apenas como validação cruzada da PTAX.',
+    limitation: 'Taxas de referência diárias (≈14:15 CET). USD/BRL é derivado deterministicamente como EUR/BRL ÷ EUR/USD, como validação cruzada da PTAX. O DXY é calculado pela fórmula pública da ICE (EUR, JPY, GBP, CAD, SEK, CHF) sobre os fixings do ECB: é uma aproximação, não o índice oficial da ICE.',
   },
   {
     id: 'coinbase',
@@ -146,7 +186,7 @@ export const SOURCES: SourceDefinition[] = [
     enabled: true,
     credentialEnv: 'TWELVEDATA_API_KEY',
     regions: ['GLOBAL'],
-    limitation: 'Opcional. Só é usada quando TWELVEDATA_API_KEY está configurada. A cobertura de índices depende do plano.',
+    limitation: 'Opcional, gratuita com chave (cadastro). A chave "demo" só cobre forex (índices → 401, testado em 30/09/2026). Única via prevista para Euro Stoxx 50, DAX, FTSE, Hang Seng e Shanghai; a cobertura desses índices no plano gratuito não foi confirmada.',
   },
 
   /* ----------------------------- MACRO ---------------------------- */
