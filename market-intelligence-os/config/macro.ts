@@ -65,7 +65,8 @@ export const MACRO_INDICATORS: MacroIndicator[] = [
     official: { sourceId: 'fred-macro', series: 'DFEDTARU' }, secondary: null, tolerance: 0.001, maxAgeDays: 10, enabled: true,
     notes: 'Série do Federal Reserve distribuída via FRED (St. Louis Fed).' },
   { metric: 'US_CPI_YOY', label: 'CPI (12 meses)', region: 'US', unit: '%', frequency: 'monthly', transform: 'yoy',
-    official: { sourceId: 'bls', series: 'CUUR0000SA0' }, secondary: { sourceId: 'fred-macro', series: 'CPIAUCNSL' }, tolerance: 0.05, maxAgeDays: 75, enabled: true },
+    official: { sourceId: 'bls', series: 'CUUR0000SA0' }, secondary: null, tolerance: 0.05, maxAgeDays: 75, enabled: true,
+    notes: 'BLS (oficial, não dessazonalizado). A conferência via FRED CPIAUCNSL foi removida em 30/09/2026: a série responde 404 no FRED, e a CPIAUCSL é dessazonalizada (base diferente da oficial), o que geraria falso CONFLICT.' },
   { metric: 'US_UNEMPLOYMENT', label: 'Desemprego EUA', region: 'US', unit: '%', frequency: 'monthly',
     official: { sourceId: 'bls', series: 'LNS14000000' }, secondary: { sourceId: 'fred-macro', series: 'UNRATE' }, tolerance: 0.05, maxAgeDays: 75, enabled: true },
   { metric: 'US_PAYROLLS_CHANGE', label: 'Payroll (variação mensal, mil)', region: 'US', unit: 'mil', frequency: 'monthly', transform: 'mom_diff',
@@ -88,8 +89,8 @@ export const MACRO_INDICATORS: MacroIndicator[] = [
 
   /* CHINA */
   { metric: 'CN_CPI_YOY', label: 'CPI China (12 meses)', region: 'CN', unit: '%', frequency: 'monthly', transform: 'yoy',
-    official: null, secondary: { sourceId: 'fred-macro', series: 'CHNCPIALLMINMEI' }, tolerance: 0.1, maxAgeDays: 120, enabled: true,
-    notes: 'NBS não integrado. A série da OECD via FRED tem defasagem e fica UNVERIFIED até haver confirmação oficial.' },
+    official: null, secondary: null, tolerance: 0.1, maxAgeDays: 120, enabled: true,
+    notes: 'Sem fonte confiável integrada: o NBS não tem API estruturada integrada, e a série da OECD no FRED (CHNCPIALLMINMEI) foi descontinuada (última observação 2025-04, verificado em 30/09/2026). Fica UNAVAILABLE; não é consultada diariamente.' },
   { metric: 'CN_LPR_1Y', label: 'LPR 1 ano (PBoC)', region: 'CN', unit: '%', frequency: 'monthly',
     official: null, secondary: null, tolerance: 0.001, maxAgeDays: 45, enabled: true,
     notes: 'PBoC sem API estruturada. Fica UNAVAILABLE até ser importado manualmente com a URL oficial.' },
