@@ -10,6 +10,7 @@ import { auditSnapshot } from '../src/engines/audit'
 import { detectPatterns, parseSocialImport } from '../src/social/metrics'
 import { DATE, NOW, fact, freshRepo, news, obs } from './helpers'
 import { goodAnalysis } from './fixtures/analysis'
+import { toLocalDate } from '../src/core/time'
 
 function bundle(): CollectionBundle {
   return {
@@ -120,7 +121,7 @@ describe('research broker', () => {
     const repo = freshRepo()
     expect(resolveMetric('Qual a Selic hoje?')).toBe('BR_SELIC_TARGET')
     expect(resolveMetric('Qual foi a reação exata do mercado ao dado X?')).toBeNull()
-    await repo.upsertFacts([fact({ id: 'f1', metric: 'BR_SELIC_TARGET', category: 'MACRO', label: 'Selic meta', value: 15, unit: '% a.a.', brief_date: new Date().toISOString().slice(0, 10) })])
+    await repo.upsertFacts([fact({ id: 'f1', metric: 'BR_SELIC_TARGET', category: 'MACRO', label: 'Selic meta', value: 15, unit: '% a.a.', brief_date: toLocalDate(new Date()) })])
     const r = await createResearchRequest(repo, { requested_by: 'social-strategist', question: 'Qual a Selic hoje?' })
     const done = await processResearchRequest(repo, r, new Date(), { allowNetwork: false })
     expect(done.status).toBe('COMPLETED')

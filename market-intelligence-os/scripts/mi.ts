@@ -10,6 +10,7 @@
  *   npm run mi -- import-social metrics.csv|metrics.json
  *   npm run mi -- audit [--date]                     # automatic audit of the latest snapshot
  *   npm run mi -- runs [--date]                      # observability
+ *   npm run mi -- sync --from data                   # copy a local file store into Supabase (append-safe)
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { z } from 'zod'
@@ -22,6 +23,10 @@ import { auditSnapshot } from '../src/engines/audit'
 import { createResearchRequest, processResearchRequest } from '../src/engines/research-broker'
 import { ManualImportProvider } from '../src/social/metrics'
 import { getRepository } from '../src/storage/repository'
+import { FileStore } from '../src/storage/file-store'
+import { SupabaseStore } from '../src/storage/supabase-store'
+import { TABLES, type TableName } from '../src/storage/store'
+import { getEnv } from '../src/core/env'
 
 const args = process.argv.slice(2)
 const cmd = args[0]
@@ -108,6 +113,27 @@ async function main() {
     case 'runs': {
       const runs = await repo.getRuns({ briefDate: flag('date'), limit: 20 })
       for (const r of runs) console.log(`${r.started_at}  ${r.agent.padEnd(24)} ${r.status.padEnd(18)} errors=${r.errors.length} collected=${r.items_collected} verified=${r.items_verified}  ${r.run_id}`)
+      break
+    }
+    case 'sync': {
+      const env = getEnv()
+      if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são obrigatórios')
+      const from = new FileStore(flag('from') ?? 'data')
+      const to = new SupabaseStore(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
+      for (const table of Object.keys(TABLES) as TableName[]) {
+        const rows = await from.select(table)
+        if (!rows.length) continue
+        if (table === 'intelligence_snapshots') {
+          // Append-only: insert only versions that don't exist yet.
+          const existing = new Set((await to.select<{ id: string }>(table, { select: ['id'] })).map((r) => r.id))
+          const fresh = rows.filter((r) => !existing.has(String(r.id)))
+          await to.insert(table, fresh)
+          console.log(`${table}: ${fresh.length} novas versões`)
+        } else {
+          await to.upsert(table, rows)
+          console.log(`${table}: ${rows.length} linhas`)
+        }
+      }
       break
     }
     default:

@@ -1,0 +1,146 @@
+{
+  "snapshot": "snap_2026-09-29_v4",
+  "status": "PUBLISHED",
+  "analysis_mode": "claude_code",
+  "verdict": "PASS_WITH_WARNINGS",
+  "counts": {
+    "what_matters": 7,
+    "insights": 3,
+    "uhnw": 3,
+    "agenda": 6,
+    "sources": 20
+  },
+  "facts_by_status": {
+    "UNAVAILABLE": 10,
+    "UNVERIFIED": 5,
+    "VERIFIED": 20,
+    "REJECTED": 1
+  },
+  "findings": [
+    {
+      "severity": "ok",
+      "check": "market_rows_match_facts",
+      "detail": "16 linhas conferem com verified_facts"
+    },
+    {
+      "severity": "ok",
+      "check": "market_status",
+      "detail": "1 mercados em negociação sinalizados como OPEN; 6 CLOSED com data de referência"
+    },
+    {
+      "severity": "ok",
+      "check": "narrative_cites_verified",
+      "detail": "28 citações, todas a fatos VERIFIED e atuais"
+    },
+    {
+      "severity": "ok",
+      "check": "qc_idempotent",
+      "detail": "Reexecução do QC não encontrou nada a corrigir"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:numbers_have_source",
+      "detail": "Todos os números têm fonte"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:material_facts_verified",
+      "detail": "Fatos materiais verificados"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_duplicate_news",
+      "detail": "Nenhuma notícia duplicada"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_market_wrongly_closed",
+      "detail": "Nenhum mercado fechado erroneamente"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_stale_as_current",
+      "detail": "Nenhum dado antigo como atual"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:insights_separated",
+      "detail": "Insights separados dos fatos"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:portuguese",
+      "detail": "Texto em português"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:reading_time",
+      "detail": "Leitura em até 10 minutos"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:content_lab_short",
+      "detail": "Content Lab curto"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:agenda_has_source",
+      "detail": "Agenda com fonte"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_ai_language",
+      "detail": "Sem linguagem genérica de IA"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_invented_experience",
+      "detail": "Nenhuma experiência pessoal inventada"
+    },
+    {
+      "severity": "ok",
+      "check": "what_matters_count",
+      "detail": "7 itens (meta 5–7)"
+    },
+    {
+      "severity": "ok",
+      "check": "insights_count",
+      "detail": "3 insights (meta 3)"
+    },
+    {
+      "severity": "ok",
+      "check": "uhnw_count",
+      "detail": "3 pontos (meta 2–3)"
+    },
+    {
+      "severity": "ok",
+      "check": "content_lab",
+      "detail": "Story, Carrossel, Reel e Take presentes"
+    },
+    {
+      "severity": "ok",
+      "check": "reading_time",
+      "detail": "1135 palavras ≈ 7.6 min"
+    },
+    {
+      "severity": "ok",
+      "check": "sources",
+      "detail": "20 referências de fonte"
+    },
+    {
+      "severity": "ok",
+      "check": "fact_coverage",
+      "detail": "{\"UNAVAILABLE\":10,\"UNVERIFIED\":5,\"VERIFIED\":20,\"REJECTED\":1}"
+    },
+    {
+      "severity": "ok",
+      "check": "agent_runs",
+      "detail": "13 execuções registradas, nenhuma falha total"
+    },
+    {
+      "severity": "warn",
+      "check": "source_failures",
+      "detail": "stooq:^ndq: HTTP 403 for https://stooq.com/q/d/l/?s=%5Endq&i=d&d1=202609 | stooq:^bvp: HTTP 403 for https://stooq.com/q/d/l/?s=%5Ebvp&i=d&d1=202609 | stooq:^spx: HTTP 403 for https://stooq.com/q/d/l/?s=%5Espx&i=d&d1=202609 | stooq:dx.f: HTTP 403 for https://stooq.com/q/d/l/?s=dx.f&i=d&d1=20260917 | stooq:^sx5e: HTTP 403 for https://stooq.com/q/d/l/?s=%5Esx5e&i=d&d1=20260 | stooq:^dax: HTTP 403 for https://stooq.com/q/d/l/?s=%5Edax&i=d&d1=202609 | stooq:^dji: HTTP 403 for https://stooq.com/q/d/l/?s=%5Edji&i=d&d1=202609 | stooq:^ukx: HTTP 403 for https://stooq.com/q/d/l/?s=%5Eukx&i=d&d1=202609 | stooq:^kospi: HTTP 403 for https://stooq.com/q/d/l/?s=%5Ekospi&i=d&d1=2026 | stooq:^nkx: HTTP 403 for https://stooq.com/q/d/l/?s=%5Enkx&i=d&d1=202609 | stooq:usdbrl: HTTP 403 for https://stooq.com/q/d/l/?s=usdbrl&i=d&d1=202609 | stooq:^shc: HTTP 403 for https://stooq.com/q/d/l/?s=%5Eshc&i=d&d1=202609"
+    }
+  ]
+}
