@@ -6,7 +6,14 @@ import { VerificationBadge } from '../VerificationBadge'
 
 const num = (v: number | null, d = 2) => (v === null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }))
 const Bps = ({ v }: { v: number | null }) =>
-  v === null ? <span className="text-ink-3">—</span> : <span className={cn('tnum', v > 0 ? 'text-crit' : v < 0 ? 'text-ok' : 'text-ink-3')}>{`${v > 0 ? '+' : ''}${Math.round(v)} bps`}</span>
+  v === null ? (
+    <span className="text-ink-3">—</span>
+  ) : (
+    (() => {
+      const r = Math.round(v)
+      return <span className={cn('tnum', r > 0 ? 'text-crit' : r < 0 ? 'text-ok' : 'text-ink-3')}>{`${r > 0 ? '+' : ''}${r} bps`}</span>
+    })()
+  )
 
 function Table({ rows, factById, instrument = false, unit = '%' }: { rows: RateVertex[]; factById: Map<string, VerifiedFact>; instrument?: boolean; unit?: string }) {
   return (

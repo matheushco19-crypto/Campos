@@ -1,0 +1,18 @@
+[
+  {
+    "sourceId": "brapi",
+    "category": "MARKET",
+    "metric": "IBOV",
+    "value": 183827.6,
+    "unit": "pts",
+    "referencePeriod": "2026-09-29",
+    "asOf": "2026-09-29T20:00:00.000Z",
+    "retrievedAt": "2026-09-30T12:44:30.000Z",
+    "url": "https://brapi.dev/api/v2/stocks/quote?symbols=%5EBVSP",
+    "previousValue": 182991.12,
+    "changePct": 0.46,
+    "marketStatus": "CLOSED",
+    "session": { "observed_at": "2026-09-29T20:00:00.000Z", "reference_date": "2026-09-29", "session": "regular_close", "timezone": "America/Sao_Paulo", "source": "brapi", "is_close": true, "is_intraday": false, "session_of": "2026-09-29", "rule": "Fechamento do pregão regular da bolsa na data de referência." },
+    "notes": "via MCP BRAPI (get_stock_quote ^BVSP). regularMarketTime 2026-09-30T12:44:12Z (09:44 BRT) é anterior à abertura da B3: o valor pertence ao fechamento de 29/09."
+  }
+]

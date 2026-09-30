@@ -39,8 +39,8 @@ O system prompt é texto congelado (sem datas), então continua cacheável.
 `MI_MODEL_DEEP` (padrão `claude-opus-5-5`) para o brief e a estratégia semanal, `MI_MODEL_FAST` (padrão `claude-haiku-4-5`) para tarefas leves. Uma única chamada por dia no modo API, com cache do system prompt. Resposta `refusal`/`max_tokens` → fallback determinístico, registrado em `agent_runs`.
 
 ## Modo Claude Code (Claude Pro, sem API key)
-1. O pipeline das 05:00 grava o pacote (`analysis_packets`, status `PENDING`) e o snapshot `AWAITING_ANALYSIS`.
+1. O pipeline da manhã (janela 05:00–05:59) publica o snapshot determinístico (`PUBLISHED`, `analysis_mode = deterministic`) e grava o pacote (`analysis_packets`, status `PENDING`).
 2. A rotina do Claude Code executa `GET /api/analysis` (Bearer `CRON_SECRET`), recebendo instruções + JSON Schema + pacote.
 3. Escreve a análise e executa `POST /api/analysis` com `{date, analysis}`.
-4. O servidor valida (Zod), roda o QC, publica a nova versão (`PUBLISHED`) e marca o pacote `SUBMITTED`.
+4. O servidor valida (Zod), roda o QC, publica a nova versão (`PUBLISHED`, `analysis_mode = claude_code`) e marca o pacote `SUBMITTED`. Reenviar a mesma análise devolve a mesma versão (idempotente, `analysis_hash`).
 Localmente: `npm run mi -- packet` / `npm run mi -- submit --file`.

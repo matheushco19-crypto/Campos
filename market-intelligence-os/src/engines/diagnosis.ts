@@ -64,7 +64,7 @@ export function diagnoseBrief(i: DiagnosisInput): Diagnosis {
       tone: 'warn',
       headline: 'Os fatos foram coletados e verificados. Falta a etapa de interpretação (Agent 2).',
       detail: ['O pacote de análise está PENDING. A rotina do Claude Code lê o pacote em GET /api/analysis e publica em POST /api/analysis.', ...agentErrors.slice(0, 5)],
-      nextStep: 'Verifique se a rotina do Claude Code rodou (05:20) ou rode a análise manualmente.',
+      nextStep: 'Verifique se a rotina do Claude Code rodou (06:15, depois da janela do cron) ou rode a análise manualmente.',
     }
   }
   if (i.latest?.status === 'DRAFT_FACTS_ONLY') {

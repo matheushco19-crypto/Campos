@@ -21,17 +21,55 @@ RAW OBSERVATION → validateObservation (plausibilidade, data, URL) → verifyMa
 **Notícias:** um evento (cluster) é `VERIFIED` com duas ou mais fontes independentes ou uma fonte oficial. Fonte única fica `UNVERIFIED`, e o Agent 2 é instruído a atribuir ("segundo o Valor...").
 **Defasagem:** `is_stale` quando a referência excede `maxAgeDays`. Fato defasado nunca é citável.
 
-## Provenance (todo fato)
-`id, category, metric, value, unit, reference_period, as_of, retrieved_at, primary_source, secondary_source, primary_url, secondary_url, verification_status, confidence, notes, created_at, updated_at`, mais `change_pct, previous_value, market_status, timezone, source_fallback, single_source, is_stale, brief_date, run_id`.
+## `verification_method` (todo fato)
+| Método | Quando | Status |
+|---|---|---|
+| `independent_crosscheck` | Duas fontes de **linhagens diferentes** concordam na **mesma data de referência** (PTAX do BCB × referência do ECB; Coinbase × Kraken) | `VERIFIED/HIGH` |
+| `official_crosscheck` | Duas fontes da **mesma origem oficial** concordam (BRAPI × B3; US Treasury × FRED DGS*; IBGE × SGS). Não é independência: é conferência com o publicador | `VERIFIED/HIGH` |
+| `official_single` | Só o publicador oficial do instrumento respondeu (curva do Treasury, ajuste do DI1 na B3, PTAX, séries do BCB/IBGE) | `VERIFIED/MEDIUM` |
+| `single_source` | Uma fonte não oficial, ou a segunda fonte tem outra data de referência | `UNVERIFIED` |
+| `unofficial_vendor` | Só o Yahoo (desligado por padrão) respondeu. Nunca conta para `VERIFIED` | `UNVERIFIED` |
+| `proxy` | Aproximação do instrumento (DXY calculado com taxas do ECB). Exibido como "DXY proxy" | `UNVERIFIED` |
+| `derived` | Cálculo determinístico sobre fatos da mesma data (spreads 2s10s e 5s30s). `VERIFIED` só se as duas pontas forem `VERIFIED` | conforme as pontas |
+| `conflict` / `unavailable` | Divergência além da tolerância / nenhuma fonte | `CONFLICT` / `UNAVAILABLE` |
 
-## Controle de qualidade do brief (17 checagens)
+A linhagem vem de `lineage` em `config/sources.ts` (ou do mapeamento do ativo em `config/assets.ts`). **Datas diferentes nunca são comparadas**: a "última observação" de duas fontes só vale como validação se a data de referência for a mesma. Não se fabrica segunda fonte: o IBOV só com BRAPI fica `UNVERIFIED/single_source`.
+
+## Sessão (todo fato de mercado)
+`session = { observed_at, reference_date, session, timezone, source, is_close, is_intraday, session_of, rule }`, gerado por `describeSession` (`collectors/market-status.ts`):
+
+| Mercado | Sessão | Regra |
+|---|---|---|
+| EUA (NYSE) | `regular_close` / `intraday` | Às 05:00 BRT o pregão de NY está fechado: vale o fechamento anterior. Timestamps de feed antes da abertura pertencem ao pregão anterior (`sessionOf`) |
+| Brasil (B3) | `regular_close` | Idem; o DI1 usa a taxa de ajuste (`settlement`) do arquivo consolidado da B3 |
+| Europa | `intraday` → descartado | Às 05:00 BRT a Europa está aberta: séries diárias descartam a barra de hoje (`completedBars`) e usam o fechamento anterior |
+| Ásia | `regular_close` | Tóquio/HK/Xangai/Seul já fecharam o dia quando o Brasil acorda: a barra de hoje é o fechamento de hoje |
+| Câmbio | `fixing` | PTAX (BCB, ≈13:30 BRT) e referência do ECB (≈14:15 CET) são valores finais do dia |
+| Treasury | `official_close` | Par yield curve publicada pelo Tesouro dos EUA |
+| Cripto | `continuous` | Sem fechamento; valor instantâneo em `observed_at` |
+
+Um valor intradiário nunca é exibido como fechamento (selo "INTRADIÁRIO" na tabela).
+
+## Metric Alignment (`src/engines/metric-alignment.ts`)
+A métrica nomeada no texto precisa ser a métrica do fato. Aliases: IPCA-15 → `BR_IPCA15_MOM`, IPCA → `BR_IPCA_MOM`/`BR_IPCA_12M`, IGP-M → `BR_IGPM_MOM`, payroll/nonfarm → `US_PAYROLLS_CHANGE`, CPI → `US_CPI_YOY`, PCE → `US_PCE_YOY`, Selic → `BR_SELIC_TARGET`, Selic efetiva → `BR_SELIC_EFFECTIVE`, CDI → `BR_CDI`, DI futuro/DI1Xnn → `BR_DI1_*`, FOMC/Fed Funds → `US_FED_FUNDS_UPPER`, taxa de depósito do BCE → `EU_ECB_DEPOSIT_RATE`, Treasury → `US10Y`/`US_UST_*`. ADP não tem métrica integrada.
+1. Métrica nomeada com fato disponível e não citado → o fato é associado como evidência principal.
+2. Afirmação de resultado sobre métrica sem fato disponível → bloqueia, salvo se o texto declarar o dado indisponível e não trouxer número.
+3. Número de uma frase sustentado só por fato de outra métrica que a frase não nomeia → bloqueia (IPCA-15 com número do IPCA; payroll com ADP; FOMC com Treasury; Selic com DI).
+4. Fato citado de uma métrica não nomeada, com uma métrica rival da mesma família nomeada sem evidência → bloqueia.
+
+Aplica-se a lede, what_matters, insights, UHNW, macro watch e Content Lab (títulos, ângulos, roteiro), e o `metric_target` dos clusters vai no pacote do Agent 2.
+
+## Provenance (todo fato)
+`id, category, metric, value, unit, reference_period, as_of, retrieved_at, primary_source, secondary_source, primary_url, secondary_url, verification_status, verification_method, confidence, notes, created_at, updated_at`, mais `change_pct, previous_value, market_status, timezone, session, released_at, instrument, source_fallback, single_source, is_stale, brief_date, run_id`.
+
+## Controle de qualidade do brief (18 checagens)
 `src/engines/quality-control.ts`, rodado antes de salvar:
 1. Todos os números têm fonte (**detecção de claims sem suporte**: extrai números em pt-BR e confere contra os fatos citados, incluindo variação, valor anterior, bps e escala "mil")
-2. Fatos materiais são `VERIFIED` · 3. Nenhuma notícia duplicada · 4. Nenhum mercado aberto descrito como fechado · 5. Nenhum dado defasado como atual · 6. Insights separados dos fatos (com base citada, sem opinião no "o que aconteceu") · 7. Português · 8. Até 10 minutos de leitura (150 wpm) · 9. Content Lab curto e sem formatos genéricos ("5 dicas...") · 10. Agenda com fonte · 11. Sem linguagem genérica de IA (lista em `config/editorial-profile.ts`) · 12. Nenhuma experiência pessoal inventada · 13. 5 a 7 acontecimentos · 14. Cada acontecimento em 1–2 frases · 15. Notícia de fonte única atribuída ("segundo o Valor...") · 16. Sem recomendação individualizada · 17. Extensão na meta de 900–1.200 palavras (**consultiva**: gera aviso, não bloqueia). O português também é checado item a item.
+2. Fatos materiais são `VERIFIED` · 3. Nenhuma notícia duplicada · 4. Nenhum mercado aberto descrito como fechado · 5. Nenhum dado defasado como atual · 6. Insights separados dos fatos (com base citada, sem opinião no "o que aconteceu") · 7. Português · 8. Até 10 minutos de leitura (150 wpm) · 9. Content Lab curto e sem formatos genéricos ("5 dicas...") · 10. Agenda com fonte · 11. Sem linguagem genérica de IA (lista em `config/editorial-profile.ts`) · 12. Nenhuma experiência pessoal inventada · 13. 5 a 7 acontecimentos · 14. Cada acontecimento em 1–2 frases · 15. Notícia de fonte única atribuída ("segundo o Valor...") · 16. Sem recomendação individualizada · 17. Extensão na meta de 900–1.200 palavras (**consultiva**: gera aviso, não bloqueia) · 18. **Métrica citada = métrica do fato** (Metric Alignment, bloqueante). O português também é checado item a item.
 
 **Correção antes de salvar:** remove as frases de preenchimento; corta acontecimentos para 2 frases; remove itens com claim sem suporte ou fato não verificado; adiciona `fact_id` quando o número bate com exatamente um fato citável; deduplica eventos; substitui a ideia de conteúdo inválida por um aviso; encurta seções de menor prioridade até caber em 10 minutos. O relatório fica em `snapshot.qc`.
 
 **Gate de publicação:** se alguma checagem bloqueante ainda falhar depois das correções, a versão é gravada como `FAILED_QC` (nunca `PUBLISHED`) e a submissão do Claude Code volta com os motivos. O dashboard continua mostrando a última versão publicada.
 
 ## Auditoria
-`npm run mi -- audit --date D` confere o snapshot publicado de forma independente: as linhas de mercado batem com os fatos, as citações apontam só para fatos citáveis, a reexecução do QC é idempotente, as contagens por seção, o tempo de leitura e as falhas de fonte.
+`npm run mi -- audit --date D` confere o snapshot publicado de forma independente: as linhas de mercado batem com os fatos, as citações apontam só para fatos citáveis, a reexecução do QC é idempotente, o Metric Alignment, o IPCA-15, Core Markets X/8 (aviso se < 8), nenhum proxy como `VERIFIED`, curva do Treasury (8 vértices) e DI (7 buckets), matriz de cobertura, watchlist, as contagens por seção, o tempo de leitura e as falhas de fonte.

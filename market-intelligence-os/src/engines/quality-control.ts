@@ -114,7 +114,7 @@ export function numberSupported(t: NumberToken, facts: VerifiedFact[]): boolean 
 
 /* ------------------------------ Helpers ------------------------------ */
 
-const PT_MARKERS = /\b(de|que|não|para|com|uma|por|mais|como|dos|das|está|são|isso|juros|também)\b/gi
+const PT_MARKERS = /(?<![\p{L}])(de|do|da|em|no|na|ao|os|as|entre|após|sobre|que|não|para|com|uma|por|mais|como|dos|das|está|são|isso|juros|também)(?![\p{L}])/giu
 const EN_MARKERS = /\b(the|and|of|is|are|with|that|this|for|which|rates)\b/gi
 
 export function isPortuguese(text: string): boolean {

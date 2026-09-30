@@ -368,3 +368,36 @@ describe('system health', () => {
     expect(computeSystemHealth({ now, runs: [run('market-intelligence', 'SUCCESS')], lastPublished: null, facts: core, packetStatus: null }).status).toBe('FAILED')
   })
 })
+
+/* ------------------------------ Regressions from the real 30/09 run ------------------------------ */
+
+import { freshRelease } from '../src/engines/relevance'
+import { isPortuguese } from '../src/engines/quality-control'
+
+describe('real-run regressions (30/09/2026)', () => {
+  it('news naming a metric released within the window is the official release: ranked above generic mentions', () => {
+    const ipca15 = fact({ id: 'f15', metric: 'BR_IPCA15_MOM', label: 'IPCA-15 (variação mensal)', value: 0.7, category: 'MACRO', released_at: '2026-09-25', reference_period: '2026-09' })
+    expect(freshRelease('BR_IPCA15_MOM', [ipca15], '2026-09-30')?.id).toBe('f15')
+    expect(freshRelease('BR_IPCA15_MOM', [ipca15], '2026-10-20')).toBeNull()
+    const release = cluster({ id: 'r', title: 'IPCA-15 surpreende e expõe fim da trégua dos alimentos', topic: 'economy', region: 'BR', importance: 61, market_relevance: 60, sources: [{ source: 'Estadão', url: 'https://x/1', headline: 'IPCA-15 surpreende' }], relevance_score: 0 })
+    const mention = cluster({ id: 'm', title: 'Dólar abre em queda, com inflação dos EUA e contas públicas no foco', topic: 'markets', region: 'US', importance: 55, market_relevance: 70, sources: [{ source: 'g1', url: 'https://x/2', headline: 'Dólar abre em queda' }], relevance_score: 0 })
+    const [r, m] = scoreClusters([release, mention], [], DATE, [], [ipca15])
+    expect(r.hard_override_reason).toBe('Divulgação oficial: IPCA-15 (variação mensal)')
+    expect(r.relevance_score).toBeGreaterThan(m.relevance_score)
+    const sel = selectClusters([r, m])
+    expect(sel.top.map((c) => c.id)).toEqual(['r', 'm']) // different override classes: both kept
+  })
+  it('a physical "ataque" to a person is not a geopolitical override; war/nuclear alerts are', () => {
+    expect(hardOverride('Deputado relata ter sofrido ataque a tiros')).toBeNull()
+    expect(hardOverride('Rússia emite alerta nuclear à Otan')?.id).toBe('geopolitics')
+  })
+  it('short Portuguese headlines are recognized as Portuguese; English ones are not', () => {
+    expect(isPortuguese('Briga entre pilotos faz voo com destino a Israel pousar na Arábia Saudita. Reportado por 3 fontes (CNN Brasil, InfoMoney, Valor Econômico).')).toBe(true)
+    expect(isPortuguese('ECB amends monetary policy implementation guidelines as part of the regular review of the framework')).toBe(false)
+  })
+  it('roundup headlines ("Agenda do dia") lose materiality: they announce events, they are not the event', () => {
+    const base = { topic: 'economy' as const, region: 'BR' as const, importance: 60, market_relevance: 50, sources: [{ source: 'A', url: 'https://x/a', headline: 'x' }], relevance_score: 0 }
+    const [a, b] = scoreClusters([cluster({ id: 'a', title: 'Agenda do dia: PCE nos EUA é destaque', ...base }), cluster({ id: 'b', title: 'Vendas no varejo sobem no trimestre', ...base })], [], DATE)
+    expect(a.relevance_components.materiality).toBeLessThan(b.relevance_components.materiality)
+  })
+})

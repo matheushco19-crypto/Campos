@@ -62,6 +62,24 @@ export function auditSnapshot(snap: IntelligenceSnapshot, facts: VerifiedFact[],
   push(snap.qc.reading_minutes <= 10 ? 'ok' : 'fail', 'reading_time', `${snap.qc.word_count} palavras ≈ ${snap.qc.reading_minutes} min`)
   push(counts.sources > 0 ? 'ok' : 'fail', 'sources', `${counts.sources} referências de fonte`)
 
+  // 5b. Round-3 checks: semantic metric alignment, IPCA-15, core markets, curves, coverage, watchlist.
+  const align = snap.qc.checks.find((c) => c.id === 'metric_alignment')
+  push(align && !align.passed ? 'fail' : 'ok', 'metric_alignment', align ? (align.passed ? 'Nenhuma métrica nomeada usa o número de outra métrica' : `${align.detail}`) : 'Checagem ausente neste snapshot (versão anterior à regra)')
+  const ipca15 = facts.find((f) => f.metric === 'BR_IPCA15_MOM')
+  push(ipca15?.verification_status === 'VERIFIED' ? 'ok' : 'warn', 'ipca15', ipca15 ? `BR_IPCA15_MOM ${ipca15.value}% (${ipca15.reference_period}, divulgado ${ipca15.released_at ?? '—'}, ${ipca15.verification_status}/${ipca15.verification_method})` : 'BR_IPCA15_MOM não coletado')
+  const core = snap.market_snapshot.filter((r) => r.core)
+  const coreOk = core.filter((r) => r.verification_status === 'VERIFIED')
+  push(core.length && coreOk.length === core.length ? 'ok' : 'warn', 'core_markets', `Core Markets Verified: ${coreOk.length}/${core.length}${core.length > coreOk.length ? ` · não verificados: ${core.filter((r) => r.verification_status !== 'VERIFIED').map((r) => `${r.metric} (${r.verification_status}, ${r.verification_method})`).join(', ')}` : ''}`)
+  const proxyVerified = snap.market_snapshot.filter((r) => r.verification_method === 'proxy' && r.verification_status === 'VERIFIED')
+  push(proxyVerified.length ? 'fail' : 'ok', 'proxy_never_verified', proxyVerified.length ? `Proxy marcado como VERIFIED: ${proxyVerified.map((r) => r.metric).join(', ')}` : 'Nenhum proxy marcado como VERIFIED')
+  if (snap.rates) {
+    push(snap.rates.treasury.length >= 8 ? 'ok' : 'warn', 'treasury_curve', `${snap.rates.treasury.length}/8 vértices · spreads: ${snap.rates.spreads.map((x) => `${x.tenor} ${x.value ?? '—'} bps`).join(', ')}`)
+    push(snap.rates.di.length >= 7 ? 'ok' : 'warn', 'di_curve', `${snap.rates.di.length}/7 buckets · ${snap.rates.di.map((x) => `${x.tenor}=${x.instrument?.code ?? '—'}`).join(', ')}`)
+  } else push('warn', 'rates', 'Snapshot sem seção de curvas')
+  const uncovered = snap.coverage_matrix.filter((c) => !c.covered)
+  push(uncovered.length ? 'warn' : 'ok', 'coverage_matrix', snap.coverage_matrix.length ? (uncovered.length ? `Sem evento coletado: ${uncovered.map((c) => c.label).join(', ')}` : `${snap.coverage_matrix.length} categorias cobertas`) : 'Matriz ausente')
+  push('ok', 'watchlist', `${snap.watchlist_candidates.length} candidatos na watchlist (fora do pacote do Agent 2)`)
+
   // 6. Coverage & observability.
   const byStatus = facts.reduce<Record<string, number>>((a, f) => ((a[f.verification_status] = (a[f.verification_status] ?? 0) + 1), a), {})
   push(byStatus.VERIFIED ? 'ok' : 'warn', 'fact_coverage', JSON.stringify(byStatus))

@@ -12,7 +12,7 @@ Nunca `SOURCE → LLM → OUTRO LLM → "FATO"`. O LLM só entra depois de `veri
 
 ```
                     ┌────────────────────── ORCHESTRATOR ──────────────────────┐
- Vercel Cron 05:00 ─┤                                                          │
+ Cron 05:00–05:59 ─┤                                                          │
  (08:00 UTC)        │ 1 init run                                               │
                     │ 2-4 AGENT 1  ── collectors (APIs · CSV · RSS)             │
                     │      │            └─ raw_observations (auditoria)         │

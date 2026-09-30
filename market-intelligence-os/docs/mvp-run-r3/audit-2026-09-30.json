@@ -1,0 +1,215 @@
+{
+  "snapshot": "snap_2026-09-30_v2",
+  "status": "PUBLISHED",
+  "analysis_mode": "claude_code",
+  "verdict": "PASS_WITH_WARNINGS",
+  "counts": {
+    "what_matters": 6,
+    "insights": 3,
+    "uhnw": 3,
+    "agenda": 4,
+    "sources": 24
+  },
+  "facts_by_status": {
+    "UNVERIFIED": 7,
+    "VERIFIED": 41,
+    "UNAVAILABLE": 7
+  },
+  "findings": [
+    {
+      "severity": "ok",
+      "check": "market_rows_match_facts",
+      "detail": "16 linhas conferem com verified_facts"
+    },
+    {
+      "severity": "ok",
+      "check": "market_status",
+      "detail": "1 mercados em negociação sinalizados como OPEN; 6 CLOSED com data de referência"
+    },
+    {
+      "severity": "ok",
+      "check": "narrative_cites_verified",
+      "detail": "32 citações, todas a fatos VERIFIED e atuais"
+    },
+    {
+      "severity": "ok",
+      "check": "qc_idempotent",
+      "detail": "Reexecução do QC não encontrou nada a corrigir"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:numbers_have_source",
+      "detail": "Todos os números têm fonte"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:material_facts_verified",
+      "detail": "Fatos materiais verificados"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_duplicate_news",
+      "detail": "Nenhuma notícia duplicada"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_market_wrongly_closed",
+      "detail": "Nenhum mercado fechado erroneamente"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_stale_as_current",
+      "detail": "Nenhum dado antigo como atual"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:insights_separated",
+      "detail": "Insights separados dos fatos"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:portuguese",
+      "detail": "Texto em português"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:reading_time",
+      "detail": "Leitura em até 10 minutos"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:content_lab_short",
+      "detail": "Content Lab curto"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:agenda_has_source",
+      "detail": "Agenda com fonte"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_ai_language",
+      "detail": "Sem linguagem genérica de IA"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_invented_experience",
+      "detail": "Nenhuma experiência pessoal inventada"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:event_count",
+      "detail": "5 a 7 acontecimentos"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:event_brevity",
+      "detail": "Cada acontecimento em 1–2 frases"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:single_source_attributed",
+      "detail": "Notícia de fonte única atribuída"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:no_personal_recommendation",
+      "detail": "Sem recomendação individualizada"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:metric_alignment",
+      "detail": "Métrica citada = métrica do fato (sem substituição)"
+    },
+    {
+      "severity": "ok",
+      "check": "qc:brief_target",
+      "detail": "Extensão na meta (900–1.200 palavras)"
+    },
+    {
+      "severity": "ok",
+      "check": "what_matters_count",
+      "detail": "6 itens (meta 5–7)"
+    },
+    {
+      "severity": "ok",
+      "check": "insights_count",
+      "detail": "3 insights (meta 3)"
+    },
+    {
+      "severity": "ok",
+      "check": "uhnw_count",
+      "detail": "3 pontos (meta 2–3)"
+    },
+    {
+      "severity": "ok",
+      "check": "content_lab",
+      "detail": "Story, Carrossel, Reel e Take presentes"
+    },
+    {
+      "severity": "ok",
+      "check": "reading_time",
+      "detail": "970 palavras ≈ 6.5 min"
+    },
+    {
+      "severity": "ok",
+      "check": "sources",
+      "detail": "24 referências de fonte"
+    },
+    {
+      "severity": "ok",
+      "check": "metric_alignment",
+      "detail": "Nenhuma métrica nomeada usa o número de outra métrica"
+    },
+    {
+      "severity": "ok",
+      "check": "ipca15",
+      "detail": "BR_IPCA15_MOM 0.7% (2026-09, divulgado 2026-09-25, VERIFIED/official_crosscheck)"
+    },
+    {
+      "severity": "warn",
+      "check": "core_markets",
+      "detail": "Core Markets Verified: 4/8 · não verificados: IBOV (UNVERIFIED, single_source), SPX (UNVERIFIED, single_source), NASDAQ (UNVERIFIED, single_source), DJI (UNVERIFIED, single_source)"
+    },
+    {
+      "severity": "ok",
+      "check": "proxy_never_verified",
+      "detail": "Nenhum proxy marcado como VERIFIED"
+    },
+    {
+      "severity": "ok",
+      "check": "treasury_curve",
+      "detail": "8/8 vértices · spreads: 2s10s 37 bps, 5s30s 53 bps"
+    },
+    {
+      "severity": "ok",
+      "check": "di_curve",
+      "detail": "7/7 buckets · 1M=DI1X26, 3M=DI1F27, 6M=DI1J27, 12M=DI1V27, 24M=DI1V28, 36M=DI1V29, 60M=DI1V31"
+    },
+    {
+      "severity": "ok",
+      "check": "coverage_matrix",
+      "detail": "10 categorias cobertas"
+    },
+    {
+      "severity": "ok",
+      "check": "watchlist",
+      "detail": "25 candidatos na watchlist (fora do pacote do Agent 2)"
+    },
+    {
+      "severity": "ok",
+      "check": "fact_coverage",
+      "detail": "{\"UNVERIFIED\":7,\"VERIFIED\":41,\"UNAVAILABLE\":7}"
+    },
+    {
+      "severity": "ok",
+      "check": "agent_runs",
+      "detail": "5 execuções registradas, nenhuma falha total"
+    },
+    {
+      "severity": "warn",
+      "check": "source_failures",
+      "detail": "fred:CPIAUCNSL: HTTP 404 for https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCNSL&cosd=2024-07-22 | fred:CHNCPIALLMINMEI: no observations after transform"
+    }
+  ]
+}

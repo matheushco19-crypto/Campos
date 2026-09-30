@@ -100,7 +100,7 @@ async function yahoo() {
       asset: a.key, group: a.group, tested: a.yahoo, accepted: m?.symbol ?? null, endpoint: url, http: r.status,
       value: m?.regularMarketPrice ?? null, timestamp: m?.regularMarketTime ? new Date(m.regularMarketTime * 1000).toISOString() : null,
       last_daily_bar: ts.length ? new Date(ts.at(-1) * 1000).toISOString().slice(0, 10) : null, last_daily_close: closes.at(-1) ?? null,
-      previous_close: m?.chartPreviousClose ?? null, market: m?.fullExchangeName ?? null, currency: m?.currency ?? null, timezone: m?.exchangeTimezoneName ?? null,
+      chart_previous_close: m?.chartPreviousClose ?? null, market: m?.fullExchangeName ?? null, currency: m?.currency ?? null, timezone: m?.exchangeTimezoneName ?? null,
       error: r.status !== 200 ? (r.json?.chart?.error?.description ?? r.text ?? r.error) : null,
     })
     await sleep(400)

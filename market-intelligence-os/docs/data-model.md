@@ -1,6 +1,6 @@
 # Modelo de dados
 
-Supabase/Postgres, com a migration em `supabase/migrations/20260929120000_market_intelligence_init.sql`. Timestamps em UTC (`timestamptz`), convertidos para America/Sao_Paulo na interface. **RLS habilitado em todas as tabelas, sem policies:** só o service role (servidor) acessa, e a chave anon não lê nada. Os mesmos nomes de coluna valem nos stores de arquivo e de memória.
+Supabase/Postgres, com as migrations em `supabase/migrations/` (`20260929120000_market_intelligence_init.sql` e `20261001090000_mvp_round3.sql`, esta **ainda não aplicada em produção**). Timestamps em UTC (`timestamptz`), convertidos para America/Sao_Paulo na interface. **RLS habilitado em todas as tabelas, sem policies:** só o service role (servidor) acessa, e a chave anon não lê nada. Os mesmos nomes de coluna valem nos stores de arquivo e de memória.
 
 | Tabela | Chave | Conteúdo |
 |---|---|---|
@@ -16,9 +16,12 @@ Supabase/Postgres, com a migration em `supabase/migrations/20260929120000_market
 | `social_posts` | `post_id` | Métricas importadas |
 | `content_opportunities` | `id` | Oportunidades do Agent 3 |
 | `strategy_reports` | `id` | Revisões semanais |
+| `job_leases` | `lease_id` (único `job_name + run_key`) | Lock persistente dos jobs (`MORNING_INTELLIGENCE:AAAA-MM-DD`): RUNNING / COMPLETED / FAILED, `expires_at` |
 
 ## Snapshot (`intelligence_snapshots`)
-`date, version, generated_at, run_id, status (PUBLISHED | DRAFT_FACTS_ONLY | AWAITING_ANALYSIS | FAILED_QC), analysis_mode, market_snapshot, macro_snapshot, news_snapshot, what_matters, macro_watch, insights, uhnw_lens, content_lab, agenda, source_references, content_opportunities, qc, limitations`.
+`date, version, generated_at, run_id, status (PUBLISHED | DRAFT_FACTS_ONLY | AWAITING_ANALYSIS | FAILED_QC), analysis_mode, market_snapshot, macro_snapshot, news_snapshot, lede, what_matters, macro_watch, insights, uhnw_lens, content_lab, agenda, source_references, content_opportunities, qc, limitations, rates (curvas), watchlist_candidates, coverage_matrix, analysis_hash`.
+
+`event_clusters` ganha `relevance_score, relevance_components, hard_override, hard_override_reason, geography, domain, metric_target, market_signals, rank_bucket (top | watchlist | tail)`; `verified_facts` ganha `verification_method, session, released_at, instrument`.
 Cada execução cria uma nova versão. O dashboard mostra a mais recente e permite abrir qualquer versão anterior.
 
 ## Investigar "por que o briefing de hoje não foi produzido?"

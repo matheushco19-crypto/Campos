@@ -95,3 +95,10 @@ describe('QC blocks metric substitution in every block', () => {
     expect(report.passed).toBe(true)
   })
 })
+
+describe('DI aliases', () => {
+  it('"DI de cinco anos" and contract codes (DI1V31) name the DI futuro, not the Selic', () => {
+    expect(mentionedAliases('O DI de cinco anos ficou acima da Selic efetiva').map((a) => a.id)).toEqual(['selic_effective', 'di1'])
+    expect(mentionedAliases('O DI1V31 fechou em alta').map((a) => a.id)).toEqual(['di1'])
+  })
+})

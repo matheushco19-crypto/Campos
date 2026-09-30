@@ -79,7 +79,7 @@ export function analysisHash(date: string, analysis: unknown): string {
 /** Relevance selection for the brief: uses the ranking stored by Agent 1, or recomputes it (same deterministic rules). */
 export function briefSelection(date: string, facts: VerifiedFact[], clusters: EventCluster[], news: NewsItem[]) {
   const signals = marketSignals(facts)
-  const scored = clusters.some((c) => c.relevance_score > 0) ? clusters : scoreClusters(clusters, news, date, signals)
+  const scored = clusters.some((c) => c.relevance_score > 0) ? clusters : scoreClusters(clusters, news, date, signals, facts)
   return { ...selectClusters(scored), signals }
 }
 

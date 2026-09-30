@@ -47,7 +47,7 @@ export const METRIC_ALIASES: MetricAlias[] = [
   { id: 'payroll', label: 'Payroll', pattern: /\b(payrolls?|nonfarm|non-farm|folha de pagamento nao agricola)\b/, metrics: ['US_PAYROLLS_CHANGE'], family: 'jobs' },
   { id: 'focus', label: 'Focus', pattern: /\bfocus\b/, metrics: ['BR_FOCUS_SELIC_CY', 'BR_FOCUS_IPCA_CY'], family: 'rates' },
   { id: 'selic_effective', label: 'Selic efetiva', pattern: /\bselic (efetiva|over|diaria)\b/, metrics: ['BR_SELIC_EFFECTIVE'], family: 'rates' },
-  { id: 'di1', label: 'DI futuro', pattern: /\b(di futuro|di1|juros futuros|curva (de juros |do )?di|taxas? de di)\b/, metrics: [], metricPrefix: 'BR_DI1_', family: 'rates' },
+  { id: 'di1', label: 'DI futuro', pattern: /\b(di futuro|di1|di1[fghjkmnquvxz]\d{2}|di de (\d+|um|dois|tres|cinco|dez) (anos?|mes(es)?)|juros futuros|curva (de juros |do )?di|taxas? de di)\b/, metrics: [], metricPrefix: 'BR_DI1_', family: 'rates' },
   { id: 'cdi', label: 'CDI', pattern: /\bcdi\b/, metrics: ['BR_CDI'], family: 'rates' },
   { id: 'selic', label: 'Selic', pattern: /\bselic\b(?! (efetiva|over|diaria))/, metrics: ['BR_SELIC_TARGET'], family: 'rates' },
   { id: 'fomc', label: 'FOMC / Fed Funds', pattern: /\b(fomc|fed funds|fed fund)\b/, metrics: ['US_FED_FUNDS_UPPER'], family: 'rates' },

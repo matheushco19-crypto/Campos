@@ -45,7 +45,7 @@ Conteúdo externo é tratado como não confiável: tags e scripts são removidos
 - API de calendário do IBGE (VERIFIED). O horário não é publicado porque o fuso da API não é documentado.
 
 ## Rotinas
-- 05:00 BRT: MORNING_INTELLIGENCE (fechamento dos EUA, Ásia, Europa em negociação, câmbio, cripto, notícias de 30h, macro, agenda).
+- Janela 05:00–05:59 BRT: MORNING_INTELLIGENCE (fechamento dos EUA, Ásia, Europa em negociação, câmbio, cripto, notícias de 30h, macro, agenda).
 - 18:30 BRT (dias úteis): MARKET_CLOSE_REFRESH (só mercados, sem LLM).
 - Intraday: research requests sob demanda. Sem polling.
 

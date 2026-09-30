@@ -6,13 +6,15 @@ import {
   HARD_OVERRIDES,
   NOVELTY_LADDER,
   RELEVANCE_WEIGHTS,
+  RELEVANCE_TUNING,
+  ROUNDUP,
   SELECTION,
   SHOCK_THRESHOLDS,
   SOURCE_LADDER,
 } from '../../config/relevance'
 import { SOURCES } from '../../config/sources'
 import type { CoverageCell, EventCluster, NewsItem, VerifiedFact } from '../core/schemas'
-import { zonedToUtc } from '../core/time'
+import { diffDays, zonedToUtc } from '../core/time'
 import { metricTarget } from './metric-alignment'
 import { normalizeText } from './news-classifier'
 
@@ -75,6 +77,8 @@ export interface ScoreInput {
   lastPublishedAt: string
   topic: string
   region: string
+  /** The cluster names a metric whose verified fact was released within the release window. */
+  release?: boolean
 }
 
 export function scoreRelevance(x: ScoreInput, briefDate: string, signals: MarketSignal[] = []) {
@@ -83,10 +87,13 @@ export function scoreRelevance(x: ScoreInput, briefDate: string, signals: Market
   const t = normalizeText(x.text)
   const related = signals.filter((s) => SHOCK_THRESHOLDS.find((th) => th.metric === s.metric)?.related.test(t))
   const override = hardOverride(x.text)
+  // Hard overrides (official releases, central banks, war...) are material by definition: floor, never a cap.
+  const materiality = x.release ? 1 : override ? Math.max(RELEVANCE_TUNING.overrideMaterialityFloor, clamp01(x.importance / 100 + 0.15)) : clamp01(x.importance / 100)
   const c = {
-    materiality: clamp01(x.importance / 100 + (override ? 0.15 : 0)),
-    sources: ladder(SOURCE_LADDER, x.distinctSources),
-    market_impact: related.length ? 1 : clamp01(x.market_relevance / 100),
+    materiality: ROUNDUP.test(t) ? materiality * RELEVANCE_TUNING.roundupFactor : materiality,
+    // Many outlets repeating a light story should not beat a material one: breadth is scaled by materiality.
+    sources: ladder(SOURCE_LADDER, x.distinctSources) * (0.5 + 0.5 * materiality),
+    market_impact: related.length || x.release ? 1 : override ? Math.max(RELEVANCE_TUNING.overrideMarketFloor, clamp01(x.market_relevance / 100)) : clamp01(x.market_relevance / 100),
     novelty: ladder(NOVELTY_LADDER, ageH, false),
     authority: Math.max(0, ...x.sourceIds.map(authorityOf)),
     wealth: clamp01(x.uhnw_relevance / 100),
@@ -104,9 +111,19 @@ export const scoreItem = (n: NewsItem, briefDate: string, signals: MarketSignal[
   ).score
 
 /** Scores every cluster and fills relevance_score, components, override, geography, domain, metric_target and signals. */
-export function scoreClusters(clusters: EventCluster[], items: NewsItem[], briefDate: string, signals: MarketSignal[] = []): EventCluster[] {
+/** A verified fact released (or referenced) within the last N days: the news IS the official release. */
+export function freshRelease(metric: string | null, facts: VerifiedFact[], briefDate: string): VerifiedFact | null {
+  if (!metric) return null
+  const f = facts.find((x) => x.metric === metric && x.verification_status === 'VERIFIED')
+  const day = f?.released_at?.slice(0, 10) ?? null
+  return f && day && diffDays(briefDate, day) <= RELEVANCE_TUNING.releaseWindowDays ? f : null
+}
+
+export function scoreClusters(clusters: EventCluster[], items: NewsItem[], briefDate: string, signals: MarketSignal[] = [], facts: VerifiedFact[] = []): EventCluster[] {
   const byId = new Map(items.map((n) => [n.id, n]))
   return clusters.map((c) => {
+    const target = metricTarget(c.title)
+    const release = freshRelease(target, facts, briefDate)
     const members = c.item_ids.map((id) => byId.get(id)).filter((n): n is NewsItem => !!n)
     const headlines = [c.title, ...c.sources.map((s) => s.headline)].join(' · ')
     const r = scoreRelevance(
@@ -120,12 +137,13 @@ export function scoreClusters(clusters: EventCluster[], items: NewsItem[], brief
         lastPublishedAt: c.last_published_at,
         topic: c.topic,
         region: c.region,
+        release: !!release,
       },
       briefDate,
       signals,
     )
     const shock = r.related.length ? { id: 'market_shock', label: 'Movimento extraordinário de mercado' } : null
-    const override = r.override ?? shock
+    const override = release ? { id: 'official_release', label: `Divulgação oficial: ${release.label}` } : r.override ?? shock
     return {
       ...c,
       relevance_score: r.score,
@@ -134,7 +152,7 @@ export function scoreClusters(clusters: EventCluster[], items: NewsItem[], brief
       hard_override_reason: override?.label ?? null,
       geography: c.region,
       domain: DOMAIN_OF[c.topic] ?? 'other',
-      metric_target: metricTarget(c.title),
+      metric_target: target,
       market_signals: r.related.map((s) => s.text),
     }
   })
@@ -222,6 +240,6 @@ export function selectClusters(scored: EventCluster[], limits: { topMax?: number
 /** Convenience for Agent 1: score + select. */
 export function rankClusters(clusters: EventCluster[], items: NewsItem[], facts: VerifiedFact[], briefDate: string) {
   const signals = marketSignals(facts)
-  const selection = selectClusters(scoreClusters(clusters, items, briefDate, signals))
+  const selection = selectClusters(scoreClusters(clusters, items, briefDate, signals, facts))
   return { ...selection, signals }
 }

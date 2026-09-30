@@ -218,18 +218,21 @@ const fmt = (v: number, unit: string) => {
  * It states facts and attributions only. No interpretation is fabricated.
  */
 export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventCluster[]): AnalysisOutput {
-  const top = clusters.slice(0, 6)
+  // Headlines carrying press numbers (not verified facts) or written in English would be stripped by QC:
+  // the deterministic brief picks the next eligible events instead (order = relevance ranking).
+  const eligible = (c: EventCluster) => !/\d/.test(c.title.replace(/\b[A-Z][A-Za-z]{1,6}[-\s]?\d{1,3}\b/g, '')) && (c.title.match(/\b(the|and|of|is|are|with|for|to|in|on)\b/gi) ?? []).length < 2
+  const top = [...clusters.filter(eligible), ...clusters.filter((c) => !eligible(c))].slice(0, 6)
   const macroFacts = facts.filter((f) => f.category === 'MACRO' && isCitable(f))
   const region = (r: 'BR' | 'US' | 'CN' | 'EU') =>
     macroFacts
       .filter((f) => f.region === r)
       .slice(0, 3)
       .map((f) => ({ text: `${f.label}: ${fmt(f.value as number, f.unit)} (referência ${f.reference_period}, ${sourceName(f.primary_source)}).`, fact_ids: [f.id], cluster_ids: [] }))
-  const idea = (title: string) => ({ title, angle: 'Content Lab requer a etapa de interpretação (Agent 2).', main_idea: 'Nenhuma ideia foi gerada automaticamente nesta execução.', fact_ids: [], cluster_ids: [] })
+  const idea = (title: string) => ({ title, angle: 'Indisponível nesta versão: depende da etapa de interpretação do analista.', main_idea: 'Nenhuma ideia foi gerada de forma automática nesta execução.', fact_ids: [], cluster_ids: [] })
   const content_lab: ContentLabInput = {
     story: idea('Story'),
     carousel: idea('Carrossel'),
-    reel: { ...idea('Reel'), hook: 'Indisponível.', development: 'Indisponível nesta execução, sem etapa de interpretação.', closing: 'Indisponível.', cta: 'Indisponível.' },
+    reel: { ...idea('Reel'), hook: 'Indisponível nesta versão.', development: 'Indisponível nesta execução, sem a etapa de interpretação do analista.', closing: 'Indisponível nesta versão.', cta: 'Indisponível nesta versão.' },
     take: idea('Opinião'),
   }
   const lede = top.length

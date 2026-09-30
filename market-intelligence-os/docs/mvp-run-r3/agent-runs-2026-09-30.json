@@ -1,0 +1,127 @@
+[
+ {
+  "agent": "orchestrator",
+  "status": "AWAITING_ANALYSIS",
+  "started_at": "2026-09-30T13:03:32.394Z",
+  "finished_at": "2026-09-30T13:03:33.444Z",
+  "meta": {
+   "llm_mode": "claude_code",
+   "storage": "file",
+   "stages": {
+    "agent1": "PARTIAL",
+    "agent3": "SUCCESS",
+    "agent2": "AWAITING_ANALYSIS",
+    "snapshot": "v1",
+    "research": "0 processed"
+   },
+   "snapshot_id": "snap_2026-09-30_v1",
+   "duration_ms": 1050
+  }
+ },
+ {
+  "agent": "market-intelligence",
+  "status": "PARTIAL",
+  "started_at": "2026-09-30T13:03:32.405Z",
+  "finished_at": "2026-09-30T13:03:33.397Z",
+  "meta": {
+   "collector_host": "local",
+   "from_bundle": true,
+   "extra_observations": [
+    "brapi:IBOV"
+   ],
+   "clusters_top": 14,
+   "clusters_watchlist": 25,
+   "clusters_tail": 277,
+   "hard_overrides": 20,
+   "market_signals": [],
+   "coverage_uncovered": [],
+   "facts_by_status": {
+    "UNVERIFIED": 7,
+    "VERIFIED": 41,
+    "UNAVAILABLE": 7
+   },
+   "news_items": 333,
+   "event_clusters": 316,
+   "provider_calls": 81,
+   "http_calls": 0,
+   "retries": 0,
+   "http_failures": 0,
+   "elapsed_ms": 992,
+   "duration_ms": 992
+  }
+ },
+ {
+  "agent": "social-strategist",
+  "status": "SUCCESS",
+  "started_at": "2026-09-30T13:03:33.399Z",
+  "finished_at": "2026-09-30T13:03:33.403Z",
+  "meta": {
+   "events_upserted": 38,
+   "opportunities": 10,
+   "pre_event_review": [
+    "Payroll EUA (Employment Situation — setembro)"
+   ],
+   "duration_ms": 4
+  }
+ },
+ {
+  "agent": "financial-intelligence",
+  "status": "AWAITING_ANALYSIS",
+  "started_at": "2026-09-30T13:03:33.405Z",
+  "finished_at": "2026-09-30T13:03:33.441Z",
+  "meta": {
+   "mode": "claude_code",
+   "citable_facts": 32,
+   "non_citable": 16,
+   "clusters_sent": 14,
+   "packet_chars": 23976,
+   "packet_estimated_tokens": 5994,
+   "facts_count": 32,
+   "clusters_count": 14,
+   "agenda_count": 8,
+   "packet_truncated": [
+    "fatos citáveis 39 → 32 (secundários removidos)"
+   ],
+   "watchlist_candidates": 25,
+   "coverage_uncovered": [],
+   "provider_calls": 0,
+   "retries": 0,
+   "elapsed_ms": 35,
+   "qc_passed": true,
+   "qc_corrections": 2,
+   "word_count": 355,
+   "reading_minutes": 2.4,
+   "duration_ms": 36
+  }
+ },
+ {
+  "agent": "financial-intelligence",
+  "status": "SUCCESS",
+  "started_at": "2026-09-30T13:03:34.831Z",
+  "finished_at": "2026-09-30T13:03:34.906Z",
+  "meta": {
+   "mode": "claude_code",
+   "citable_facts": 32,
+   "non_citable": 16,
+   "clusters_sent": 14,
+   "packet_chars": 23748,
+   "packet_estimated_tokens": 5937,
+   "facts_count": 32,
+   "clusters_count": 14,
+   "agenda_count": 8,
+   "packet_truncated": [
+    "fatos citáveis 39 → 32 (secundários removidos)"
+   ],
+   "watchlist_candidates": 25,
+   "coverage_uncovered": [],
+   "provider_calls": 0,
+   "retries": 0,
+   "elapsed_ms": 72,
+   "qc_passed": true,
+   "qc_corrections": 6,
+   "word_count": 970,
+   "reading_minutes": 6.5,
+   "duration_ms": 75
+  }
+ }
+]

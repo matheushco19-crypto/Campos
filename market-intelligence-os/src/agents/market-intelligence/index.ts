@@ -4,6 +4,7 @@ import { getEnv } from '../../core/env'
 import { stableId } from '../../core/ids'
 import { errorMessage } from '../../core/logger'
 import { CalendarEvent, NewsItem, RawObservation, RunError, SourceHealth, type EventCluster, type JobName, type VerifiedFact } from '../../core/schemas'
+import { httpStats } from '../../core/http'
 import { clusterNews } from '../../engines/news-clustering'
 import { marketSignals, scoreClusters, scoreItem, selectClusters } from '../../engines/relevance'
 import { RunLogger } from '../../observability/run-logger'
@@ -122,6 +123,8 @@ export function mergeExtraObservations(bundle: CollectionBundle, extra: RawObser
 export async function runMarketIntelligence(repo: Repository, rawInput: Agent1Input): Promise<Agent1Output> {
   const input = Agent1Input.parse(rawInput)
   const logger = await new RunLogger(repo, 'market-intelligence', { job: (input.job as JobName) ?? null, briefDate: input.briefDate, parentRunId: input.parentRunId ?? null }).start()
+  const started = Date.now()
+  httpStats.reset()
   try {
     const collected = input.bundle ?? (await collectBundle(input.briefDate, input.now, input.scope))
     const bundle = mergeExtraObservations(collected, input.extraObservations)
@@ -167,7 +170,7 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
       const factsForSignals = facts.length ? facts : await repo.getLatestFactsForDate(input.briefDate)
       const signals = marketSignals(factsForSignals)
       const clustered = clusterNews(bundle.news, input.briefDate, { officialSourceIds: official, rank: (n) => scoreItem(n, input.briefDate, signals) })
-      const ranked = selectClusters(scoreClusters(clustered.clusters, clustered.items, input.briefDate, signals))
+      const ranked = selectClusters(scoreClusters(clustered.clusters, clustered.items, input.briefDate, signals, factsForSignals))
       clusters = ranked.all
       // All raw news and every cluster (top, watchlist and tail) are persisted; only the top reaches Agent 2.
       await repo.upsertNews(clustered.items)
@@ -188,6 +191,12 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
       facts_by_status: facts.reduce<Record<string, number>>((acc, f) => ((acc[f.verification_status] = (acc[f.verification_status] ?? 0) + 1), acc), {}),
       news_items: bundle.news.length,
       event_clusters: clusters.length,
+      // Source queries recorded in the bundle; HTTP calls/retries only when collected in this process.
+      provider_calls: bundle.health.length,
+      http_calls: httpStats.calls,
+      retries: httpStats.retries,
+      http_failures: httpStats.failures,
+      elapsed_ms: Date.now() - started,
     })
     const anyData = bundle.observations.length > 0 || bundle.news.length > 0
     const status = !anyData ? 'FAILED' : bundle.errors.length ? 'PARTIAL' : 'SUCCESS'
