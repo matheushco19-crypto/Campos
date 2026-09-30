@@ -85,7 +85,7 @@ export async function fetchB3DiRows(date: string, http: FetchOptions = {}): Prom
     const meta = (await fetchJson(`${B3_BASE}/requestname?fileName=TradeInformationConsolidatedFile&date=${date}`, { timeoutMs: 20_000, ...http })) as { redirectUrl?: string; token?: string }
     const token = meta.token ?? /token=([^&]+)/.exec(meta.redirectUrl ?? '')?.[1]
     if (!token) throw new Error(`B3: no file for ${date}`)
-    const { status, rows } = parseB3DiFile(await fetchText(`${B3_BASE}/?token=${encodeURIComponent(token)}`, { timeoutMs: 45_000, retries: 1, ...http }))
+    const { status, rows } = parseB3DiFile(await fetchText(`${B3_BASE}/?token=${encodeURIComponent(token)}`, { timeoutMs: 45_000, retries: 1, maxBytes: 15_000_000, ...http }))
     if (status && !/final/i.test(status)) throw new Error(`B3: file for ${date} is not final (${status})`)
     return rows
   })()
