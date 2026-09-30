@@ -217,7 +217,7 @@ const fmt = (v: number, unit: string) => {
  * Facts-only brief used when no LLM is available (or the LLM failed).
  * It states facts and attributions only. No interpretation is fabricated.
  */
-export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventCluster[]): AnalysisOutput {
+export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventCluster[], news: NewsItem[] = []): AnalysisOutput {
   // Headlines carrying press numbers (not verified facts) or written in English would be stripped by QC:
   // the deterministic brief picks the next eligible events instead (order = relevance ranking).
   const eligible = (c: EventCluster) => !/\d/.test(c.title.replace(/\b[A-Z][A-Za-z]{1,6}[-\s]?\d{1,3}\b/g, '')) && (c.title.match(/\b(the|and|of|is|are|with|for|to|in|on)\b/gi) ?? []).length < 2
@@ -238,13 +238,22 @@ export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventClus
   const lede = top.length
     ? { text: `Briefing apenas com fatos: ${top.length} eventos do noticiário e os dados verificados abaixo, sem interpretação nesta versão.`, fact_ids: [], cluster_ids: [] }
     : { text: 'Briefing apenas com fatos verificados, sem interpretação nesta versão.', fact_ids: [], cluster_ids: [] }
+  const newsById = new Map(news.map((n) => [n.id, n]))
+  const cleanSummary = (text: string) => text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 360)
+  const synthesis = (c: EventCluster) => {
+    const first = c.item_ids.map((id) => newsById.get(id)).find((n) => n?.original_summary)
+    const summary = first?.original_summary ? cleanSummary(first.original_summary) : ''
+    const names = [...new Set(c.sources.map((s) => s.source))]
+    const provenance = names.length > 1 ? 'Fontes: ' + names.slice(0, 3).join(', ') + '.' : 'Fonte única: ' + (names[0] ?? 'não identificada') + '; não confirmado por fonte independente.'
+    return summary ? summary + ' ' + provenance : provenance + ' Tema: ' + TOPIC_PT[c.topic] + '.'
+  }
   return {
     lede,
     what_matters: top.map((c) => {
       const names = [...new Set(c.sources.map((s) => s.source))]
       return {
         headline: c.title.slice(0, 160),
-        why_it_matters: `${names.length > 1 ? `Reportado por ${names.length} fontes (${names.slice(0, 3).join(', ')})` : `Reportado por ${names[0]} (fonte única, não confirmado)`}. Tema: ${TOPIC_PT[c.topic]}.`,
+        why_it_matters: synthesis(c),
         fact_ids: [],
         cluster_ids: [c.id],
       }
