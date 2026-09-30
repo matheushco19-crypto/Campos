@@ -6,7 +6,11 @@ import { NextResponse, type NextRequest } from 'next/server'
  */
 export function proxy(req: NextRequest) {
   const password = process.env.DASHBOARD_PASSWORD
-  if (!password) return NextResponse.next()
+  if (!password) {
+    // Fail closed on Vercel: a deployment without DASHBOARD_PASSWORD never serves the dashboard openly.
+    if (process.env.VERCEL) return new NextResponse('DASHBOARD_PASSWORD não configurada', { status: 503 })
+    return NextResponse.next()
+  }
   const auth = req.headers.get('authorization') ?? ''
   if (auth.startsWith('Basic ')) {
     try {

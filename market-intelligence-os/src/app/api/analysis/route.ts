@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { FINANCIAL_INTELLIGENCE_INSTRUCTIONS } from '@/agents/financial-intelligence'
-import { submitAnalysis } from '@/agents/orchestrator'
+import { submitAnalysis, SubmissionInProgressError } from '@/agents/orchestrator'
 import { AnalysisOutput } from '@/core/schemas'
 import { isIsoDate, toLocalDate } from '@/core/time'
 import { authorizeMachine } from '@/lib/auth'
@@ -34,6 +34,6 @@ export async function POST(req: Request) {
     const snap = await submitAnalysis(getRepository(), date, body.analysis)
     return Response.json({ snapshot: snap.id, status: snap.status, qc: snap.qc })
   } catch (e) {
-    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 422 })
+    return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: e instanceof SubmissionInProgressError ? 409 : 422 })
   }
 }

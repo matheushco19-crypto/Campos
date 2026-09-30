@@ -313,6 +313,7 @@ function SystemHealthPanel({ h }: { h: SystemHealth }) {
           <span className="text-[12.5px] font-semibold text-ink-2 tnum">
             Core Markets Verified: {h.core.verified}/{h.core.total}
           </span>
+          <Pill tone={h.publication === 'AVAILABLE' ? 'ok' : 'crit'}>Publicação: {h.publication === 'AVAILABLE' ? 'disponível' : 'indisponível'}</Pill>
         </div>
         {h.reasons.length > 0 && (
           <ul className="mt-2 list-disc space-y-0.5 pl-5 text-[12.5px] text-ink-2">
@@ -324,6 +325,9 @@ function SystemHealthPanel({ h }: { h: SystemHealth }) {
         <dl className="mt-4 grid gap-x-6 gap-y-1.5 text-[12.5px] sm:grid-cols-2 lg:grid-cols-3">
           {(
             [
+              ['Último morning run com sucesso', when(h.runs.lastMorningRun)],
+              ['Último enriquecimento (Agent 2)', when(h.runs.lastEnriched)],
+              ['Último snapshot determinístico', when(h.runs.lastDeterministic)],
               ['Último Agent 1 com sucesso', when(h.lastSuccess.agent1)],
               ['Última coleta de mercado', when(h.lastSuccess.markets)],
               ['Última coleta macro', when(h.lastSuccess.macro)],

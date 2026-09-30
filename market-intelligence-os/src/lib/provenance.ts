@@ -29,6 +29,7 @@ export function factProvenance(f: VerifiedFact | undefined, fallbackStatus: Prov
     stale: f.is_stale,
     method: f.verification_method,
     session: f.session ? SESSION_LABEL[f.session.session] ?? f.session.session : null,
+    instrument: f.instrument ? `${f.instrument.code} · venc. ${f.instrument.maturity} · ${f.instrument.business_days} du` : null,
   }
 }
 

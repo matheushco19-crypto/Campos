@@ -36,6 +36,23 @@ export function getEnv(): Env {
   return parsed.data
 }
 
+/**
+ * Names (never values) of variables a deployed instance needs. Reported by /api/health so a deploy
+ * never depends silently on a missing variable.
+ */
+export function missingRequiredEnv(env = getEnv()): string[] {
+  const missing: string[] = []
+  if (storageMode(env) === 'supabase' || env.MI_STORAGE === 'supabase') {
+    if (!env.SUPABASE_URL) missing.push('SUPABASE_URL')
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY')
+  }
+  if (process.env.VERCEL) {
+    if (!env.CRON_SECRET) missing.push('CRON_SECRET')
+    if (!env.DASHBOARD_PASSWORD) missing.push('DASHBOARD_PASSWORD')
+  }
+  return missing
+}
+
 export function storageMode(env = getEnv()): 'file' | 'memory' | 'supabase' {
   if (env.MI_STORAGE) return env.MI_STORAGE
   return env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY ? 'supabase' : 'file'

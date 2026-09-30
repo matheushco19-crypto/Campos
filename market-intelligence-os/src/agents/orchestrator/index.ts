@@ -7,6 +7,7 @@ import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
 import { buildAgenda, buildMarketRows, buildSourceReferences } from '../financial-intelligence/brief'
 import { analysisHash, runFinancialIntelligence, type BriefDraft } from '../financial-intelligence'
+import { runKey, withJobLease } from '../../storage/leases'
 import { runMarketIntelligence, type CollectionBundle } from '../market-intelligence'
 import { runSocialStrategist } from '../social-strategist'
 
@@ -135,8 +136,27 @@ function limitationsFromRun(a1: Awaited<ReturnType<typeof runMarketIntelligence>
   return out
 }
 
+export class SubmissionInProgressError extends Error {}
+
 /** Claude Code hand-off: validates a submitted analysis and publishes a new snapshot version. */
 export async function submitAnalysis(repo: Repository, date: string, analysis: unknown, now = new Date()): Promise<IntelligenceSnapshot> {
+  // One submission at a time per date (persistent lease): a concurrent duplicate can't slip past the hash check.
+  let snapshot: IntelligenceSnapshot | null = null
+  const out = await withJobLease(
+    repo,
+    'ANALYSIS_SUBMIT',
+    runKey('ANALYSIS_SUBMIT', date),
+    async () => {
+      snapshot = await submitAnalysisLocked(repo, date, analysis, now)
+      return { snapshot_id: snapshot.id }
+    },
+    { ttlMs: 3 * 60_000, allowRerunAfterComplete: true },
+  )
+  if (!out.ran) throw new SubmissionInProgressError(`Outra submissão de análise para ${date} está em andamento (desde ${out.lease.started_at}). Tente de novo em instantes.`)
+  return snapshot!
+}
+
+async function submitAnalysisLocked(repo: Repository, date: string, analysis: unknown, now: Date): Promise<IntelligenceSnapshot> {
   const packet = await repo.getAnalysisPacket(date)
   const latest = await repo.getLatestSnapshot(date)
   // Idempotent: the same analysis for the same date returns the version already published.

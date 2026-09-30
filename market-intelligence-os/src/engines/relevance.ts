@@ -218,7 +218,7 @@ export function selectClusters(scored: EventCluster[], limits: { topMax?: number
       label: cell.label,
       covered: hits.length > 0,
       cluster_ids: hits.map((c) => c.id),
-      note: hits.length ? null : `Nenhum evento coletado com relevância ≥ ${COVERAGE_MIN_SCORE} nesta categoria. Não preenchido artificialmente.`,
+      note: hits.length ? null : `Nenhum evento coletado com relevância suficiente (≥ ${COVERAGE_MIN_SCORE}). Não preenchido artificialmente.`,
     }
   })
   // 4. Fill any remaining slots by score.

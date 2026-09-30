@@ -355,8 +355,12 @@ describe('system health', () => {
       { source_id: 'rss-g1-economia', ok: true, items: 5, latency_ms: 1, error: null },
     ]
     const h = computeSystemHealth({ now, runs: [run('market-intelligence', 'PARTIAL', sources), run('financial-intelligence', 'AWAITING_ANALYSIS', [], { packet_chars: 21000, packet_estimated_tokens: 5250 }), run('social-strategist', 'SUCCESS')], lastPublished: snapshot, facts: core, packetStatus: 'PENDING' })
-    expect(h.status).toBe('HEALTHY')
+    // 4/8 core verified: publication available, but data health is DEGRADED (never HEALTHY below 8/8).
+    expect(h.status).toBe('DEGRADED')
+    expect(h.publication).toBe('AVAILABLE')
     expect(h.core).toMatchObject({ verified: 4, total: 8 })
+    expect(h.reasons.join(' ')).toMatch(/Core Markets Verified: 4\/8/)
+    expect(h.reasons.join(' ')).not.toMatch(/kraken/) // one secondary provider down is not a reason
     expect(h.providers.find((p) => p.source === 'kraken')!.status).toBe('down')
     expect(h.lastSuccess.macro).not.toBeNull()
     expect(h.lastSuccess.news).not.toBeNull()
@@ -399,5 +403,175 @@ describe('real-run regressions (30/09/2026)', () => {
     const base = { topic: 'economy' as const, region: 'BR' as const, importance: 60, market_relevance: 50, sources: [{ source: 'A', url: 'https://x/a', headline: 'x' }], relevance_score: 0 }
     const [a, b] = scoreClusters([cluster({ id: 'a', title: 'Agenda do dia: PCE nos EUA é destaque', ...base }), cluster({ id: 'b', title: 'Vendas no varejo sobem no trimestre', ...base })], [], DATE)
     expect(a.relevance_components.materiality).toBeLessThan(b.relevance_components.materiality)
+  })
+})
+
+describe('system health: core coverage thresholds', () => {
+  const now = new Date('2026-09-29T12:00:00Z')
+  const run = (agent: string, status: string, job = 'MORNING_INTELLIGENCE') =>
+    ({ run_id: `${agent}-${status}`, agent, job, brief_date: DATE, started_at: '2026-09-29T08:01:00Z', finished_at: '2026-09-29T08:03:00Z', status, sources: [], errors: [], execution_metadata: {} }) as unknown as AgentRun
+  const snapshot = { date: DATE, version: 2, generated_at: '2026-09-29T09:20:00Z', analysis_mode: 'claude_code', status: 'PUBLISHED' } as IntelligenceSnapshot
+  const CORE = ['IBOV', 'SPX', 'NASDAQ', 'DJI', 'USDBRL', 'EURBRL', 'US10Y', 'BTCUSD']
+  const facts = (verified: number) => CORE.map((m, i) => fact({ id: m, metric: m, verification_status: i < verified ? 'VERIFIED' : 'UNVERIFIED', verification_method: i < verified ? 'independent_crosscheck' : 'single_source' }))
+  const health = (n: number) => computeSystemHealth({ now, runs: [run('market-intelligence', 'SUCCESS'), run('orchestrator', 'SUCCESS')], lastPublished: snapshot, facts: facts(n), packetStatus: 'SUBMITTED', recentSnapshots: [snapshot, { ...snapshot, version: 1, analysis_mode: 'deterministic', generated_at: '2026-09-29T08:03:00Z' }] })
+  it('8/8 → HEALTHY', () => expect(health(8).status).toBe('HEALTHY'))
+  it('7/8 → DEGRADED (publication still available)', () => expect(health(7)).toMatchObject({ status: 'DEGRADED', publication: 'AVAILABLE' }))
+  it('1/8 → DEGRADED', () => expect(health(1).status).toBe('DEGRADED'))
+  it('0/8 → FAILED', () => expect(health(0).status).toBe('FAILED'))
+  it('timeline: last morning run, last enriched and last deterministic snapshot', () => {
+    expect(health(8).runs).toEqual({ lastMorningRun: '2026-09-29T08:01:00Z', lastEnriched: '2026-09-29T09:20:00Z', lastDeterministic: '2026-09-29T08:03:00Z' })
+  })
+})
+
+/* ------------------------------ Concurrent analysis submissions ------------------------------ */
+
+import { submitAnalysis } from '../src/agents/orchestrator'
+import { goodAnalysis } from './fixtures/analysis'
+
+describe('concurrent analysis submission', () => {
+  const bundleFor = () => ({
+    version: 1 as const, collected_at: NOW.toISOString(), brief_date: DATE, collector_host: 'test',
+    observations: [obs({ sourceId: 'stooq', metric: 'SPX', value: 6550, changePct: 1.2 }), obs({ sourceId: 'fred', metric: 'SPX', value: 6551 }), obs({ sourceId: 'bcb-sgs', metric: 'BR_SELIC_TARGET', value: 15, category: 'MACRO', unit: '% a.a.', referencePeriod: '2026-09-17' })],
+    news: [news({ id: 'n1', headline: 'Fed holds interest rates steady', source_id: 'rss-bbc-business' }), news({ id: 'n2', headline: 'Fed mantém juros inalterados', source_id: 'rss-g1-economia' })],
+    health: [], errors: [], skipped: [], calendar: [],
+  })
+  const prepared = async () => {
+    const repo = freshRepo()
+    await runMorningIntelligence(repo, { now: NOW, bundle: bundleFor(), mode: 'claude_code', skipNetworkCalendar: true, processResearch: false })
+    const p = (await repo.getAnalysisPacket(DATE))!.packet as { citable_facts: { id: string; label: string }[]; clusters: { id: string }[] }
+    const spx = p.citable_facts.find((f) => f.label === 'S&P 500')!.id
+    const selic = p.citable_facts.find((f) => f.label === 'Selic meta')!.id
+    const make = () => JSON.parse(JSON.stringify(goodAnalysis()).replaceAll('f_spx', spx).replaceAll('f_selic', selic).replaceAll('c_fed', p.clusters[0].id))
+    return { repo, make }
+  }
+
+  it('two identical submissions at the same time → one new version, the other refused (409) or returned, never duplicated', async () => {
+    const { repo, make } = await prepared()
+    const results = await Promise.allSettled([submitAnalysis(repo, DATE, make(), NOW), submitAnalysis(repo, DATE, make(), NOW)])
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1)
+    const rejected = results.find((r) => r.status === 'rejected') as PromiseRejectedResult
+    expect(String(rejected.reason)).toMatch(/em andamento/)
+    expect((await repo.getSnapshotVersions(DATE)).map((v) => v.version)).toEqual([2, 1])
+    // After completion, the same analysis is idempotent.
+    const again = await submitAnalysis(repo, DATE, make(), NOW)
+    expect(again.version).toBe(2)
+  })
+
+  it('a different analysis after the first completes creates exactly one more version (append-only)', async () => {
+    const { repo, make } = await prepared()
+    await submitAnalysis(repo, DATE, make(), NOW)
+    const b = make()
+    b.lede.text = 'Segundo a imprensa internacional, o Fed segurou os juros e o S&P 500 subiu 1,2%.'
+    const snap = await submitAnalysis(repo, DATE, b, NOW)
+    expect(snap.version).toBe(3)
+    expect((await repo.getSnapshotVersions(DATE)).map((v) => v.version)).toEqual([3, 2, 1])
+  })
+
+  it('insertSnapshot retries on a version conflict instead of failing or overwriting', async () => {
+    const repo = freshRepo()
+    const base = (await runMorningIntelligence(repo, { now: NOW, bundle: bundleFor(), mode: 'deterministic', skipNetworkCalendar: true, processResearch: false })).snapshot!
+    const { id: _i, version: _v, ...rest } = base
+    const [x, y] = await Promise.all([repo.insertSnapshot(rest), repo.insertSnapshot(rest)])
+    expect(new Set([x.version, y.version])).toEqual(new Set([2, 3]))
+  })
+})
+
+/* ------------------------------ Round 4: overrides, leases, morning sessions ------------------------------ */
+
+import { releaseLease } from '../src/storage/leases'
+
+describe('round 4: override patterns are not triggered by a passing word', () => {
+  it('a market headline that only mentions "inflação" is not an inflation override; an actual print is', () => {
+    expect(hardOverride('Dólar abre em queda, com inflação dos EUA e contas públicas no foco')?.id).not.toBe('inflation')
+    expect(hardOverride('Bracing for More Inflation Volatility')).toBeNull()
+    expect(hardOverride('IPCA-15 surpreende em setembro')?.id).toBe('inflation')
+    expect(hardOverride('Inflação acelera nos EUA em agosto')?.id).toBe('inflation')
+  })
+  it('"82,9% do PIB" in a fiscal story is fiscal, not GDP; a GDP print is GDP', () => {
+    expect(hardOverride('Contas públicas têm déficit em agosto; dívida sobe para 82,9% do PIB')?.id).toBe('fiscal_tax')
+    expect(hardOverride('PIB do Reino Unido cresce 1,4% ao ano')?.id).toBe('gdp')
+  })
+  it('a bare "Selic" mention is not a central-bank decision; Copom is', () => {
+    expect(hardOverride('Fundos atrelados à Selic captam mais em setembro')).toBeNull()
+    expect(hardOverride('Copom mantém a Selic em 13,75%')?.id).toBe('central_bank')
+  })
+})
+
+describe('round 4: job lease scenarios', () => {
+  const key = runKey('MORNING_INTELLIGENCE', DATE)
+  it('A. normal run acquires; C. a duplicate after COMPLETED is skipped', async () => {
+    const repo = freshRepo()
+    const a = await acquireLease(repo, 'MORNING_INTELLIGENCE', key)
+    expect(a.acquired).toBe(true)
+    await releaseLease(repo, (a as unknown as { lease: Parameters<typeof releaseLease>[1] }).lease, 'COMPLETED', { snapshot: 'v1' })
+    expect(await acquireLease(repo, 'MORNING_INTELLIGENCE', key)).toMatchObject({ acquired: false, reason: 'completed' })
+  })
+  it('E. a FAILED lease is taken over by exactly one caller', async () => {
+    const repo = freshRepo()
+    const a = await acquireLease(repo, 'MORNING_INTELLIGENCE', key)
+    await releaseLease(repo, (a as unknown as { lease: Parameters<typeof releaseLease>[1] }).lease, 'FAILED', { error: 'x' })
+    const [x, y] = await Promise.all([acquireLease(repo, 'MORNING_INTELLIGENCE', key), acquireLease(repo, 'MORNING_INTELLIGENCE', key)])
+    expect([x.acquired, y.acquired].filter(Boolean)).toHaveLength(1)
+  })
+  it('F. only a legitimate manual rerun (allowRerunAfterComplete) can run again after completion', async () => {
+    const repo = freshRepo()
+    const a = await acquireLease(repo, 'MORNING_INTELLIGENCE', key)
+    await releaseLease(repo, (a as unknown as { lease: Parameters<typeof releaseLease>[1] }).lease, 'COMPLETED', null)
+    expect((await acquireLease(repo, 'MORNING_INTELLIGENCE', key)).acquired).toBe(false) // cron duplicate
+    expect((await acquireLease(repo, 'MORNING_INTELLIGENCE', key, { allowRerunAfterComplete: true })).acquired).toBe(true) // manual
+  })
+})
+
+describe('round 4: morning snapshot sessions (05:00 BRT = 08:00 UTC, Tue 29/09/2026)', () => {
+  const morning = new Date('2026-09-29T08:00:00Z')
+  const cases: [string, string, string, string, 'regular_close' | 'intraday' | 'fixing' | 'continuous' | 'settlement' | 'official_close', boolean][] = [
+    // asset, source, feed instant, expected reference date, expected session, is_close
+    ['IBOV', 'brapi', '2026-09-29T07:55:00Z', '2026-09-28', 'regular_close', true], // B3 before the open
+    ['SPX', 'fmp', '2026-09-29T07:55:00Z', '2026-09-28', 'regular_close', true], // NY before the open
+    ['USDBRL', 'bcb-ptax', '2026-09-28T16:30:00Z', '2026-09-28', 'fixing', true], // FX fixing
+    ['BTCUSD', 'coinbase', '2026-09-29T08:00:00Z', '2026-09-29', 'continuous', false], // 24/7
+    ['US10Y', 'us-treasury', '2026-09-28T20:00:00Z', '2026-09-28', 'official_close', true], // Treasury
+    ['BR_DI1_12M', 'b3-arquivos', '2026-09-28T21:00:00Z', '2026-09-28', 'settlement', true], // DI settlement
+  ]
+  it.each(cases)('%s via %s', (metric, source, instant, ref, session, isClose) => {
+    const a = asset(metric)
+    const s = ['brapi', 'fmp'].includes(source) ? sessionOf(a, instant) : { referenceDate: ref, asOf: instant }
+    expect(s.referenceDate).toBe(ref)
+    const status = metric === 'BTCUSD' ? 'OPEN' : 'CLOSED'
+    const info = describeSession(a, source, s.referenceDate, s.asOf, status)
+    expect(info).toMatchObject({ session, is_close: isClose, reference_date: ref, session_of: ref })
+    expect(info.observed_at).toBe(s.asOf)
+    if (info.is_close) expect(info.is_intraday).toBe(false)
+  })
+  it('Europe still trading: today’s bar is dropped, the previous close is used and nothing intraday is labelled close', () => {
+    const bars = [{ period: '2026-09-28', value: 25300 }, { period: '2026-09-29', value: 25343 }]
+    expect(completedBars(asset('DAX'), bars, morning).at(-1)!.period).toBe('2026-09-28')
+    expect(describeSession(asset('DAX'), 'twelvedata', '2026-09-29', morning.toISOString(), 'OPEN')).toMatchObject({ is_close: false, is_intraday: true })
+  })
+  it('Asia already closed: today’s bar is today’s close', () => {
+    expect(completedBars(asset('NIKKEI'), [{ period: '2026-09-29', value: 1 }], morning)).toHaveLength(1)
+    expect(completedBars(asset('KOSPI'), [{ period: '2026-09-29', value: 1 }], morning)).toHaveLength(1)
+  })
+  it('DI business-day calendar skips weekends and national holidays (12/10, 02/11, 15/11, 20/11)', () => {
+    expect(businessDaysBetween('2026-10-09', '2026-10-14')).toBe(2) // Fri 9, (Sat, Sun, Mon 12 holiday), Tue 13
+    expect(diMaturity('DI1X26')).toBe('2026-11-03') // 01/11 Sun, 02/11 Finados
+  })
+})
+
+describe('round 4: deploy never depends silently on missing env', () => {
+  it('reports missing required variables by name only (Vercel)', async () => {
+    const { missingRequiredEnv } = await import('../src/core/env')
+    const prev = { ...process.env }
+    try {
+      process.env.VERCEL = '1'
+      process.env.MI_STORAGE = 'supabase'
+      process.env.SUPABASE_URL = 'https://example.supabase.co'
+      delete process.env.SUPABASE_SERVICE_ROLE_KEY
+      delete process.env.CRON_SECRET
+      delete process.env.DASHBOARD_PASSWORD
+      expect(missingRequiredEnv()).toEqual(['SUPABASE_SERVICE_ROLE_KEY', 'CRON_SECRET', 'DASHBOARD_PASSWORD'])
+    } finally {
+      process.env = prev
+    }
   })
 })

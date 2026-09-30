@@ -54,13 +54,13 @@ export const AUTHORITY_SCORE: Record<string, number> = { official: 1, exchange: 
  * full of other overrides), NOT the headline. Matched on normalized headlines.
  */
 export const HARD_OVERRIDES: { id: string; label: string; pattern: RegExp }[] = [
-  { id: 'central_bank', label: 'Decisão de banco central', pattern: /\b(copom|fomc|banco central (mantem|eleva|corta|reduz|decide)|central bank (holds|raises|cuts|decision)|boj|pboc|bank of england|juros basicos|rate decision|decisao de juros|decisao do copom|fed (holds|raises|cuts|mantem|eleva|corta)|selic)\b/ },
+  { id: 'central_bank', label: 'Decisão de banco central', pattern: /\b(copom|fomc|banco central (mantem|eleva|corta|reduz|decide)|central bank (holds|raises|cuts|decision)|boj|pboc|bank of england|juros basicos|rate decision|decisao de juros|decisao do copom|fed (holds|raises|cuts|mantem|eleva|corta)|selic (sobe|cai|e mantida|mantida|vai a|sera|corte|alta|elevada|reduzida))\b/ },
   { id: 'ecb', label: 'ECB', pattern: /\b(ecb|bce|lagarde)\b/ },
   { id: 'regulator', label: 'Regulador', pattern: /\b(cvm|sec charges|sec approves|cmn|susep|anbima|bacen regula|banco central regula|resolucao cmn)\b/ },
-  { id: 'inflation', label: 'Inflação', pattern: /\b(ipca(-15)?|igp-?m|inflacao|inflation|cpi|pce|hicp)\b/ },
+  { id: 'inflation', label: 'Inflação', pattern: /\b(ipca(-15)?|igp-?m|cpi|pce|hicp|inflacao (oficial|ao consumidor|sobe|cai|acelera|desacelera|recua|avanca|fica|surpreende|anual|em 12 meses)|inflation (rate|data|report|rises|falls|cools|accelerates|slows|eases|jumps))\b/ },
   { id: 'employment', label: 'Emprego', pattern: /\b(payrolls?|nonfarm|desemprego|unemployment|pnad|caged|jobless)\b/ },
-  { id: 'gdp', label: 'PIB / atividade', pattern: /\b(pib|gdp|recessao|recession|ibc-?br)\b/ },
-  { id: 'fiscal_tax', label: 'Fiscal / tributário', pattern: /\b(arcabouco|meta fiscal|resultado primario|reforma tributaria|imposto de renda|irpf|itcmd|iof|orcamento|shutdown|debt ceiling|teto da divida)\b/ },
+  { id: 'gdp', label: 'PIB / atividade', pattern: /\b(pib( \w+){0,4} (cresce|cai|recua|avanca|sobe|fica|encolhe|surpreende)|pib (do (primeiro|segundo|terceiro|quarto|\d) ?o? trimestre|trimestral)|gdp (grows|growth|contracts|shrinks|rises|falls|data)|recessao|recession|ibc-?br)\b/ },
+  { id: 'fiscal_tax', label: 'Fiscal / tributário', pattern: /\b(arcabouco|meta fiscal|resultado primario|deficit primario|contas publicas|divida (bruta|publica)|reforma tributaria|imposto de renda|irpf|itcmd|iof|orcamento|shutdown|debt ceiling|teto da divida)\b/ },
   { id: 'sovereign', label: 'Default / rating soberano', pattern: /\b(default soberano|sovereign default|rating soberano|rebaixa(mento)? (de )?rating|downgrade|moody.?s|fitch|s&p global ratings)\b/ },
   { id: 'banking_crisis', label: 'Crise bancária', pattern: /\b(crise bancaria|banking crisis|bank run|corrida bancaria|quebra de banco|bank collapse|liquidacao extrajudicial|resgate bancario|bailout)\b/ },
   { id: 'geopolitics', label: 'Geopolítica / guerra / sanções', pattern: /\b(guerra|war|invasao|invasion|ataque (militar|a[eé]reo|com m[ií]sseis)|airstrikes?|missil|misseis|missiles?|sancoes|sanctions|cessar-fogo|ceasefire|otan|nato|alerta nuclear)\b/ },

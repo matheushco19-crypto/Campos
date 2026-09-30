@@ -127,11 +127,19 @@ export class Repository {
 
   /* snapshots — append-only; every run creates a new version */
   async insertSnapshot(snapshot: Omit<IntelligenceSnapshot, 'version' | 'id'>): Promise<IntelligenceSnapshot> {
-    const existing = await this.getSnapshotVersions(snapshot.date)
-    const version = (existing[0]?.version ?? 0) + 1
-    const full: IntelligenceSnapshot = { ...snapshot, version, id: `snap_${snapshot.date}_v${version}` }
-    await this.store.insert('intelligence_snapshots', [full as unknown as Row])
-    return full
+    // Two writers can read the same max version; the unique key (date, version) rejects the loser,
+    // which re-reads and takes the next version. Nothing is ever overwritten.
+    for (let attempt = 0; ; attempt++) {
+      const existing = await this.getSnapshotVersions(snapshot.date)
+      const version = (existing[0]?.version ?? 0) + 1
+      const full: IntelligenceSnapshot = { ...snapshot, version, id: `snap_${snapshot.date}_v${version}` }
+      try {
+        await this.store.insert('intelligence_snapshots', [full as unknown as Row])
+        return full
+      } catch (e) {
+        if (attempt >= 4 || !/duplicate|unique|already exists|23505/i.test(e instanceof Error ? e.message : String(e))) throw e
+      }
+    }
   }
   async getLatestSnapshot(date: string): Promise<IntelligenceSnapshot | null> {
     return normalizeSnapshot((await this.store.select<IntelligenceSnapshot>('intelligence_snapshots', { eq: { date }, order: { field: 'version', ascending: false }, limit: 1 }))[0])

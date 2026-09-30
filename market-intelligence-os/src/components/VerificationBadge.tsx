@@ -23,6 +23,8 @@ export interface Provenance {
   /** How the value was verified (verification_method) and which session it belongs to. */
   method?: string | null
   session?: string | null
+  /** Contract behind a curve vertex, e.g. "DI1V31 · venc. 2031-10-01 · 1252 du". */
+  instrument?: string | null
   /** What kind of item this is (changes which rows are relevant). */
   kind?: 'fact' | 'news' | 'event'
 }
@@ -127,6 +129,7 @@ export function VerificationBadge({ p, compact = false }: { p: Provenance; compa
               {kind === 'fact' && <Row k="Confiança" v={CONFIDENCE[p.confidence ?? 'NONE'] ?? p.confidence} />}
               {kind === 'fact' && p.method && <Row k="Método" v={METHOD_LABEL[p.method] ?? p.method} />}
               {kind === 'fact' && p.session && <Row k="Sessão" v={p.session} />}
+              {kind === 'fact' && p.instrument && <Row k="Instrumento" v={<span className="tnum">{p.instrument}</span>} />}
             </dl>
             {(kind === 'news' || links.length > 0) && (
               <span className="mt-3 block border-t border-line pt-2.5">

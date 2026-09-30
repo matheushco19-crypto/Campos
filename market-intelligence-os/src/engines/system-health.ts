@@ -4,11 +4,16 @@ import type { AgentRun, IntelligenceSnapshot, VerifiedFact } from '../core/schem
 
 /**
  * SYSTEM HEALTH (admin). Pure function over observability data.
- *  - FAILED: nothing usable — no snapshot published in 36h, or Agent 1 without a successful run in 36h,
- *    or no core market verified.
- *  - DEGRADED: something the user will notice — a core market UNAVAILABLE/CONFLICT, a stale snapshot,
- *    Agent 2/3 failing, or more than 25% of source calls failing.
- *  - A single secondary provider down is reported per provider, never as a global failure.
+ * Two separate answers (never merged into one "PASS"):
+ *  - publication: is there a recent usable snapshot? (AVAILABLE / UNAVAILABLE)
+ *  - status (data health):
+ *    HEALTHY  = recent snapshot, recent Agent 1, 8/8 core markets VERIFIED, no systemic failure.
+ *    DEGRADED = usable but incomplete: 1–7 core VERIFIED (UNVERIFIED single-source counts here),
+ *               a core market UNAVAILABLE/CONFLICT, stale snapshot, Agent 2/3 recoverable failure,
+ *               or more than 25% of source calls failing.
+ *    FAILED   = no recent usable snapshot, Agent 1 not running, or 0 core markets verifiable.
+ *  Core < 8/8 never blocks publication, and never shows as HEALTHY.
+ *  A single secondary provider down is reported per provider, never as a global failure.
  */
 export type HealthStatus = 'HEALTHY' | 'DEGRADED' | 'FAILED'
 
@@ -23,6 +28,8 @@ export interface ProviderHealth {
 
 export interface SystemHealth {
   status: HealthStatus
+  publication: 'AVAILABLE' | 'UNAVAILABLE'
+  runs: { lastMorningRun: string | null; lastEnriched: string | null; lastDeterministic: string | null }
   reasons: string[]
   lastSuccess: { agent1: string | null; agent2: string | null; agent3: string | null; markets: string | null; macro: string | null; news: string | null }
   lastPublished: { date: string; version: number; generated_at: string; mode: string; ageHours: number } | null
@@ -48,6 +55,8 @@ export function computeSystemHealth(input: {
   lastPublished: IntelligenceSnapshot | null
   facts: VerifiedFact[]
   packetStatus: string | null
+  /** Recent published snapshot versions (any date), for the enriched/deterministic timeline. */
+  recentSnapshots?: Pick<IntelligenceSnapshot, 'date' | 'version' | 'generated_at' | 'status' | 'analysis_mode'>[]
 }): SystemHealth {
   const { now, runs } = input
   const byTime = [...runs].sort((a, b) => b.started_at.localeCompare(a.started_at))
@@ -92,11 +101,13 @@ export function computeSystemHealth(input: {
   const lp = input.lastPublished
   const age = lp ? hoursSince(lp.generated_at) : Infinity
 
+  const published = [...(input.recentSnapshots ?? [])].filter((x) => x.status === 'PUBLISHED').sort((a, b) => b.generated_at.localeCompare(a.generated_at))
   const failed: string[] = []
   const degraded: string[] = []
   if (!lp || age > 36) failed.push(lp ? `Último snapshot publicado há ${Math.round(age)} h.` : 'Nenhum snapshot publicado.')
   if (hoursSince(lastOk('market-intelligence')) > 36) failed.push('Agent 1 sem execução bem-sucedida nas últimas 36 h.')
-  if (input.facts.length && coreVerified === 0) failed.push('Nenhum mercado core verificado.')
+  if (coreVerified === 0) failed.push('Nenhum mercado core verificado.')
+  else if (coreVerified < CORE_MARKETS.length) degraded.push(`Core Markets Verified: ${coreVerified}/${CORE_MARKETS.length} (publicação continua disponível).`)
   if (lp && age > 26 && age <= 36) degraded.push(`Snapshot publicado há ${Math.round(age)} h (esperado: diário).`)
   const broken = notVerified.filter((n) => n.status === 'UNAVAILABLE' || n.status === 'CONFLICT' || n.status === 'REJECTED')
   if (broken.length) degraded.push(`Mercados core sem valor utilizável: ${broken.map((b) => `${b.metric} (${b.status})`).join(', ')}.`)
@@ -108,6 +119,12 @@ export function computeSystemHealth(input: {
 
   return {
     status: failed.length ? 'FAILED' : degraded.length ? 'DEGRADED' : 'HEALTHY',
+    publication: lp && age <= 36 ? 'AVAILABLE' : 'UNAVAILABLE',
+    runs: {
+      lastMorningRun: byTime.find((r) => r.agent === 'orchestrator' && r.job === 'MORNING_INTELLIGENCE' && OK_RUN.has(r.status))?.started_at ?? null,
+      lastEnriched: published.find((x) => x.analysis_mode !== 'deterministic')?.generated_at ?? null,
+      lastDeterministic: published.find((x) => x.analysis_mode === 'deterministic')?.generated_at ?? null,
+    },
     reasons: [...failed, ...degraded],
     lastSuccess: {
       agent1: lastOk('market-intelligence'),

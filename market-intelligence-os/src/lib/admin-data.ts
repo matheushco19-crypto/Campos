@@ -75,7 +75,8 @@ export async function loadAdmin(dateParam?: string): Promise<AdminData> {
   const diagnosis = diagnoseBrief({ date, nowLocal: toLocalTime(new Date()), isToday: date === today, runs: runsForDate, versions, latest: latestForDate, packetStatus: packet?.status ?? null })
 
   const healthFacts = facts.length ? facts : lastPublishedDate ? await repo.getLatestFactsForDate(lastPublishedDate) : []
-  const health = computeSystemHealth({ now: new Date(), runs: recentRuns, lastPublished, facts: healthFacts, packetStatus: packet?.status ?? null })
+  const recentSnapshots = (await Promise.all(dates.slice(0, 7).map(async (d) => (await repo.getSnapshotVersions(d)).map((v) => ({ ...v, date: d }))))).flat()
+  const health = computeSystemHealth({ now: new Date(), runs: recentRuns, lastPublished, facts: healthFacts, packetStatus: packet?.status ?? null, recentSnapshots })
 
   return {
     today,
