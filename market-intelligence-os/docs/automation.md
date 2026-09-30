@@ -27,7 +27,7 @@ Prompt recomendado (sessão nova a cada disparo, 05:20 BRT, `CRON_TZ=America/Sao
 Requisitos do ambiente da rotina: variáveis `MI_BASE_URL` e `MI_CRON_SECRET`, e o domínio do deploy liberado na política de rede.
 
 ## Rodar manualmente
-- Dashboard: **Research → "Rodar Morning Intelligence agora"** (`POST /api/run`).
+- Dashboard: **/admin → "Rodar Morning Intelligence agora"** (`POST /api/run`).
 - CLI: `npm run mi -- morning`.
 - HTTP: `curl -H "Authorization: Bearer $CRON_SECRET" https://SEU-DEPLOY/api/cron/morning-intelligence`.
 

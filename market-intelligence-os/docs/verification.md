@@ -24,12 +24,14 @@ RAW OBSERVATION → validateObservation (plausibilidade, data, URL) → verifyMa
 ## Provenance (todo fato)
 `id, category, metric, value, unit, reference_period, as_of, retrieved_at, primary_source, secondary_source, primary_url, secondary_url, verification_status, confidence, notes, created_at, updated_at`, mais `change_pct, previous_value, market_status, timezone, source_fallback, single_source, is_stale, brief_date, run_id`.
 
-## Controle de qualidade do brief (12 checagens)
+## Controle de qualidade do brief (17 checagens)
 `src/engines/quality-control.ts`, rodado antes de salvar:
 1. Todos os números têm fonte (**detecção de claims sem suporte**: extrai números em pt-BR e confere contra os fatos citados, incluindo variação, valor anterior, bps e escala "mil")
-2. Fatos materiais são `VERIFIED` · 3. Nenhuma notícia duplicada · 4. Nenhum mercado aberto descrito como fechado · 5. Nenhum dado defasado como atual · 6. Insights separados dos fatos (com base citada, sem opinião no "o que aconteceu") · 7. Português · 8. Até 10 minutos de leitura (150 wpm) · 9. Content Lab curto e sem formatos genéricos ("5 dicas...") · 10. Agenda com fonte · 11. Sem linguagem genérica de IA (lista em `config/editorial-profile.ts`) · 12. Nenhuma experiência pessoal inventada.
+2. Fatos materiais são `VERIFIED` · 3. Nenhuma notícia duplicada · 4. Nenhum mercado aberto descrito como fechado · 5. Nenhum dado defasado como atual · 6. Insights separados dos fatos (com base citada, sem opinião no "o que aconteceu") · 7. Português · 8. Até 10 minutos de leitura (150 wpm) · 9. Content Lab curto e sem formatos genéricos ("5 dicas...") · 10. Agenda com fonte · 11. Sem linguagem genérica de IA (lista em `config/editorial-profile.ts`) · 12. Nenhuma experiência pessoal inventada · 13. 5 a 7 acontecimentos · 14. Cada acontecimento em 1–2 frases · 15. Notícia de fonte única atribuída ("segundo o Valor...") · 16. Sem recomendação individualizada · 17. Extensão na meta de 900–1.200 palavras (**consultiva**: gera aviso, não bloqueia). O português também é checado item a item.
 
-**Correção antes de salvar:** remove as frases de preenchimento; remove itens com claim sem suporte ou fato não verificado; adiciona `fact_id` quando o número bate com exatamente um fato citável; deduplica eventos; substitui a ideia de conteúdo inválida por um aviso; encurta seções de menor prioridade até caber em 10 minutos. O relatório fica em `snapshot.qc`.
+**Correção antes de salvar:** remove as frases de preenchimento; corta acontecimentos para 2 frases; remove itens com claim sem suporte ou fato não verificado; adiciona `fact_id` quando o número bate com exatamente um fato citável; deduplica eventos; substitui a ideia de conteúdo inválida por um aviso; encurta seções de menor prioridade até caber em 10 minutos. O relatório fica em `snapshot.qc`.
+
+**Gate de publicação:** se alguma checagem bloqueante ainda falhar depois das correções, a versão é gravada como `FAILED_QC` (nunca `PUBLISHED`) e a submissão do Claude Code volta com os motivos. O dashboard continua mostrando a última versão publicada.
 
 ## Auditoria
 `npm run mi -- audit --date D` confere o snapshot publicado de forma independente: as linhas de mercado batem com os fatos, as citações apontam só para fatos citáveis, a reexecução do QC é idempotente, as contagens por seção, o tempo de leitura e as falhas de fonte.

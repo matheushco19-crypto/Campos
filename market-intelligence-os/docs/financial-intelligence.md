@@ -8,7 +8,9 @@
 - `agenda` e `event_driven_requests` (eventos HIGH em até 2 dias, vindos do Agent 3).
 
 ## Saída: `AnalysisOutput` (Zod)
-`what_matters` (5 a 7) · `macro_watch` {BR, US, CN, EU} · `insights` (3: o que aconteceu / por que / o que muda) · `uhnw_lens` (2 a 3) · `content_lab` (exatamente story, carrossel, reel e take, + `exceptional` opcional).
+`lede` (o que aconteceu, 1–2 frases) · `what_matters` (5 a 7, cada um em 1–2 frases) · `macro_watch` {BR, US, CN, EU} · `insights` (3: o que aconteceu / por que / o que muda, com `lenses`: valuation, juros, duration, risco, crédito, liquidez, câmbio, inflação, crescimento, portfolio construction, wealth planning) · `uhnw_lens` (2 a 3, com `theme`: alocação, liquidez, proteção, sucessão, tributação, concentração, exposição internacional) · `content_lab` (exatamente story, carrossel e take com título, ângulo e ideia principal; reel com título, ângulo, ideia principal e roteiro: hook, desenvolvimento, fechamento e CTA).
+
+Um briefing só é publicado se passar em todas as checagens bloqueantes do QC. Se ainda falhar depois das correções automáticas, a versão fica `FAILED_QC` e a submissão volta com os motivos (veja [verification.md](verification.md)).
 Cada item traz `fact_ids` e `cluster_ids`. As tabelas (mercados, macro), a agenda e as fontes são montadas **por código**, nunca pelo LLM.
 
 ## Framework analítico

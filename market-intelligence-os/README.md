@@ -9,7 +9,7 @@ FONTES → COLETA → VALIDAÇÃO → FATOS VERIFICADOS → INTERPRETAÇÃO → 
 
 A regra que governa tudo: **dados vêm antes das interpretações.** O Agent 1 coleta e verifica. Os agentes 2 e 3 só enxergam `verified_facts`. Todo número publicado tem fonte, e o controle de qualidade remove qualquer número sem lastro antes de salvar.
 
-![Dashboard](docs/first-run/dashboard-overview.png)
+![Dashboard](docs/mvp-run/desktop-overview.png)
 
 ## Componentes
 
@@ -73,4 +73,5 @@ npm run dev                          # http://localhost:3000
 - [Automação e jobs](docs/automation.md)
 - [Deploy](docs/deployment.md)
 - [Primeiro teste real (29/09/2026)](docs/first-run/README.md)
+- [Teste final do MVP (30/09/2026)](docs/mvp-run/README.md)
 - [Source Coverage Audit (30/09/2026): cobertura por ativo, BRAPI/MCP, fontes gratuitas](docs/coverage-audit/README.md)

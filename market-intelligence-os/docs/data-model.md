@@ -26,4 +26,4 @@ Cada execução cria uma nova versão. O dashboard mostra a mais recente e permi
 select agent, status, started_at, errors, execution_metadata
 from agent_runs where brief_date = current_date order by started_at desc;
 ```
-Ou use o dashboard (Research → Execuções) ou `npm run mi -- runs --date AAAA-MM-DD`.
+Ou use a área administrativa (`/admin`, que responde isso automaticamente) ou `npm run mi -- runs --date AAAA-MM-DD`.

@@ -1,0 +1,237 @@
+{
+  "lede": {
+    "text": "Dia de tarifa aqui e de dado lá fora: segundo a Exame, a China passa a sobretaxar a carne bovina brasileira a partir de quinta, enquanto o mercado espera o PCE americano com o dólar na PTAX de R$ 5,2204.",
+    "fact_ids": [
+      "fact_a92f2fec0e24f6ecf1df"
+    ],
+    "cluster_ids": [
+      "evt_5ba0f585d56a4d8d021c",
+      "evt_931bfed6792d2b3ffd05"
+    ]
+  },
+  "what_matters": [
+    {
+      "headline": "China sobretaxa a carne bovina brasileira",
+      "why_it_matters": "Segundo a Exame, a tarifa adicional começa na quinta, depois que as importações bateram o limite anual fixado por Pequim. É um golpe direto na receita dos frigoríficos e, na margem, no fluxo de dólares do agro.",
+      "fact_ids": [],
+      "cluster_ids": [
+        "evt_5ba0f585d56a4d8d021c"
+      ]
+    },
+    {
+      "headline": "Guerra comercial americana em duas frentes",
+      "why_it_matters": "Segundo o New York Times, o governo Trump volta hoje aos tribunais para defender seus poderes tarifários, e a BBC informa que já vale a proibição americana a bebidas e laticínios do Canadá. Tarifa virou ferramenta permanente de negociação, e isso aparece em preço, cadeia de suprimentos e prêmio de risco.",
+      "fact_ids": [],
+      "cluster_ids": [
+        "evt_8775c45f700ca2f2b208",
+        "evt_4f7db9675a7055031ecb"
+      ]
+    },
+    {
+      "headline": "IPCA-15 encerra a trégua dos alimentos",
+      "why_it_matters": "Segundo o Estadão, a prévia de setembro surpreendeu para cima, depois de um IPCA de agosto em queda de 0,32%. O atacado já avisava: o IGP-M subiu 1,57% em setembro.",
+      "fact_ids": [
+        "fact_50860af1bb98116e6df7",
+        "fact_6e184f5bce3132f7a3a6"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    {
+      "headline": "Selic parada, mercado ainda conta com corte",
+      "why_it_matters": "A meta segue em 13,75% e o Focus projeta 13,5% para o fim do ano. Uma inflação de alimentos mais teimosa é exatamente o que pode tirar esse corte da mesa.",
+      "fact_ids": [
+        "fact_976edb47fd361ba214bd",
+        "fact_46132bb4d00de9a3fc8a"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "headline": "Semana decisiva de dados nos EUA",
+      "why_it_matters": "Segundo o InfoMoney, o PCE concentra a atenção desta quarta, e na sexta vem o payroll de setembro, depois de 162 mil vagas em agosto. Com o CPI em 3,4% e o teto dos Fed Funds em 4%, cada número mexe na aposta sobre o próximo passo do Fed e, por tabela, no dólar.",
+      "fact_ids": [
+        "fact_3b4d777a563a9ad5bd16",
+        "fact_bb2a5ce4f1cec2feef55",
+        "fact_f4f2c079a03bfcf43f0d"
+      ],
+      "cluster_ids": [
+        "evt_931bfed6792d2b3ffd05"
+      ]
+    },
+    {
+      "headline": "Reforma tributária chega ao caixa das pequenas",
+      "why_it_matters": "Segundo o g1, mudou o prazo para as empresas do Simples escolherem como recolher IBS e CBS, e a Exame relata que boa parte das empresas ainda não se preparou para a reforma. A transição deixou de ser tema de longo prazo.",
+      "fact_ids": [],
+      "cluster_ids": [
+        "evt_4630adb1bb389093804a",
+        "evt_ea6cc449fd124d950111"
+      ]
+    }
+  ],
+  "macro_watch": {
+    "BR": [
+      {
+        "text": "Desemprego em 5,3% na PNAD de agosto e dívida bruta em 82,56% do PIB em julho, acima dos 81,95% do mês anterior. Mercado de trabalho apertado e fiscal pressionado, a poucos dias da eleição.",
+        "fact_ids": [
+          "fact_bb720e928420f20b0b5c",
+          "fact_76a89562a94de1f3055c"
+        ],
+        "cluster_ids": []
+      }
+    ],
+    "US": [
+      {
+        "text": "PIB do segundo trimestre em 1,5% anualizado, abaixo dos 2,1% do primeiro, com desemprego em 4,1%.",
+        "fact_ids": [
+          "fact_9ded21a41aabc7861155",
+          "fact_c812eae4492ff57c8c38"
+        ],
+        "cluster_ids": []
+      }
+    ],
+    "CN": [
+      {
+        "text": "Sem dados oficiais verificados da China nesta coleta: NBS e PBoC não têm API estruturada integrada, e nada foi estimado.",
+        "fact_ids": [],
+        "cluster_ids": []
+      }
+    ],
+    "EU": [
+      {
+        "text": "O ECB levou a taxa de depósito a 2,5%, alta de 25 bps, com o desemprego da zona do euro em 6,4%.",
+        "fact_ids": [
+          "fact_3c600e13e3692af9a414",
+          "fact_f187d2eb219c697a5c1a"
+        ],
+        "cluster_ids": []
+      }
+    ]
+  },
+  "insights": [
+    {
+      "title": "Tarifa virou variável de portfólio",
+      "what_happened": "Segundo a Exame, a China vai cobrar tarifa adicional sobre a carne bovina brasileira a partir de quinta. Segundo o New York Times, o governo americano defende hoje na Justiça seu poder de impor tarifas.",
+      "why_it_happened": "Comércio virou instrumento de política: cotas e sobretaxas protegem produtores locais e servem de moeda de troca em negociações. Para o exportador, o efeito chega pela receita em dólar e pela margem, e para o país, pelo fluxo cambial de um setor que pesa na balança comercial.",
+      "what_it_changes": "Minha leitura é que risco tarifário deixou de ser evento raro e passou a ser parte do cenário-base. Com o dólar na PTAX de R$ 5,2204, o que eu olharia é concentração: carteiras e patrimônios muito dependentes de um único destino exportador carregam um risco que não aparece na volatilidade histórica.",
+      "lenses": [
+        "risco",
+        "câmbio",
+        "portfolio construction"
+      ],
+      "fact_ids": [
+        "fact_a92f2fec0e24f6ecf1df"
+      ],
+      "cluster_ids": [
+        "evt_5ba0f585d56a4d8d021c",
+        "evt_8775c45f700ca2f2b208"
+      ]
+    },
+    {
+      "title": "Inflação em dois tempos, juro em espera",
+      "what_happened": "O IPCA caiu 0,32% em agosto e a inflação em 12 meses desceu para 4,22%. O IGP-M subiu 1,57% em setembro, a Selic está em 13,75% e o Focus projeta IPCA de 4,99% no ano.",
+      "why_it_happened": "O IPCA de agosto pegou a queda de alimentos e energia. O atacado, medido pelo IGP-M, reage antes a commodities e câmbio, e costuma chegar ao consumidor com defasagem, que é o sinal que a prévia de setembro parece confirmar.",
+      "what_it_changes": "Minha leitura é que o espaço para o corte que o Focus ainda projeta ficou mais estreito. Para a renda fixa, isso favorece equilibrar pós-fixado e títulos atrelados à inflação, em vez de alongar a duration apostando numa queda rápida de juros.",
+      "lenses": [
+        "inflação",
+        "juros",
+        "duration"
+      ],
+      "fact_ids": [
+        "fact_50860af1bb98116e6df7",
+        "fact_73f6c3d7f914d7309614",
+        "fact_6e184f5bce3132f7a3a6",
+        "fact_976edb47fd361ba214bd",
+        "fact_a16a4000fcf1ca4801a2"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    {
+      "title": "Eleição no domingo, prêmio de risco na mesa",
+      "what_happened": "O primeiro turno das eleições gerais é no domingo. A dívida bruta está em 82,56% do PIB, acima dos 81,95% do mês anterior.",
+      "why_it_happened": "Eleições concentram incerteza sobre a trajetória fiscal. Com a dívida subindo, o mercado cobra prêmio por qualquer sinal de afrouxamento, e esse prêmio aparece junto na curva de juros, no câmbio e na volatilidade das ações.",
+      "what_it_changes": "Minha leitura é que posicionar o portfólio para um resultado é aposta, não gestão de risco. O trabalho útil nesta semana é conferir liquidez, horizonte e proteção cambial, para atravessar qualquer resultado sem vender ativo na hora errada.",
+      "lenses": [
+        "risco",
+        "liquidez",
+        "wealth planning"
+      ],
+      "fact_ids": [
+        "fact_76a89562a94de1f3055c"
+      ],
+      "cluster_ids": []
+    }
+  ],
+  "uhnw_lens": [
+    {
+      "theme": "concentração",
+      "text": "Para famílias com negócio ligado a proteína animal ou ao agro exportador, a sobretaxa chinesa noticiada pela Exame lembra que o patrimônio empresarial e a carteira financeira podem estar expostos ao mesmo risco. A pergunta útil é quanto do patrimônio total depende de uma mesma cadeia.",
+      "fact_ids": [],
+      "cluster_ids": [
+        "evt_5ba0f585d56a4d8d021c"
+      ]
+    },
+    {
+      "theme": "tributação",
+      "text": "Segundo o g1, empresas do Simples têm escolhas de regime sobre IBS e CBS com prazo definido. Para famílias empresárias, é conversa para ter contador e jurídico à mesa agora, sem conclusões apressadas sobre o regime ideal.",
+      "fact_ids": [],
+      "cluster_ids": [
+        "evt_4630adb1bb389093804a"
+      ]
+    },
+    {
+      "theme": "liquidez",
+      "text": "Com eleição no domingo e agenda americana pesada, vale revisar se a reserva de liquidez cobre as necessidades dos próximos meses sem depender de resgatar ativos em dia de estresse.",
+      "fact_ids": [],
+      "cluster_ids": []
+    }
+  ],
+  "content_lab": {
+    "story": {
+      "title": "Uma tarifa, três efeitos",
+      "angle": "Partir da sobretaxa chinesa sobre a carne brasileira, noticiada pela Exame, para mostrar em três telas como uma decisão comercial chega à empresa exportadora, ao câmbio e ao preço interno.",
+      "main_idea": "Tarifa não é só assunto de diplomata: ela muda receita de empresa, fluxo de dólar e, às vezes, o preço no açougue.",
+      "fact_ids": [],
+      "cluster_ids": [
+        "evt_5ba0f585d56a4d8d021c"
+      ]
+    },
+    "carousel": {
+      "title": "IPCA caiu, IPCA-15 subiu: qual vale?",
+      "angle": "Usar a queda do IPCA de agosto e a surpresa da prévia de setembro para explicar o que cada índice mede, por que eles divergem e por que a tendência importa mais que a manchete de um mês.",
+      "main_idea": "Índices medem períodos e cestas diferentes; quem investe olha a tendência e o juro real, não o susto de um mês.",
+      "fact_ids": [
+        "fact_50860af1bb98116e6df7"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    "reel": {
+      "title": "O dado americano que mexe no seu dólar",
+      "angle": "O PCE sai hoje e quase ninguém aqui acompanha. Explicar o caminho do índice até o câmbio brasileiro, sem jargão.",
+      "main_idea": "O câmbio de amanhã começa numa planilha de preços em Washington.",
+      "hook": "Hoje sai um índice de inflação americano que quase ninguém no Brasil acompanha, e ele pode mexer no dólar que você paga.",
+      "development": "O PCE é a medida de inflação que o Fed mais olha. Se vier alto, o mercado adia os cortes de juros lá fora. Juro alto nos EUA atrai capital para ativos em dólar e costuma pressionar moedas como o real.",
+      "closing": "Quem entende esse caminho para de se surpreender com o câmbio e passa a planejar gastos e investimentos em dólar com antecedência.",
+      "cta": "Salve e confira depois do dado se a leitura se confirmou.",
+      "fact_ids": [
+        "fact_f4f2c079a03bfcf43f0d"
+      ],
+      "cluster_ids": [
+        "evt_931bfed6792d2b3ffd05"
+      ]
+    },
+    "take": {
+      "title": "Eleição não é estratégia; liquidez é",
+      "angle": "Opinião, sinalizada como tal, a quatro dias do primeiro turno: posicionar a carteira pelo resultado é aposta binária. Sem citar candidatos e sem previsão.",
+      "main_idea": "Se o seu plano depende de quem ganha no domingo, o problema é o plano.",
+      "fact_ids": [
+        "fact_76a89562a94de1f3055c"
+      ],
+      "cluster_ids": []
+    }
+  }
+}

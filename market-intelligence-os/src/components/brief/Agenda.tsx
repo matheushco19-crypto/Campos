@@ -11,7 +11,7 @@ const BUCKETS: AgendaItem['bucket'][] = ['today', 'tomorrow', 'week', 'upcoming'
 export function Agenda({ s, events }: { s: IntelligenceSnapshot; events: CalendarEvent[] }) {
   return (
     <Section id="calendar" index="05" eyebrow="Agenda" title="O que vem por aí" lead="Horários convertidos para Brasília. Eventos com data pela regra de divulgação aparecem como UNVERIFIED até a confirmação na fonte oficial.">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 lg:grid-cols-2">
         {BUCKETS.map((b) => {
           const items = s.agenda.filter((a) => (b === 'upcoming' ? a.bucket === 'upcoming' : a.bucket === b))
           return (
