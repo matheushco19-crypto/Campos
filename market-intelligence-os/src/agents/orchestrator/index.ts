@@ -40,6 +40,7 @@ export interface MorningOptions {
   job?: JobName
   skipNetworkCalendar?: boolean
   processResearch?: boolean
+  liveQuote?: boolean
 }
 
 export interface MorningResult {
@@ -59,7 +60,7 @@ export async function runMorningIntelligence(repo: Repository, opts: MorningOpti
   orch.meta({ llm_mode: opts.mode ?? llmMode(), storage: repo.store.kind })
 
   // Agent 1
-  const a1 = await runMarketIntelligence(repo, { briefDate: date, now, job, parentRunId: orch.id, bundle: opts.bundle, extraObservations: opts.extraObservations })
+  const a1 = await runMarketIntelligence(repo, { briefDate: date, now, job, parentRunId: orch.id, bundle: opts.bundle, extraObservations: opts.extraObservations, liveQuote: opts.liveQuote })
   stages.agent1 = a1.status
   if (a1.status === 'FAILED') orch.error('agent1', `Agent 1 falhou: ${a1.errors.slice(-1)[0]?.message ?? 'sem dados'}. Pipeline segue com dados disponíveis.`)
 
