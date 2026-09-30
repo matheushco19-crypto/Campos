@@ -1,13 +1,15 @@
+import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { llmMode } from '../../core/env'
 import { stableId } from '../../core/ids'
 import { errorMessage } from '../../core/logger'
 import { AnalysisOutput, type AgendaItem, type CalendarEvent, type EventCluster, type IntelligenceSnapshot, type NewsItem, type QcReport, type VerifiedFact } from '../../core/schemas'
 import { qualityControl } from '../../engines/quality-control'
+import { marketSignals, scoreClusters, selectClusters } from '../../engines/relevance'
 import { callStructured } from '../../llm/provider'
 import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
-import { buildAgenda, buildMacroRows, buildMarketRows, buildSourceReferences, deterministicAnalysis, toStoredContentLab } from './brief'
+import { buildAgenda, buildMacroRows, buildMarketRows, buildRates, buildSourceReferences, deterministicAnalysis, toStoredContentLab } from './brief'
 import { FINANCIAL_INTELLIGENCE_INSTRUCTIONS } from './instructions'
 import { buildAnalysisPacket, packetToPrompt, type AnalysisPacket } from './packet'
 
@@ -67,6 +69,20 @@ function clusterSummaries(clusters: EventCluster[], news: NewsItem[]): Map<strin
   return out
 }
 
+/** Canonical hash of a submitted analysis: the same submission for the same date is idempotent. */
+export function analysisHash(date: string, analysis: unknown): string {
+  const canon = (v: unknown): unknown =>
+    Array.isArray(v) ? v.map(canon) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v as object).sort().map((k) => [k, canon((v as Record<string, unknown>)[k])])) : v
+  return createHash('sha256').update(`${date}|${JSON.stringify(canon(analysis))}`).digest('hex').slice(0, 32)
+}
+
+/** Relevance selection for the brief: uses the ranking stored by Agent 1, or recomputes it (same deterministic rules). */
+export function briefSelection(date: string, facts: VerifiedFact[], clusters: EventCluster[], news: NewsItem[]) {
+  const signals = marketSignals(facts)
+  const scored = clusters.some((c) => c.relevance_score > 0) ? clusters : scoreClusters(clusters, news, date, signals)
+  return { ...selectClusters(scored), signals }
+}
+
 export function assembleDraft(args: {
   date: string
   now: Date
@@ -78,10 +94,14 @@ export function assembleDraft(args: {
   mode: BriefDraft['analysis_mode']
   status: BriefDraft['status']
   limitations: string[]
+  watchlist?: EventCluster[]
+  coverage?: BriefDraft['coverage_matrix']
+  analysisHash?: string | null
 }): { draft: BriefDraft; qc: QcReport } {
   const marketRows = buildMarketRows(args.facts)
   const agenda: AgendaItem[] = buildAgenda(args.events, args.date)
-  const { analysis, report } = qualityControl({ analysis: args.analysis, facts: args.facts, marketRows, agenda, clusters: args.clusters, factsOnly: args.status !== 'PUBLISHED' })
+  // The deterministic brief is checked in facts-only mode (no event count / word target), with every other rule.
+  const { analysis, report } = qualityControl({ analysis: args.analysis, facts: args.facts, marketRows, agenda, clusters: args.clusters, factsOnly: args.mode === 'deterministic' || args.status !== 'PUBLISHED' })
   // QC runs before any publication: a brief whose blocking checks still fail is not published.
   let status = args.status
   const limitations = [...args.limitations]
@@ -104,6 +124,10 @@ export function assembleDraft(args: {
     market_snapshot: marketRows,
     macro_snapshot: buildMacroRows(args.facts),
     news_snapshot: args.clusters.slice(0, 25),
+    rates: buildRates(args.facts),
+    watchlist_candidates: args.watchlist ?? [],
+    coverage_matrix: args.coverage ?? [],
+    analysis_hash: args.analysisHash ?? null,
     lede: args.mode === 'deterministic' || status === 'AWAITING_ANALYSIS' ? null : analysis.lede,
     what_matters: analysis.what_matters,
     macro_watch: analysis.macro_watch,
@@ -122,15 +146,34 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
   const input = Agent2Input.parse(rawInput)
   const mode = input.mode ?? llmMode()
   const logger = await new RunLogger(repo, 'financial-intelligence', { job: 'MORNING_INTELLIGENCE', briefDate: input.date, parentRunId: input.parentRunId ?? null }).start()
-  const { facts, clusters, news, events } = await loadBriefInputs(repo, input.date)
+  const started = Date.now()
+  const { facts, clusters: stored, news, events } = await loadBriefInputs(repo, input.date)
+  const selection = briefSelection(input.date, facts, stored, news)
+  const clusters = selection.top
   const eventRequests = events.filter((e) => input.eventRequestIds.includes(e.id))
-  const packet = buildAnalysisPacket(input.date, facts, clusters, events, clusterSummaries(clusters, news), eventRequests)
-  logger.meta({ mode, citable_facts: packet.citable_facts.length, non_citable: packet.non_citable.length, clusters_sent: packet.clusters.length, packet_chars: JSON.stringify(packet).length })
+  const packet = buildAnalysisPacket(input.date, facts, selection.all, events, clusterSummaries(clusters, news), eventRequests, selection.signals)
+  logger.meta({
+    mode,
+    citable_facts: packet.citable_facts.length,
+    non_citable: packet.non_citable.length,
+    clusters_sent: packet.clusters.length,
+    packet_chars: packet.budget.chars,
+    packet_estimated_tokens: packet.budget.estimated_tokens,
+    facts_count: packet.budget.facts,
+    clusters_count: packet.budget.clusters,
+    agenda_count: packet.budget.agenda,
+    packet_truncated: packet.budget.truncated,
+    watchlist_candidates: selection.watchlist.length,
+    coverage_uncovered: selection.coverage.filter((c) => !c.covered).map((c) => c.label),
+  })
 
   const limitations: string[] = []
   let analysis: AnalysisOutput | null = null
   let usedMode: BriefDraft['analysis_mode'] = 'deterministic'
-  let status: BriefDraft['status'] = 'DRAFT_FACTS_ONLY'
+  // The daily deterministic snapshot is always published (QC in facts-only mode); enrichment replaces it later.
+  let status: BriefDraft['status'] = 'PUBLISHED'
+  let llmCalls = 0
+  let hash: string | null = null
 
   try {
     if (input.submittedAnalysis !== undefined) {
@@ -139,7 +182,9 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
       analysis = parsed.data
       usedMode = 'claude_code'
       status = 'PUBLISHED'
+      hash = analysisHash(input.date, input.submittedAnalysis)
     } else if (mode === 'anthropic_api') {
+      llmCalls++
       const res = await callStructured({ system: FINANCIAL_INTELLIGENCE_INSTRUCTIONS, user: packetToPrompt(packet), schema: AnalysisOutput, tier: 'deep', maxTokens: 16000 })
       logger.meta({ model: res.model, usage: res.usage, stop_reason: res.stopReason })
       if (res.output) {
@@ -148,7 +193,7 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
         status = 'PUBLISHED'
       } else {
         logger.error('llm', res.error ?? 'unknown LLM error')
-        limitations.push(`Interpretação indisponível: falha na chamada ao modelo (${res.error}). Exibindo briefing apenas com fatos.`)
+        limitations.push(`Interpretação indisponível: falha na chamada ao modelo (${res.error}). Publicado o briefing determinístico (apenas fatos).`)
       }
     } else if (mode === 'claude_code') {
       await repo.saveAnalysisPacket({
@@ -160,14 +205,15 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
         packet: packet as unknown as Record<string, unknown>,
         submitted_at: null,
       })
-      status = 'AWAITING_ANALYSIS'
-      limitations.push('Aguardando a etapa de interpretação (rotina Claude Code). Os fatos verificados já estão disponíveis.')
+      limitations.push('Briefing determinístico publicado (apenas fatos). A interpretação do Claude Code, quando enviada, substitui esta versão para a mesma data.')
     } else {
       limitations.push('Execução sem LLM: briefing contém apenas fatos verificados, sem interpretação.')
     }
   } catch (e) {
     logger.error('analysis', errorMessage(e))
     limitations.push(`Interpretação indisponível: ${errorMessage(e)}`)
+    // A rejected submission never publishes anything (the deterministic version stays the published one).
+    if (input.submittedAnalysis !== undefined) status = 'FAILED_QC'
   }
 
   const finalAnalysis = analysis ?? deterministicAnalysis(facts, clusters)
@@ -182,10 +228,15 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
     mode: usedMode,
     status,
     limitations,
+    watchlist: selection.watchlist,
+    coverage: selection.coverage,
+    analysisHash: hash,
   })
+  logger.meta({ provider_calls: llmCalls, retries: 0, elapsed_ms: Date.now() - started })
   logger.meta({ qc_passed: qc.passed, qc_corrections: qc.corrections.length, word_count: qc.word_count, reading_minutes: qc.reading_minutes })
   logger.counts({ items_collected: facts.length + clusters.length, items_verified: packet.citable_facts.length, items_rejected: qc.corrections.length })
-  const runStatus = status === 'AWAITING_ANALYSIS' ? 'AWAITING_ANALYSIS' : logger.run.errors.length ? 'PARTIAL' : 'SUCCESS'
+  const awaiting = mode === 'claude_code' && input.submittedAnalysis === undefined
+  const runStatus = awaiting ? 'AWAITING_ANALYSIS' : logger.run.errors.length ? 'PARTIAL' : 'SUCCESS'
   await logger.finish(runStatus)
   return { runId: logger.id, draft, packet, status: runStatus }
 }

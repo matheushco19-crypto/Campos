@@ -1,7 +1,7 @@
-import { ASSETS, type AssetConfig, type SourceMapping } from '../../../../config/assets'
+import { ASSETS, DI_BUCKETS, type AssetConfig, type SourceMapping } from '../../../../config/assets'
 import { getEnv } from '../../../core/env'
 import { fetchJson, fetchText, redactUrl, type FetchOptions } from '../../../core/http'
-import type { RawObservation } from '../../../core/schemas'
+import type { Instrument, RawObservation } from '../../../core/schemas'
 import { addDays, toLocalDate, toLocalTime, weekdayOf, zonedToUtc } from '../../../core/time'
 import {
   parseBrapiCurrency,
@@ -20,14 +20,19 @@ import {
   parseStooqHistory,
   parseTreasuryCsv,
   parseTwelveData,
+  parseFmpQuote,
+  parseYahooChart,
+  parseB3DiFile,
   pctChange,
+  type DiContractRow,
   type SeriesPoint,
 } from './parsers'
-import { observationStatus } from './market-status'
+import { describeSession, observationStatus } from './market-status'
+import { isBusinessDay, selectDiBucket } from './di-curve'
 import type { CollectorResult } from './types'
 import { pool } from '../../../core/pool'
 
-type Fetched = { value: number; referenceDate: string; asOf: string; changePct: number | null; previous: number | null; url: string; notes?: string }
+type Fetched = { value: number; referenceDate: string; asOf: string; changePct: number | null; previous: number | null; url: string; notes?: string; instrument?: Instrument }
 
 const lastTwo = (points: SeriesPoint[]) => {
   const last = points.at(-1)
@@ -57,6 +62,57 @@ export function sessionOf(asset: AssetConfig, instant: string): { referenceDate:
   return { referenceDate: date, asOf: hhmm > asset.exchange.close ? closeInstant(asset, date) : new Date(instant).toISOString() }
 }
 
+/**
+ * Morning rule: daily series only use COMPLETED sessions. Today's bar is dropped
+ * while the exchange has not closed yet (e.g. Europe at 05:00 BRT), so an intraday
+ * value is never taken as a close.
+ */
+export function completedBars(asset: AssetConfig, bars: SeriesPoint[], now: Date): SeriesPoint[] {
+  if (asset.exchange.always) return bars
+  const today = toLocalDate(now, asset.exchange.timezone)
+  const closed = toLocalTime(now, asset.exchange.timezone) >= asset.exchange.close
+  return bars.filter((b) => b.period < today || (b.period === today && closed))
+}
+
+/* B3 consolidated trade files are immutable once "Final": cached per date for the process lifetime. */
+const b3Cache = new Map<string, Promise<DiContractRow[]>>()
+const B3_BASE = 'https://arquivos.b3.com.br/api/download'
+
+export async function fetchB3DiRows(date: string, http: FetchOptions = {}): Promise<DiContractRow[]> {
+  const cached = b3Cache.get(date)
+  if (cached) return cached
+  const p = (async () => {
+    const meta = (await fetchJson(`${B3_BASE}/requestname?fileName=TradeInformationConsolidatedFile&date=${date}`, { timeoutMs: 20_000, ...http })) as { redirectUrl?: string; token?: string }
+    const token = meta.token ?? /token=([^&]+)/.exec(meta.redirectUrl ?? '')?.[1]
+    if (!token) throw new Error(`B3: no file for ${date}`)
+    const { status, rows } = parseB3DiFile(await fetchText(`${B3_BASE}/?token=${encodeURIComponent(token)}`, { timeoutMs: 45_000, retries: 1, ...http }))
+    if (status && !/final/i.test(status)) throw new Error(`B3: file for ${date} is not final (${status})`)
+    return rows
+  })()
+  b3Cache.set(date, p)
+  p.catch(() => b3Cache.delete(date))
+  return p
+}
+
+/** Latest final DI1 file on or before `now` (Brazil), plus the previous business day's file for the bps change. */
+async function latestDiFiles(now: Date, http: FetchOptions): Promise<{ rows: DiContractRow[]; previous: DiContractRow[]; date: string }> {
+  let d = toLocalDate(now, 'America/Sao_Paulo')
+  let lastError: unknown = null
+  for (let i = 0; i < 6; i++, d = addDays(d, -1)) {
+    if (!isBusinessDay(d)) continue
+    try {
+      const rows = await fetchB3DiRows(d, http)
+      let p = addDays(d, -1)
+      while (!isBusinessDay(p)) p = addDays(p, -1)
+      const previous = await fetchB3DiRows(p, http).catch(() => [] as DiContractRow[])
+      return { rows, previous, date: d }
+    } catch (e) {
+      lastError = e
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('B3: no DI1 file found in the last 6 days')
+}
+
 export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping, now: Date, http: FetchOptions = {}): Promise<Fetched> {
   const env = getEnv()
   switch (m.sourceId) {
@@ -77,7 +133,7 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
       const d2 = toLocalDate(now, 'UTC').replace(/-/g, '')
       const d1 = addDays(toLocalDate(now, 'UTC'), -12).replace(/-/g, '')
       const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(m.symbol)}&i=d&d1=${d1}&d2=${d2}`
-      const { last, prev } = lastTwo(parseStooqHistory(await fetchText(url, http)))
+      const { last, prev } = lastTwo(completedBars(asset, parseStooqHistory(await fetchText(url, http)), now))
       return { value: last.value, previous: prev?.value ?? null, changePct: pctChange(last.value, prev?.value), referenceDate: last.period, asOf: closeInstant(asset, last.period), url }
     }
     case 'fred': {
@@ -178,6 +234,38 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
       const refDate = (r.date ?? toLocalDate(now, asset.exchange.timezone)).slice(0, 10)
       return { value: r.value, previous: r.previous, changePct: r.changePct, referenceDate: refDate, asOf: closeInstant(asset, refDate), url: redactUrl(url) }
     }
+    case 'fmp': {
+      if (!env.FMP_API_KEY) throw new Error('FMP_API_KEY not configured')
+      const url = `https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(m.symbol)}&apikey=${env.FMP_API_KEY}`
+      const r = parseFmpQuote(await fetchJson(url, http))
+      const session = sessionOf(asset, r.time ?? now.toISOString())
+      return { value: r.value, previous: r.previous, changePct: r.changePct, ...session, url: redactUrl(url) }
+    }
+    case 'yahoo': {
+      // Unofficial structured JSON (never HTML). Display fallback only: never counts toward VERIFIED.
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.symbol)}?range=5d&interval=1d`
+      const { bars } = parseYahooChart(await fetchJson(url, { retries: 0, ...http }))
+      const { last, prev } = lastTwo(completedBars(asset, bars, now))
+      return { value: last.value, previous: prev?.value ?? null, changePct: pctChange(last.value, prev?.value), referenceDate: last.period, asOf: closeInstant(asset, last.period), url, notes: 'Yahoo Finance (fornecedor não oficial): não conta para VERIFIED.' }
+    }
+    case 'b3-arquivos': {
+      const target = DI_BUCKETS.find(([b]) => b === m.symbol)
+      if (!target) throw new Error(`unknown DI bucket ${m.symbol}`)
+      const { rows, previous, date } = await latestDiFiles(now, http)
+      const pick = selectDiBucket(rows, target[0], target[1], previous)
+      if (!pick) throw new Error(`DI1 ${m.symbol}: nenhum contrato dentro da distância permitida do prazo`)
+      const url = `https://arquivos.b3.com.br/tabelas/TradeInformationConsolidated/${date}`
+      return {
+        value: pick.rate,
+        previous: pick.previous,
+        changePct: null,
+        referenceDate: pick.date,
+        asOf: zonedToUtc(pick.date, '18:00', 'America/Sao_Paulo'),
+        url,
+        instrument: { code: pick.code, maturity: pick.maturity, calendar_days: pick.calendar_days, business_days: pick.business_days, bucket: pick.bucket },
+        notes: `Contrato ${pick.code} (vencimento ${pick.maturity}, ${pick.business_days} dias úteis). Taxa de ajuste B3.${pick.previous !== null ? ` Variação: ${Math.round((pick.rate - pick.previous) * 100)} bps.` : ''}`,
+      }
+    }
   }
 }
 
@@ -190,6 +278,8 @@ export function skipReason(m: SourceMapping): string | null {
   const env = getEnv()
   if (m.sourceId === 'brapi' && !env.BRAPI_TOKEN) return 'BRAPI_TOKEN ausente'
   if (m.sourceId === 'twelvedata' && !env.TWELVEDATA_API_KEY) return 'TWELVEDATA_API_KEY ausente'
+  if (m.sourceId === 'fmp' && !env.FMP_API_KEY) return 'FMP_API_KEY ausente'
+  if (m.sourceId === 'yahoo' && env.MI_ENABLE_YAHOO_FALLBACK !== 'true') return 'Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)'
   if (m.sourceId === 'coingecko' && !env.COINGECKO_DEMO_KEY) return 'COINGECKO_DEMO_KEY ausente (403 sem chave)'
   if (m.sourceId === 'stooq' && env.MI_ENABLE_STOOQ !== 'true') return 'Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)'
   return null
@@ -208,6 +298,8 @@ export async function collectMarkets(now = new Date(), assets = ASSETS.filter((a
       const started = Date.now()
       try {
         const f = await fetchMarketFromSource(asset, m, now, http)
+        // Official fixings (PTAX, ECB reference rates) and B3 settlements are final once published.
+        const marketStatus = ['bcb-ptax', 'ecb-fx', 'b3-arquivos'].includes(m.sourceId) ? 'CLOSED' : observationStatus(asset.exchange, f.referenceDate, now)
         const obs: RawObservation = {
           sourceId: m.sourceId,
           category: 'MARKET',
@@ -220,8 +312,9 @@ export async function collectMarkets(now = new Date(), assets = ASSETS.filter((a
           url: f.url,
           previousValue: f.previous,
           changePct: f.changePct,
-          // Official fixings (PTAX, ECB reference rates) are final once published.
-          marketStatus: m.sourceId === 'bcb-ptax' || m.sourceId === 'ecb-fx' ? 'CLOSED' : observationStatus(asset.exchange, f.referenceDate, now),
+          marketStatus,
+          session: describeSession(asset, m.sourceId, f.referenceDate, f.asOf, marketStatus),
+          instrument: f.instrument,
           notes: f.notes,
         }
         result.observations.push(obs)

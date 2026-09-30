@@ -1,7 +1,7 @@
-import { ASSETS } from '../../../config/assets'
+import { ASSETS, CORE_MARKETS, DERIVED_SPREADS, DI_BUCKETS } from '../../../config/assets'
 import { MACRO_INDICATORS } from '../../../config/macro'
 import { sourceName } from '../../../config/sources'
-import type { AgendaItem, AnalysisOutput, CalendarEvent, ContentLab, ContentLabInput, EventCluster, MacroRow, MarketRow, NewsTopic, SourceReference, VerifiedFact } from '../../core/schemas'
+import type { AgendaItem, AnalysisOutput, CalendarEvent, ContentLab, ContentLabInput, EventCluster, MacroRow, MarketRow, NewsTopic, RateVertex, RatesSnapshot, SourceReference, VerifiedFact } from '../../core/schemas'
 import { addDays, weekdayOf } from '../../core/time'
 import { isCitable } from '../../verification/engine'
 
@@ -9,10 +9,14 @@ import { isCitable } from '../../verification/engine'
 
 export function buildMarketRows(facts: VerifiedFact[]): MarketRow[] {
   const byMetric = new Map(facts.filter((f) => f.category === 'MARKET').map((f) => [f.metric, f]))
+  const core = new Set<string>(CORE_MARKETS)
   return ASSETS.filter((a) => a.enabled && a.showInBrief)
     .map((a) => byMetric.get(a.metric))
     .filter((f): f is VerifiedFact => !!f)
     .map((f) => ({
+      verification_method: f.verification_method,
+      core: core.has(f.metric),
+      session: f.session?.session ?? null,
       metric: f.metric,
       label: f.label,
       region: f.region,
@@ -26,6 +30,48 @@ export function buildMarketRows(facts: VerifiedFact[]): MarketRow[] {
       is_stale: f.is_stale,
       source_fallback: f.source_fallback,
     }))
+}
+
+const TREASURY_TENORS: [string, string][] = [
+  ['US_UST_3M', '3M'],
+  ['US_UST_6M', '6M'],
+  ['US_UST_1Y', '1Y'],
+  ['US_UST_2Y', '2Y'],
+  ['US_UST_5Y', '5Y'],
+  ['US10Y', '10Y'],
+  ['US_UST_20Y', '20Y'],
+  ['US_UST_30Y', '30Y'],
+]
+const HIGHLIGHT = new Set(['2Y', '5Y', '10Y', '30Y'])
+const POLICY = ['BR_SELIC_TARGET', 'BR_SELIC_EFFECTIVE', 'BR_CDI', 'US_FED_FUNDS_UPPER', 'EU_ECB_DEPOSIT_RATE']
+
+/** Curves section, straight from facts. Change in bps = value − previous (same source series), never estimated. */
+export function buildRates(facts: VerifiedFact[]): RatesSnapshot {
+  const byMetric = new Map(facts.map((f) => [f.metric, f]))
+  const vertex = (f: VerifiedFact, tenor: string, highlight = false): RateVertex => ({
+    metric: f.metric,
+    label: f.label,
+    tenor,
+    value: f.value,
+    unit: f.unit,
+    change_bps:
+      f.value === null || f.previous_value === null ? null : f.unit === 'bps' ? Math.round((f.value - f.previous_value) * 100) / 100 : Math.round((f.value - f.previous_value) * 10000) / 100,
+    reference: f.reference_period,
+    source: f.primary_source ? sourceName(f.primary_source) : null,
+    verification_status: f.verification_status,
+    verification_method: f.verification_method,
+    fact_id: f.id,
+    instrument: f.instrument,
+    highlight,
+    note: f.verification_status === 'VERIFIED' ? null : f.notes,
+  })
+  const pick = (metric: string) => byMetric.get(metric)
+  return {
+    treasury: TREASURY_TENORS.flatMap(([m, t]) => (pick(m) ? [vertex(pick(m)!, t, HIGHLIGHT.has(t))] : [])),
+    spreads: DERIVED_SPREADS.flatMap((d) => (pick(d.metric) ? [vertex(pick(d.metric)!, d.label.replace('Spread ', ''), true)] : [])),
+    di: DI_BUCKETS.flatMap(([b]) => (pick(`BR_DI1_${b}`) ? [vertex(pick(`BR_DI1_${b}`)!, b, false)] : [])),
+    policy: POLICY.flatMap((m) => (pick(m) ? [vertex(pick(m)!, '—', m.startsWith('BR_SELIC'))] : [])),
+  }
 }
 
 export function buildMacroRows(facts: VerifiedFact[]): MacroRow[] {

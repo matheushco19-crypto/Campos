@@ -5,6 +5,7 @@ import { stableId } from '../../core/ids'
 import { errorMessage } from '../../core/logger'
 import { CalendarEvent, NewsItem, RawObservation, RunError, SourceHealth, type EventCluster, type JobName, type VerifiedFact } from '../../core/schemas'
 import { clusterNews } from '../../engines/news-clustering'
+import { marketSignals, scoreClusters, scoreItem, selectClusters } from '../../engines/relevance'
 import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
 import { verifyAll } from '../../verification/engine'
@@ -162,10 +163,23 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
     let clusters: EventCluster[] = []
     if (input.scope.includes('news')) {
       const official = new Set(SOURCES.filter((s) => s.kind === 'news' && s.authority === 'official').map((s) => s.id))
-      const clustered = clusterNews(bundle.news, input.briefDate, { officialSourceIds: official })
-      clusters = clustered.clusters
+      // Score items first (seeds each cluster with its most relevant story), cluster, then rank clusters.
+      const factsForSignals = facts.length ? facts : await repo.getLatestFactsForDate(input.briefDate)
+      const signals = marketSignals(factsForSignals)
+      const clustered = clusterNews(bundle.news, input.briefDate, { officialSourceIds: official, rank: (n) => scoreItem(n, input.briefDate, signals) })
+      const ranked = selectClusters(scoreClusters(clustered.clusters, clustered.items, input.briefDate, signals))
+      clusters = ranked.all
+      // All raw news and every cluster (top, watchlist and tail) are persisted; only the top reaches Agent 2.
       await repo.upsertNews(clustered.items)
       await repo.upsertClusters(clusters)
+      logger.meta({
+        clusters_top: ranked.top.length,
+        clusters_watchlist: ranked.watchlist.length,
+        clusters_tail: ranked.tail.length,
+        hard_overrides: ranked.all.filter((c) => c.hard_override).length,
+        market_signals: signals.map((s) => s.text),
+        coverage_uncovered: ranked.coverage.filter((c) => !c.covered).map((c) => c.label),
+      })
     }
 
     const verified = facts.filter((f) => f.verification_status === 'VERIFIED').length

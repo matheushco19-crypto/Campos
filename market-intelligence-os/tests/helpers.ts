@@ -69,7 +69,7 @@ export function fact(p: Partial<VerifiedFact> & Pick<VerifiedFact, 'id' | 'metri
     is_stale: false,
     verification_method: 'independent_crosscheck',
     session: null,
-    released_at: null,
+    released_at: null, instrument: null,
     brief_date: DATE,
     run_id: 'run_test',
     created_at: NOW.toISOString(),

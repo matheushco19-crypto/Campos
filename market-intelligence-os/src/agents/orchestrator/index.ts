@@ -6,7 +6,7 @@ import { processPendingResearch } from '../../engines/research-broker'
 import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
 import { buildAgenda, buildMarketRows, buildSourceReferences } from '../financial-intelligence/brief'
-import { runFinancialIntelligence, type BriefDraft } from '../financial-intelligence'
+import { analysisHash, runFinancialIntelligence, type BriefDraft } from '../financial-intelligence'
 import { runMarketIntelligence, type CollectionBundle } from '../market-intelligence'
 import { runSocialStrategist } from '../social-strategist'
 
@@ -139,6 +139,10 @@ function limitationsFromRun(a1: Awaited<ReturnType<typeof runMarketIntelligence>
 export async function submitAnalysis(repo: Repository, date: string, analysis: unknown, now = new Date()): Promise<IntelligenceSnapshot> {
   const packet = await repo.getAnalysisPacket(date)
   const latest = await repo.getLatestSnapshot(date)
+  // Idempotent: the same analysis for the same date returns the version already published.
+  const hash = analysisHash(date, analysis)
+  const published = await repo.getLatestPublishedSnapshot(date)
+  if (published?.analysis_hash === hash) return published
   const a2 = await runFinancialIntelligence(repo, { date, now, parentRunId: packet?.run_id ?? latest?.run_id ?? null, submittedAnalysis: analysis })
   // Only a brief that passed QC is published. Rejections go back to the submitter with the reasons.
   if (a2.draft.status !== 'PUBLISHED') throw new Error(`Análise rejeitada (${a2.draft.status}): ${a2.draft.limitations.join(' ')}`)

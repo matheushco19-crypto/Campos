@@ -44,14 +44,16 @@ export function auditSnapshot(snap: IntelligenceSnapshot, facts: VerifiedFact[],
   // 4. QC re-run must be idempotent (nothing left to correct).
   const analysis = snapshotToAnalysis(snap)
   if (analysis) {
-    const rerun = qualityControl({ analysis, facts, marketRows: snap.market_snapshot, agenda: snap.agenda, clusters: snap.news_snapshot, factsOnly: snap.status !== 'PUBLISHED' })
+    const rerun = qualityControl({ analysis, facts, marketRows: snap.market_snapshot, agenda: snap.agenda, clusters: snap.news_snapshot, factsOnly: snap.status !== 'PUBLISHED' || snap.analysis_mode === 'deterministic' })
     push(rerun.report.corrections.length ? 'fail' : 'ok', 'qc_idempotent', rerun.report.corrections.length ? rerun.report.corrections.join(' | ') : 'Reexecução do QC não encontrou nada a corrigir')
   }
   for (const c of snap.qc.checks) push(c.passed ? 'ok' : c.severity === 'warn' ? 'warn' : 'fail', `qc:${c.id}`, c.passed ? c.label : `${c.label}: ${c.detail}`)
 
   // 5. Structure and limits.
   const counts = { what_matters: snap.what_matters.length, insights: snap.insights.length, uhnw: snap.uhnw_lens.length, agenda: snap.agenda.length, sources: snap.source_references.length }
-  if (snap.status === 'PUBLISHED') {
+  if (snap.status === 'PUBLISHED' && snap.analysis_mode === 'deterministic') {
+    push('warn', 'deterministic_snapshot', `Snapshot determinístico publicado (apenas fatos, ${counts.what_matters} eventos, sem Content Lab). Aguarda enriquecimento do Agent 2.`)
+  } else if (snap.status === 'PUBLISHED') {
     push(counts.what_matters >= 5 && counts.what_matters <= 7 ? 'ok' : 'warn', 'what_matters_count', `${counts.what_matters} itens (meta 5–7)`)
     push(counts.insights === 3 ? 'ok' : 'warn', 'insights_count', `${counts.insights} insights (meta 3)`)
     push(counts.uhnw >= 2 ? 'ok' : 'warn', 'uhnw_count', `${counts.uhnw} pontos (meta 2–3)`)

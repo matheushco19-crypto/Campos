@@ -203,7 +203,23 @@ export const SOURCES: SourceDefinition[] = [
     enabled: true,
     credentialEnv: 'TWELVEDATA_API_KEY',
     regions: ['GLOBAL'],
-    limitation: 'Opcional, gratuita com chave (cadastro). A chave "demo" só cobre forex (índices → 401, testado em 30/09/2026). Única via prevista para Euro Stoxx 50, DAX, FTSE, Hang Seng e Shanghai; a cobertura desses índices no plano gratuito não foi confirmada.',
+    limitation:
+      'Fornecedor unificado preferido (bakeoff 30/09/2026). Opcional, gratuita com chave (cadastro); a chave "demo" responde 401 para cotações. Símbolos descobertos nas listas de referência (/indices, /forex_pairs, /cryptocurrencies): BVSP, STOXX50E, GDAXI, FTSE, N225, HSI, 000001, KOSPI, USD/BRL, EUR/BRL, BTC/USD. ' +
+      'S&P 500, Nasdaq Composite, Dow Jones e DXY não constam do catálogo de índices. Cotações não testadas por falta de chave (TWELVEDATA_API_KEY ausente).',
+  },
+  {
+    id: 'fmp',
+    lineage: 'fmp',
+    name: 'Financial Modeling Prep',
+    kind: 'market',
+    authority: 'data_vendor',
+    priority: 4,
+    homepage: 'https://site.financialmodelingprep.com/developer/docs',
+    access: 'api',
+    enabled: true,
+    credentialEnv: 'FMP_API_KEY',
+    regions: ['US', 'GLOBAL'],
+    limitation: 'Opcional, com chave. Candidato para S&P 500, Nasdaq Composite, Dow Jones e DXY (fora do catálogo da Twelve Data). Não testado no bakeoff: FMP_API_KEY ausente. Cobertura de índices no plano gratuito não confirmada.',
   },
 
   /* ----------------------------- MACRO ---------------------------- */

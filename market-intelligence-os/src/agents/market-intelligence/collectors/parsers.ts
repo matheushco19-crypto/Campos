@@ -293,3 +293,81 @@ export const round = (v: number, d: number) => Math.round(v * 10 ** d) / 10 ** d
 
 export const pctChange = (value: number, previous: number | null | undefined) =>
   previous ? round(((value - previous) / previous) * 100, 2) : null
+
+/* ------------------------------ FMP ---------------------------------- */
+/** /stable/quote → [{ symbol, price, previousClose, changePercentage, timestamp }] */
+export function parseFmpQuote(json: unknown) {
+  const arr = Array.isArray(json) ? json : []
+  const j = arr[0] as { price?: number; previousClose?: number; changePercentage?: number; changesPercentage?: number; timestamp?: number } | undefined
+  if (!j) throw new Error('FMP: empty response')
+  const v = num(j.price)
+  if (v === null) throw new Error('FMP: no price')
+  return { value: v, previous: num(j.previousClose), changePct: num(j.changePercentage ?? j.changesPercentage), time: j.timestamp ? new Date(j.timestamp * 1000).toISOString() : null }
+}
+
+/* ------------------------------ Yahoo (unofficial) -------------------- */
+/**
+ * v8 chart JSON (range=5d, interval=1d) → daily bars in the exchange timezone,
+ * plus the timestamp of the last trade. Structured JSON only, never HTML.
+ */
+export function parseYahooChart(json: unknown): { bars: SeriesPoint[]; lastTrade: string | null; currency: string | null; timezone: string | null } {
+  const r = (json as { chart?: { result?: unknown[]; error?: { description?: string } | null } })?.chart
+  if (r?.error) throw new Error(`Yahoo: ${r.error.description ?? 'error'}`)
+  const res = r?.result?.[0] as
+    | { meta?: { regularMarketTime?: number; currency?: string; exchangeTimezoneName?: string }; timestamp?: number[]; indicators?: { quote?: { close?: (number | null)[] }[] } }
+    | undefined
+  if (!res?.timestamp?.length) throw new Error('Yahoo: no data')
+  const tz = res.meta?.exchangeTimezoneName ?? 'UTC'
+  const closes = res.indicators?.quote?.[0]?.close ?? []
+  const byDate = new Map<string, number>()
+  res.timestamp.forEach((t, i) => {
+    const c = closes[i]
+    if (typeof c === 'number' && Number.isFinite(c)) byDate.set(new Date(t * 1000).toLocaleDateString('en-CA', { timeZone: tz }), c)
+  })
+  const bars = [...byDate.entries()].map(([period, value]) => ({ period, value })).sort((a, b) => a.period.localeCompare(b.period))
+  if (!bars.length) throw new Error('Yahoo: no closes')
+  return { bars, lastTrade: res.meta?.regularMarketTime ? new Date(res.meta.regularMarketTime * 1000).toISOString() : null, currency: res.meta?.currency ?? null, timezone: res.meta?.exchangeTimezoneName ?? null }
+}
+
+/* ------------------------------ B3 Arquivos Públicos ------------------ */
+export interface DiContractRow {
+  code: string
+  date: string
+  /** Settlement rate, % a.a. (AdjstdQtTax). */
+  rate: number
+  trades: number
+}
+
+const brNum = (v: string | undefined): number | null => {
+  if (!v) return null
+  const n = Number(v.trim().replace(/\./g, '').replace(',', '.'))
+  return v.trim() === '' || !Number.isFinite(n) ? null : n
+}
+
+/**
+ * TradeInformationConsolidatedFile (semicolon CSV, pt-BR numbers):
+ * "Status do Arquivo: Final" line, then RptDt;TckrSymb;…;AdjstdQt;AdjstdQtTax;…
+ * Only DI1 futures with a settlement rate are kept.
+ */
+export function parseB3DiFile(text: string): { status: string | null; rows: DiContractRow[] } {
+  const lines = text.split(/\r?\n/)
+  const status = /Status do Arquivo:\s*(\S+)/i.exec(lines.slice(0, 3).join(' '))?.[1] ?? null
+  const hi = lines.findIndex((l) => l.startsWith('RptDt;'))
+  if (hi < 0) throw new Error('B3: header not found')
+  const header = lines[hi].split(';').map((h) => h.trim())
+  const col = (n: string) => header.indexOf(n)
+  const [iDate, iSym, iRate, iTrades] = [col('RptDt'), col('TckrSymb'), col('AdjstdQtTax'), col('TradQty')]
+  if ([iDate, iSym, iRate].some((i) => i < 0)) throw new Error('B3: required columns missing')
+  const rows: DiContractRow[] = []
+  for (const l of lines.slice(hi + 1)) {
+    if (!l.startsWith('20') || !l.includes(';DI1')) continue
+    const f = l.split(';')
+    const code = f[iSym]?.trim()
+    if (!code || !/^DI1[FGHJKMNQUVXZ]\d{2}$/.test(code)) continue
+    const rate = brNum(f[iRate])
+    if (rate === null) continue
+    rows.push({ code, date: f[iDate].trim(), rate, trades: brNum(f[iTrades]) ?? 0 })
+  }
+  if (!rows.length) throw new Error('B3: no DI1 rows')
+  return { status, rows }
+}

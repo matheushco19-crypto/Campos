@@ -1,5 +1,5 @@
 import type { AssetConfig } from '../../../../config/assets'
-import type { MarketStatus } from '../../../core/schemas'
+import type { MarketStatus, SessionInfo } from '../../../core/schemas'
 import { localWeekday, toLocalDate, toLocalTime } from '../../../core/time'
 
 /**
@@ -36,4 +36,34 @@ export function observationStatus(exchange: AssetConfig['exchange'], referenceDa
     return 'CLOSED'
   }
   return 'CLOSED'
+}
+
+/**
+ * SESSION NORMALIZATION (docs/sessions.md). One rule per market, applied to every
+ * observation so a value is never presented as a close when it is intraday.
+ */
+export const SESSION_RULES: Record<string, string> = {
+  fixing: 'Fixing oficial (PTAX do BCB ≈13:30 BRT; referência do ECB ≈14:15 CET): valor final do dia de referência.',
+  official_close: 'Fechamento oficial publicado pelo emissor (US Treasury: par yield curve do dia, publicada no fim da tarde de NY).',
+  settlement: 'Taxa de ajuste da B3 do pregão de referência (publicada após o fechamento).',
+  continuous: 'Mercado 24/7 (cripto): não existe fechamento; o valor é o instantâneo em observed_at e a variação é de 24h.',
+  regular_close: 'Fechamento do pregão regular da bolsa na data de referência.',
+  intraday: 'Pregão aberto no momento da coleta: valor intradiário, nunca exibido como fechamento.',
+}
+
+export function describeSession(
+  asset: AssetConfig,
+  sourceId: string,
+  referenceDate: string,
+  asOf: string,
+  status: MarketStatus,
+): SessionInfo {
+  const base = { observed_at: asOf, reference_date: referenceDate, timezone: asset.exchange.timezone, source: sourceId, session_of: referenceDate }
+  const mk = (session: SessionInfo['session'], is_close: boolean, is_intraday: boolean): SessionInfo => ({ ...base, session, is_close, is_intraday, rule: SESSION_RULES[session] })
+  if (sourceId === 'bcb-ptax' || sourceId === 'ecb-fx') return mk('fixing', true, false)
+  if (sourceId === 'b3-arquivos') return mk('settlement', true, false)
+  if (sourceId === 'us-treasury' || (sourceId === 'fred' && asset.unit === '%')) return mk('official_close', true, false)
+  if (asset.exchange.always) return mk('continuous', false, false)
+  if (status === 'OPEN') return mk('intraday', false, true)
+  return mk('regular_close', true, false)
 }

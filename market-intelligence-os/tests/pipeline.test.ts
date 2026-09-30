@@ -57,7 +57,8 @@ describe('end-to-end: morning pipeline (deterministic + hand-off)', () => {
     const res = await runMorningIntelligence(repo, { now: NOW, bundle: bundle(), mode: 'deterministic', skipNetworkCalendar: true, processResearch: false })
     expect(res.snapshot).not.toBeNull()
     const snap = res.snapshot!
-    expect(snap.status).toBe('DRAFT_FACTS_ONLY')
+    expect(snap.status).toBe('PUBLISHED') // daily deterministic snapshot is always published
+    expect(snap.analysis_mode).toBe('deterministic')
     expect(snap.market_snapshot.find((r) => r.metric === 'SPX')).toMatchObject({ verification_status: 'VERIFIED', value: 6550 })
     expect(snap.market_snapshot.find((r) => r.metric === 'NASDAQ')!.verification_status).toBe('UNVERIFIED')
     expect(snap.market_snapshot.find((r) => r.metric === 'DAX')!.verification_status).toBe('UNAVAILABLE')
@@ -85,7 +86,9 @@ describe('end-to-end: morning pipeline (deterministic + hand-off)', () => {
   it('Claude Code hand-off: packet → submitted analysis → published version with QC', async () => {
     const first = await runMorningIntelligence(repo, { now: NOW, bundle: bundle(), mode: 'claude_code', skipNetworkCalendar: true, processResearch: false })
     expect(first.status).toBe('AWAITING_ANALYSIS')
-    expect(first.snapshot!.status).toBe('AWAITING_ANALYSIS')
+    // The deterministic snapshot is published right away; the packet waits for enrichment.
+    expect(first.snapshot!.status).toBe('PUBLISHED')
+    expect(first.snapshot!.analysis_mode).toBe('deterministic')
     const packet = await repo.getAnalysisPacket(DATE)
     expect(packet?.status).toBe('PENDING')
     const citable = (packet!.packet as { citable_facts: { id: string; label: string }[] }).citable_facts
@@ -102,6 +105,11 @@ describe('end-to-end: morning pipeline (deterministic + hand-off)', () => {
     expect(snap.content_lab).not.toBeNull()
     expect(snap.qc.passed).toBe(true)
     expect((await repo.getAnalysisPacket(DATE))!.status).toBe('SUBMITTED')
+    // Idempotent enrichment: the same submission returns the same version, no duplicate snapshot.
+    const again = await submitAnalysis(repo, DATE, JSON.parse(JSON.stringify(analysis)), NOW)
+    expect(again.id).toBe(snap.id)
+    expect((await repo.getSnapshotVersions(DATE)).map((v) => v.version)).toEqual([2, 1])
+    expect((await repo.getLatestPublishedSnapshot(DATE))!.analysis_mode).toBe('claude_code')
     await expect(submitAnalysis(repo, DATE, { nope: true }, NOW)).rejects.toThrow()
   })
 
@@ -110,7 +118,8 @@ describe('end-to-end: morning pipeline (deterministic + hand-off)', () => {
     const spy = vi.spyOn(provider, 'callStructured').mockResolvedValue({ output: null, stopReason: null, usage: null, model: 'm', error: 'boom' })
     const res = await runMorningIntelligence(repo, { now: NOW, bundle: bundle(), mode: 'anthropic_api', skipNetworkCalendar: true, processResearch: false })
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(res.snapshot!.status).toBe('DRAFT_FACTS_ONLY') // Agent 1 data preserved
+    expect(res.snapshot!.status).toBe('PUBLISHED') // deterministic fallback, Agent 1 data preserved
+    expect(res.snapshot!.analysis_mode).toBe('deterministic')
     expect(res.snapshot!.limitations.join(' ')).toMatch(/Interpretação indisponível/)
     spy.mockRestore()
   })

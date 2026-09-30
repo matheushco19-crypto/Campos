@@ -83,6 +83,8 @@ export interface ClusterOptions {
   threshold?: number
   windowHours?: number
   officialSourceIds?: Set<string>
+  /** Pre-cluster ranking (relevance score of the single item); defaults to importance. */
+  rank?: (item: NewsItem) => number
 }
 
 export function clusterNews(items: NewsItem[], briefDate: string, opts: ClusterOptions = {}): { clusters: EventCluster[]; items: NewsItem[] } {
@@ -94,7 +96,9 @@ export function clusterNews(items: NewsItem[], briefDate: string, opts: ClusterO
   type Work = { tokens: Set<string>; members: NewsItem[] }
   const groups: Work[] = []
   // Most important first, so each cluster's seed is its strongest headline.
-  for (const it of [...unique].sort((a, b) => b.importance - a.importance)) {
+  const rank = opts.rank ?? ((n: NewsItem) => n.importance)
+  const ranks = new Map(unique.map((n) => [n.id, rank(n)]))
+  for (const it of [...unique].sort((a, b) => ranks.get(b.id)! - ranks.get(a.id)!)) {
     const tk = tokenize(it.headline)
     let best: Work | null = null
     let bestScore = 0

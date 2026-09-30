@@ -52,6 +52,16 @@ export const SessionInfo = z.object({
 })
 export type SessionInfo = z.infer<typeof SessionInfo>
 
+/** Exchange-traded contract behind a curve vertex (e.g. DI1F27 for the 12M bucket). */
+export const Instrument = z.object({
+  code: z.string(),
+  maturity: z.string(),
+  calendar_days: z.number().int(),
+  business_days: z.number().int(),
+  bucket: z.string().nullable().default(null),
+})
+export type Instrument = z.infer<typeof Instrument>
+
 export const SourceKind = z.enum(['market', 'macro', 'news', 'calendar'])
 export const SourceAuthority = z.enum(['official', 'exchange', 'data_vendor', 'unofficial_vendor', 'press', 'manual'])
 export const AccessMethod = z.enum(['api', 'rss', 'csv', 'ics', 'manual', 'not_integrated'])
@@ -147,6 +157,7 @@ export const RawObservation = z.object({
   session: SessionInfo.optional(),
   /** Publication date of the value (e.g. IBGE release date from SIDRA /periodos). */
   releasedAt: z.string().optional(),
+  instrument: Instrument.optional(),
 })
 export type RawObservation = z.infer<typeof RawObservation>
 
@@ -184,6 +195,7 @@ export const VerifiedFact = z.object({
   session: SessionInfo.nullable().default(null),
   /** Release/publication date of the number, when the source provides it (e.g. IBGE release). */
   released_at: z.string().nullable().default(null),
+  instrument: Instrument.nullable().default(null),
   /** Snapshot date (America/Sao_Paulo) the fact was collected for. */
   brief_date: z.string(),
   run_id: z.string().nullable(),
@@ -472,6 +484,9 @@ export const MarketRow = z.object({
   fact_id: z.string(),
   is_stale: z.boolean(),
   source_fallback: z.boolean(),
+  verification_method: VerificationMethod.default('unavailable'),
+  core: z.boolean().default(false),
+  session: z.enum(['regular_close', 'intraday', 'fixing', 'continuous', 'settlement', 'official_close', 'release']).nullable().default(null),
 })
 export type MarketRow = z.infer<typeof MarketRow>
 
@@ -544,6 +559,44 @@ export const ContentOpportunity = z.object({
 })
 export type ContentOpportunity = z.infer<typeof ContentOpportunity>
 
+/* Rates: Treasury curve, derived spreads, DI1 buckets and policy rates (deterministic, from facts). */
+export const RateVertex = z.object({
+  metric: z.string(),
+  label: z.string(),
+  tenor: z.string(),
+  value: z.number().nullable(),
+  unit: z.string(),
+  change_bps: z.number().nullable(),
+  reference: z.string().nullable(),
+  source: z.string().nullable(),
+  verification_status: VerificationStatus,
+  verification_method: VerificationMethod,
+  fact_id: z.string(),
+  instrument: Instrument.nullable().default(null),
+  highlight: z.boolean().default(false),
+  note: z.string().nullable().default(null),
+})
+export type RateVertex = z.infer<typeof RateVertex>
+
+export const RatesSnapshot = z.object({
+  treasury: z.array(RateVertex),
+  spreads: z.array(RateVertex),
+  di: z.array(RateVertex),
+  policy: z.array(RateVertex),
+})
+export type RatesSnapshot = z.infer<typeof RatesSnapshot>
+
+/* Coverage matrix: minimum floor of themes checked every morning (never filled artificially). */
+export const CoverageCell = z.object({
+  scope: z.enum(['BR', 'WORLD']),
+  id: z.string(),
+  label: z.string(),
+  covered: z.boolean(),
+  cluster_ids: z.array(z.string()),
+  note: z.string().nullable().default(null),
+})
+export type CoverageCell = z.infer<typeof CoverageCell>
+
 export const IntelligenceSnapshot = z.object({
   id: z.string(),
   date: z.string(),
@@ -566,6 +619,12 @@ export const IntelligenceSnapshot = z.object({
   content_opportunities: z.array(ContentOpportunity).default([]),
   qc: QcReport,
   limitations: z.array(z.string()).default([]),
+  rates: RatesSnapshot.nullable().default(null),
+  /** Clusters ranked just below the ones sent to Agent 2 (15–25): persisted, no tokens spent. */
+  watchlist_candidates: z.array(EventCluster).default([]),
+  coverage_matrix: z.array(CoverageCell).default([]),
+  /** Hash of the submitted analysis: the same submission for the same date is idempotent. */
+  analysis_hash: z.string().nullable().default(null),
 })
 export type IntelligenceSnapshot = z.infer<typeof IntelligenceSnapshot>
 
