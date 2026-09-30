@@ -73,7 +73,7 @@ export default async function Page({ searchParams }: { searchParams: SP }) {
           <>
             {diagnosis && s.status !== 'PUBLISHED' && <DiagnosisBar diagnosis={diagnosis} />}
             <Overview s={s} date={d.date} today={d.today} factById={factById} clusterById={clusterById} previous={d.previous} prevDate={d.prevDate} newerUnpublished={d.newerUnpublished} />
-            <Intelligence s={s} factById={factById} />
+            <Intelligence s={s} factById={factById} packetStatus={d.analysisPacketStatus} />
             <Content s={s} date={d.date} pipeline={d.pipeline} performance={d.performance} strategy={d.strategy} />
             <Agenda s={s} events={d.events} />
           </>

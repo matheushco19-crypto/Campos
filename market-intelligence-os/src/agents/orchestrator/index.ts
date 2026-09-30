@@ -5,7 +5,7 @@ import { addDays, toLocalDate } from '../../core/time'
 import { processPendingResearch } from '../../engines/research-broker'
 import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
-import { buildAgenda, buildMarketRows, buildSourceReferences } from '../financial-intelligence/brief'
+import { attachLiveQuotes, buildAgenda, buildMarketRows, buildSourceReferences } from '../financial-intelligence/brief'
 import { analysisHash, runFinancialIntelligence, type BriefDraft } from '../financial-intelligence'
 import { runKey, withJobLease } from '../../storage/leases'
 import { runMarketIntelligence, type CollectionBundle } from '../market-intelligence'
@@ -82,7 +82,7 @@ export async function runMorningIntelligence(repo: Repository, opts: MorningOpti
   try {
     const a2 = await runFinancialIntelligence(repo, { date, now, parentRunId: orch.id, mode: opts.mode, eventRequestIds })
     stages.agent2 = a2.status
-    draft = a2.draft
+    draft = a1.liveQuotes.length ? { ...a2.draft, market_snapshot: attachLiveQuotes(a2.draft.market_snapshot, a1.liveQuotes) } : a2.draft
   } catch (e) {
     stages.agent2 = 'FAILED'
     orch.error('agent2', `Agent 2 falhou: ${errorMessage(e)}. Dados do Agent 1 preservados.`)
@@ -167,8 +167,11 @@ async function submitAnalysisLocked(repo: Repository, date: string, analysis: un
   const a2 = await runFinancialIntelligence(repo, { date, now, parentRunId: packet?.run_id ?? latest?.run_id ?? null, submittedAnalysis: analysis })
   // Only a brief that passed QC is published. Rejections go back to the submitter with the reasons.
   if (a2.draft.status !== 'PUBLISHED') throw new Error(`Análise rejeitada (${a2.draft.status}): ${a2.draft.limitations.join(' ')}`)
+  // The enriched version keeps the manual live quotes of the version it enriches (same data, new interpretation).
+  const live = new Map((latest?.market_snapshot ?? []).filter((r) => r.live).map((r) => [r.metric, r.live]))
   const snapshot = await repo.insertSnapshot({
     ...a2.draft,
+    market_snapshot: live.size ? attachLiveQuotes(a2.draft.market_snapshot, live) : a2.draft.market_snapshot,
     content_opportunities: latest?.content_opportunities ?? [],
     limitations: a2.draft.limitations,
   })

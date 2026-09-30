@@ -22,7 +22,7 @@ import {
   parseTwelveData,
   parseFmpQuote,
   parseYahooChart,
-  parseYahooQuote,
+  parseYahooLive,
   parseB3DiFile,
   pctChange,
   type DiContractRow,
@@ -32,6 +32,7 @@ import { describeSession, observationStatus } from './market-status'
 import { isBusinessDay, selectDiBucket } from './di-curve'
 import type { CollectorResult } from './types'
 import { pool } from '../../../core/pool'
+import { guardFredgraph } from './fred-breaker'
 
 type Fetched = { value: number; referenceDate: string; asOf: string; changePct: number | null; previous: number | null; url: string; notes?: string; instrument?: Instrument }
 
@@ -143,7 +144,7 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
         ? `https://api.stlouisfed.org/fred/series/observations?series_id=${m.symbol}&api_key=${env.FRED_API_KEY}&file_type=json&observation_start=${start}`
         : `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${m.symbol}&cosd=${start}`
       const fredHttp = { timeoutMs: 25_000, ...http }
-      const points = env.FRED_API_KEY ? parseFredJson(await fetchJson(url, fredHttp)) : parseFredCsv(await fetchText(url, fredHttp))
+      const points = await guardFredgraph(!env.FRED_API_KEY, async () => (env.FRED_API_KEY ? parseFredJson(await fetchJson(url, fredHttp)) : parseFredCsv(await fetchText(url, fredHttp))))
       const { last, prev } = lastTwo(points)
       return { value: last.value, previous: prev?.value ?? null, changePct: asset.unit === '%' ? null : pctChange(last.value, prev?.value), referenceDate: last.period, asOf: closeInstant(asset, last.period), url: redactUrl(url) }
     }
@@ -245,11 +246,11 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
     case 'yahoo': {
       // Unofficial structured JSON (never HTML). Display fallback only: never counts toward VERIFIED.
       if (options.liveQuote) {
-        const url = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(m.symbol)}`
-        const q = parseYahooQuote(await fetchJson(url, { retries: 0, ...http }))
-        const trade = q.lastTrade ?? now.toISOString()
-        const session = sessionOf(asset, trade)
-        return { value: q.value, previous: q.previous, changePct: q.changePct, ...session, url, notes: 'Yahoo Finance (fornecedor não oficial): cotação corrente para execução manual; não conta para VERIFIED.' }
+        // Manual "Atualizar agora": current quote with its trade timestamp. Always unofficial_vendor.
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.symbol)}?range=5d&interval=1d`
+        const q = parseYahooLive(await fetchJson(url, { retries: 0, ...http }))
+        const session = sessionOf(asset, q.lastTrade)
+        return { value: q.value, previous: q.previous, changePct: q.changePct, ...session, url, notes: `Yahoo Finance (fornecedor não oficial): cotação corrente de ${q.lastTrade} para execução manual; não conta para VERIFIED.` }
       }
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.symbol)}?range=5d&interval=1d`
       const { bars } = parseYahooChart(await fetchJson(url, { retries: 0, ...http }))

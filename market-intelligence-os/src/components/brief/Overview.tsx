@@ -4,7 +4,7 @@ import type { AgendaItem, IntelligenceSnapshot, MarketRow } from '@/core/schemas
 import { agendaTimeBRT } from '@/lib/agenda'
 import { fmtDate, fmtShortDate, fmtTimeBRT, fmtValue } from '@/lib/format'
 import { clusterProvenance, eventProvenance, factProvenance } from '@/lib/provenance'
-import { Change } from '../MarketsTable'
+import { Change, LiveQuoteLine } from '../MarketsTable'
 import { NewsList } from '../NewsList'
 import { cn, Kicker, Panel, Pill } from '../ui'
 import { VerificationBadge } from '../VerificationBadge'
@@ -155,7 +155,8 @@ export function Overview(props: {
                   <li key={r.metric} className="flex items-center gap-2 px-4 py-2">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[12.5px] font-bold text-ink">{r.label}</span>
-                      <span className="block text-[10.5px] text-ink-3 tnum">{r.market_status === 'OPEN' ? 'em negociação' : r.reference ? `ref. ${fmtShortDate(r.reference)}` : 'sem dado'}</span>
+                      <span className="block text-[10.5px] text-ink-3 tnum">{!r.reference ? 'fontes indisponíveis nesta execução' : r.session === 'continuous' ? `24h · ${fmtShortDate(r.reference)}` : r.session === 'fixing' ? `fixing ${fmtShortDate(r.reference)}` : `fech. ${fmtShortDate(r.reference)}${r.market_status === 'OPEN' ? ' · pregão aberto' : ''}`}</span>
+                      <LiveQuoteLine row={r} />
                     </span>
                     <span className={cn('text-[13.5px] font-extrabold tnum', r.value === null ? 'text-ink-3' : 'text-ink')}>{fmtValue(r.value, r.unit)}</span>
                     <span className="w-[70px] text-right text-[12px]">{bps !== null ? <Change v={bps} unit="bps" /> : <Change v={r.change_pct} />}</span>

@@ -69,6 +69,16 @@ export class Repository {
     })
     return rows.find((r) => r.brief_date < beforeDate && r.value !== null) ?? null
   }
+  /** Latest stored fact with a value for a metric, on or before a date (same-day earlier runs included). */
+  async getLastKnownFact(metric: string, onOrBefore: string): Promise<VerifiedFact | null> {
+    const rows = await this.store.select<VerifiedFact>('verified_facts', {
+      eq: { metric },
+      lte: ['brief_date', onOrBefore],
+      order: { field: 'brief_date', ascending: false },
+      limit: 10,
+    })
+    return rows.filter((r) => r.value !== null && r.reference_period).sort((a, b) => (b.reference_period! + b.retrieved_at).localeCompare(a.reference_period! + a.retrieved_at))[0] ?? null
+  }
   getFactHistory(metric: string, limit = 90) {
     return this.store.select<VerifiedFact>('verified_facts', { eq: { metric }, order: { field: 'brief_date', ascending: false }, limit })
   }

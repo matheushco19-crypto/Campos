@@ -25,7 +25,7 @@ export function History(props: {
             <ul className="flex max-h-56 flex-wrap gap-1.5 overflow-y-auto">
               {props.availableDates.map((x) => (
                 <li key={x}>
-                  <Link href={`/?date=${x}`} className={cn('block rounded-md px-2 py-1 text-[12px] font-bold tnum transition', x === props.date ? 'bg-ink text-surface' : 'bg-muted-soft text-ink-2 hover:bg-line')}>
+                  <Link href={`/historico?date=${x}`} className={cn('block rounded-md px-2 py-1 text-[12px] font-bold tnum transition', x === props.date ? 'bg-ink text-surface' : 'bg-muted-soft text-ink-2 hover:bg-line')}>
                     {fmtShortDate(x)}
                   </Link>
                 </li>
@@ -59,7 +59,7 @@ export function History(props: {
                           abrir
                         </Link>
                         {shownV && (
-                          <Link href={`/?date=${props.date}${props.shown && props.versions[0]?.version !== shownV ? `&v=${shownV}` : ''}&cv=${v.version}#history`} className="inline-flex items-center gap-1 font-bold text-accent hover:underline" title={`Comparar v${v.version} com a versão exibida`}>
+                          <Link href={`/historico?date=${props.date}${props.shown && props.versions[0]?.version !== shownV ? `&v=${shownV}` : ''}&cv=${v.version}`} className="inline-flex items-center gap-1 font-bold text-accent hover:underline" title={`Comparar v${v.version} com a versão exibida`}>
                             <GitCompare className="size-3.5" aria-hidden /> comparar
                           </Link>
                         )}
@@ -88,7 +88,7 @@ function DiffPanel({ d, date }: { d: VersionDiff; date: string }) {
           <GitCompare className="size-4 text-accent" aria-hidden />
           v{d.from.version} <ArrowRight className="size-3.5 text-ink-3" aria-hidden /> v{d.to.version}
         </div>
-        <Link href={`/?date=${date}#history`} className="text-[12px] font-bold text-ink-3 hover:text-ink">
+        <Link href={`/historico?date=${date}`} className="text-[12px] font-bold text-ink-3 hover:text-ink">
           fechar comparação
         </Link>
       </div>

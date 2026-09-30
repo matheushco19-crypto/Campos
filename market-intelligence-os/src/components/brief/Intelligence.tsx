@@ -1,4 +1,5 @@
 import { ArrowRight, Scale, ShieldAlert } from 'lucide-react'
+import Link from 'next/link'
 import type { IntelligenceSnapshot } from '@/core/schemas'
 import { Empty, Kicker, Panel, Section } from '../ui'
 import { FactChips, type FactMap, SNAP_STATUS } from './shared'
@@ -9,7 +10,9 @@ const STEPS = [
   ['O que isso muda', 'leitura'],
 ] as const
 
-export function Intelligence({ s, factById }: { s: IntelligenceSnapshot; factById: FactMap }) {
+export function Intelligence({ s, factById, packetStatus = null }: { s: IntelligenceSnapshot; factById: FactMap; packetStatus?: 'PENDING' | 'SUBMITTED' | null }) {
+  const pending = s.analysis_mode === 'deterministic' && packetStatus === 'PENDING'
+  const elsewhere = s.analysis_mode === 'deterministic' && packetStatus === 'SUBMITTED'
   return (
     <Section id="intelligence" index="03" eyebrow="Intelligence" title="O mecanismo por trás dos fatos" lead="Três leituras do dia. O fato vem das fontes verificadas; o mecanismo e a leitura são interpretação, sinalizada como tal.">
       {s.insights.length ? (
@@ -53,7 +56,18 @@ export function Intelligence({ s, factById }: { s: IntelligenceSnapshot; factByI
           ))}
         </div>
       ) : (
-        <Empty>Interpretação indisponível nesta versão ({SNAP_STATUS[s.status].label}). Os fatos verificados continuam acessíveis em Mercados.</Empty>
+        <Empty>
+          {pending ? (
+            <>Interpretação do Agent 2 pendente: o pacote do dia está pronto e aguarda a rotina do Claude Code (prevista para 06:15 BRT). Esta versão (v{s.version}) traz só os fatos verificados.</>
+          ) : elsewhere ? (
+            <>
+              Esta versão (v{s.version}) é a determinística. A interpretação do dia já foi publicada em outra versão:{' '}
+              <Link href={`/?date=${s.date}`} className="font-bold text-accent underline underline-offset-2">abrir a versão mais recente</Link>.
+            </>
+          ) : (
+            <>Interpretação indisponível nesta versão ({SNAP_STATUS[s.status].label}). Os fatos verificados continuam acessíveis em Mercados.</>
+          )}
+        </Empty>
       )}
 
       <div id="uhnw" className="mt-10 scroll-mt-28">

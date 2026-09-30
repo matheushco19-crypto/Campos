@@ -216,7 +216,7 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
     if (input.submittedAnalysis !== undefined) status = 'FAILED_QC'
   }
 
-  const finalAnalysis = analysis ?? deterministicAnalysis(facts, clusters)
+  const finalAnalysis = analysis ?? deterministicAnalysis(facts, clusters, news)
   const { draft, qc } = assembleDraft({
     date: input.date,
     now: new Date(),

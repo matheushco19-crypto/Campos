@@ -6,6 +6,7 @@ import type { RawObservation } from '../../../core/schemas'
 import { addDays, toLocalDate, zonedToUtc } from '../../../core/time'
 import { diff, parseBls, parseEcbCsv, parseFocus, parseFredCsv, parseFredJson, parseSgs, parseSidra, yoy, type SeriesPoint } from './parsers'
 import type { CollectorResult } from './types'
+import { guardFredgraph } from './fred-breaker'
 
 export function refKey(ref: MacroSourceRef): string {
   switch (ref.sourceId) {
@@ -101,7 +102,7 @@ async function fetchSeries(ind: MacroIndicator, ref: MacroSourceRef, now: Date, 
       const url = env.FRED_API_KEY
         ? `https://api.stlouisfed.org/fred/series/observations?series_id=${ref.series}&api_key=${env.FRED_API_KEY}&file_type=json&observation_start=${start}`
         : `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${ref.series}&cosd=${start}`
-      let points = (env.FRED_API_KEY ? parseFredJson(await fetchJson(url, http)) : parseFredCsv(await fetchText(url, http))).map((p) =>
+      let points = (await guardFredgraph(!env.FRED_API_KEY, async () => (env.FRED_API_KEY ? parseFredJson(await fetchJson(url, http)) : parseFredCsv(await fetchText(url, http))))).map((p) =>
         normaliseFredPeriod(p, ind.frequency),
       )
       if (ind.transform === 'yoy') points = yoy(points)

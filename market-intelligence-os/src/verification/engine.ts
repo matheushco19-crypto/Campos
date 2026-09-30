@@ -27,6 +27,12 @@ export interface VerificationContext {
   strictMacro?: boolean
   /** Previous fact per metric (for change calculation when the source gives none). */
   previousFacts?: Map<string, VerifiedFact>
+  /**
+   * Last stored fact with a value per market metric (any earlier run, same day included).
+   * Used only when every source fails: the last official close is shown with its own
+   * reference date instead of "unavailable".
+   */
+  lastKnown?: Map<string, VerifiedFact>
 }
 
 export interface VerificationOutput {
@@ -142,7 +148,34 @@ export function verifyMarket(asset: AssetConfig, observations: RawObservation[],
   const obs = observations.filter((o) => o.metric === asset.metric).sort((a, b) => order.indexOf(a.sourceId) - order.indexOf(b.sourceId))
 
   if (!obs.length) {
-    fact.notes = 'Todas as fontes falharam ou estão indisponíveis. Nenhum valor foi estimado.'
+    const last = ctx.lastKnown?.get(asset.metric)
+    if (last?.value != null && last.reference_period && diffDays(ctx.briefDate, last.reference_period) <= asset.maxAgeDays) {
+      // Carry forward the last official close: same value, same reference date, same verification.
+      Object.assign(fact, {
+        value: last.value,
+        reference_period: last.reference_period,
+        as_of: last.as_of,
+        retrieved_at: last.retrieved_at,
+        primary_source: last.primary_source,
+        secondary_source: last.secondary_source,
+        primary_url: last.primary_url,
+        secondary_url: last.secondary_url,
+        verification_status: last.verification_status,
+        verification_method: last.verification_method,
+        confidence: last.confidence,
+        single_source: last.single_source,
+        previous_value: last.previous_value,
+        change_pct: last.change_pct,
+        session: last.session,
+        instrument: last.instrument,
+        market_status: 'CLOSED',
+        source_fallback: true,
+        is_stale: false,
+      })
+      fact.notes = `Último fechamento oficial disponível (referência ${last.reference_period}, coletado em ${last.retrieved_at?.slice(0, 16).replace('T', ' ')} UTC): todas as fontes falharam nesta execução. ${last.notes ?? ''}`.trim()
+      return fact
+    }
+    fact.notes = 'Todas as fontes falharam ou estão indisponíveis e não há fechamento anterior dentro do prazo. Nenhum valor foi estimado.'
     return fact
   }
 

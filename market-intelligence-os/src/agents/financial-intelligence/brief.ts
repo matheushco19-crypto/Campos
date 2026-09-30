@@ -29,7 +29,14 @@ export function buildMarketRows(facts: VerifiedFact[]): MarketRow[] {
       fact_id: f.id,
       is_stale: f.is_stale,
       source_fallback: f.source_fallback,
+      live: null,
     }))
+}
+
+/** Attaches manual live quotes (display only) to the market rows, keeping the official values untouched. */
+export function attachLiveQuotes(rows: MarketRow[], live: (NonNullable<MarketRow['live']> & { metric?: string })[] | Map<string, MarketRow['live']>): MarketRow[] {
+  const byMetric = live instanceof Map ? live : new Map(live.map(({ metric, ...q }) => [metric as string, q]))
+  return rows.map((r) => (byMetric.get(r.metric) ? { ...r, live: byMetric.get(r.metric)! } : r))
 }
 
 const TREASURY_TENORS: [string, string][] = [
@@ -239,21 +246,54 @@ export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventClus
     ? { text: `Briefing apenas com fatos: ${top.length} eventos do noticiário e os dados verificados abaixo, sem interpretação nesta versão.`, fact_ids: [], cluster_ids: [] }
     : { text: 'Briefing apenas com fatos verificados, sem interpretação nesta versão.', fact_ids: [], cluster_ids: [] }
   const newsById = new Map(news.map((n) => [n.id, n]))
-  const cleanSummary = (text: string) => text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 360)
-  const synthesis = (c: EventCluster) => {
-    const first = c.item_ids.map((id) => newsById.get(id)).find((n) => n?.original_summary)
-    const summary = first?.original_summary ? cleanSummary(first.original_summary) : ''
+  const factByMetric = new Map(facts.filter(isCitable).map((f) => [f.metric, f]))
+  const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim()
+  // Feed boilerplate is not content.
+  const BOILERPLATE = /(clique\W+(\S+\W+){0,3}para|leia (tamb[eé]m|mais)|veja (tamb[eé]m|mais)|saiba mais|assine|inscreva-se|acesse o link|fa[cç]a (o )?seu cadastro|para ter acesso)/i
+  // A sentence survives only without press numbers (QC accepts numbers only from verified facts); years are fine.
+  const hasPressNumber = (t: string) => /\d/.test(t.replace(/\b(19|20)\d{2}\b/g, ''))
+  const sentencesOf = (c: EventCluster) => {
+    const headline = norm(c.title)
+    const raw = c.item_ids.map((id) => newsById.get(id)?.original_summary ?? '').filter(Boolean)
+    const out: string[] = []
+    for (const text of raw) {
+      const clean = text.replace(/<[^>]+>/g, ' ').replace(/[\u200b-\u200d\ufeff]/g, '').replace(/\s+/g, ' ').trim()
+      for (let sentence of clean.split(/(?<=[.!?])\s+(?=[A-ZÀ-Ú"“])/)) {
+        sentence = sentence.trim()
+        if (sentence.length < 40 || sentence.length > 260 || /(…|\.\.\.)\W*$/.test(sentence) || BOILERPLATE.test(sentence) || hasPressNumber(sentence)) continue
+        if (norm(sentence).startsWith(headline.slice(0, 40))) continue // restates the headline
+        if (out.some((o) => norm(o) === norm(sentence))) continue
+        out.push(/[.!?]$/.test(sentence) ? sentence : `${sentence}.`)
+      }
+    }
+    return out
+  }
+  const outlet = (name: string) => name.split(/\s+[—–-]\s+/)[0]
+  const byWhom = (names: string[]) => (names.length ? names.slice(0, 2).map(outlet).join(' e ') : 'a fonte')
+  /**
+   * Facts-only synthesis in at most 2 sentences: what happened (attributed when single-source),
+   * then the related official data point (cited) or the next clean sentence of the coverage.
+   * No interpretation, no invented causality, no press numbers.
+   */
+  const synthesis = (c: EventCluster): { text: string; fact_ids: string[] } => {
     const names = [...new Set(c.sources.map((s) => s.source))]
-    const provenance = names.length > 1 ? 'Fontes: ' + names.slice(0, 3).join(', ') + '.' : 'Fonte única: ' + (names[0] ?? 'não identificada') + '; não confirmado por fonte independente.'
-    return summary ? summary + ' ' + provenance : provenance + ' Tema: ' + TOPIC_PT[c.topic] + '.'
+    const sentences = sentencesOf(c)
+    const data = c.metric_target ? factByMetric.get(c.metric_target) : undefined
+    const dataSentence = data && data.value !== null ? `Dado oficial: ${data.label} em ${fmt(data.value, data.unit)} (referência ${data.reference_period}, ${sourceName(data.primary_source)}).` : null
+    const lead = sentences[0]
+      ? `${sentences[0].replace(/[.!?]$/, '')}, segundo ${byWhom(names)}.`
+      : `Segundo ${byWhom(names)}${names.length > 1 ? '' : ' (fonte única, não confirmada)'}; tema: ${TOPIC_PT[c.topic]}.`
+    const second = dataSentence ?? sentences[1] ?? (sentences[0] && names.length === 1 ? 'Fonte única, não confirmada por fonte independente.' : null)
+    return { text: [lead, second].filter(Boolean).join(' '), fact_ids: dataSentence && data ? [data.id] : [] }
   }
   return {
     lede,
     what_matters: top.map((c) => {
+      const syn = synthesis(c)
       return {
         headline: c.title.slice(0, 160),
-        why_it_matters: synthesis(c),
-        fact_ids: [],
+        why_it_matters: syn.text,
+        fact_ids: syn.fact_ids,
         cluster_ids: [c.id],
       }
     }),

@@ -16,16 +16,16 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
     for (const k of ['Mercados', 'Para o patrimônio', 'Para publicar', 'Hoje', 'Ontem · 28 SET 2026']) await expect(aside.getByText(k, { exact: true })).toBeVisible()
   })
 
-  test('markets, intelligence, UHNW, content lab and agenda', async ({ page }) => {
+  test('overview: compact markets (no Treasury), intelligence, UHNW, content lab and the Sunday–Saturday agenda', async ({ page }) => {
     await page.goto('/?date=2026-09-29')
-    await expect(page.locator('#markets table').first()).toContainText('S&P 500')
-    await expect(page.locator('#markets')).toContainText('Core Markets Verified:')
-    const rates = page.locator('#rates')
-    await expect(rates.getByRole('heading', { name: 'Curvas de Juros' })).toBeVisible()
-    await expect(rates).toContainText('US Treasury')
-    await expect(rates).toContainText('2s10s')
-    await expect(rates).toContainText('37 bps')
-    await expect(page.locator('#overview')).toContainText('Cobertura mínima')
+    const aside = page.getByRole('complementary', { name: 'Resumo do dia' })
+    await expect(aside).toContainText('S&P 500')
+    await expect(aside).not.toContainText('Treasury 10Y')
+    await expect(aside.getByRole('link', { name: 'Tabela completa' })).toHaveAttribute('href', '/mercados')
+    // Removed from the overview: full markets section, coverage block and embedded history.
+    await expect(page.locator('#markets')).toHaveCount(0)
+    await expect(page.locator('#history')).toHaveCount(0)
+    await expect(page.locator('#overview')).not.toContainText('Cobertura mínima')
     const intel = page.locator('#intelligence')
     for (const k of ['O que aconteceu', 'Por que aconteceu', 'O que isso muda']) await expect(intel.getByText(k).first()).toBeVisible()
     await expect(intel).toContainText('duration')
@@ -35,12 +35,23 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
     await expect(content).toContainText('O preço do tempo')
     await expect(content).toContainText('Dados de performance ainda não importados.')
     const cal = page.locator('#calendar')
-    for (const k of ['Hoje', 'Amanhã', 'Esta semana', 'Próximos eventos']) await expect(cal.getByRole('heading', { name: k })).toBeVisible()
-    await expect(cal).toContainText('Eleições gerais')
+    for (const k of ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']) await expect(cal.getByText(k, { exact: true })).toBeVisible()
   })
 
-  test('provenance shows sources, reference date, collection time, status and confidence', async ({ page }) => {
-    await page.goto('/?date=2026-09-29')
+  test('/mercados: full table with Treasury, core count and rate curves', async ({ page }) => {
+    await page.goto('/mercados?date=2026-09-29')
+    await expect(page.locator('#markets table').first()).toContainText('S&P 500')
+    await expect(page.locator('#markets table').first()).toContainText('Treasury 10Y')
+    await expect(page.locator('#markets')).toContainText('Core Markets Verified:')
+    const rates = page.locator('#rates')
+    await expect(rates.getByRole('heading', { name: 'Curvas de Juros' })).toBeVisible()
+    await expect(rates).toContainText('US Treasury')
+    await expect(rates).toContainText('2s10s')
+    await expect(rates).toContainText('37 bps')
+  })
+
+  test('provenance shows metric, value, period, sources, reference date, collection time, method and confidence', async ({ page }) => {
+    await page.goto('/mercados?date=2026-09-29')
     await page.locator('#markets table').first().getByRole('button', { name: /VERIFIED/ }).first().click()
     const dialog = page.getByRole('dialog', { name: 'Proveniência do dado' })
     await expect(dialog).toBeVisible()
@@ -49,20 +60,21 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
     await expect(dialog).toBeHidden()
   })
 
-  test('history: previous/next dates, versions and version comparison', async ({ page }) => {
+  test('history: previous/next dates on the brief, versions and comparison on /historico', async ({ page }) => {
     await page.goto('/?date=2026-09-29')
     await page.getByRole('button', { name: /Data anterior/ }).click()
     await expect(page).toHaveURL(/date=2026-09-28/)
     await expect(page.getByRole('heading', { level: 1 })).toContainText('28 de setembro')
     await page.getByRole('button', { name: /Data seguinte/ }).click()
     await expect(page).toHaveURL(/date=2026-09-29/)
-    // Append-only: both versions of 29/09 are listed; compare them.
+    // Append-only: both versions of 29/09 are listed on the history page; compare them there.
+    await page.goto('/historico?date=2026-09-29')
     const history = page.locator('#history')
     await expect(history.getByText('v1', { exact: true })).toBeVisible()
     await expect(history.getByText('v2', { exact: true })).toBeVisible()
     await history.getByRole('link', { name: /comparar/ }).first().click()
-    await expect(page).toHaveURL(/cv=1/)
-    await expect(history).toContainText('Somente fatos → Claude Code')
+    await expect(page).toHaveURL(/\/historico\?.*cv=1/)
+    await expect(page.locator('#history')).toContainText('Somente fatos → Claude Code')
   })
 
   test('admin explains the state of the brief', async ({ page }) => {

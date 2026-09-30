@@ -27,11 +27,10 @@ Cada cron e o botão "Rodar agora" passam por `withJobLease` (`src/storage/lease
 Autenticação: o Vercel envia `Authorization: Bearer $CRON_SECRET`. Sem `CRON_SECRET`, os endpoints recusam em produção.
 
 ## Rotina do Claude Code (etapa de interpretação)
-Prompt recomendado (sessão nova a cada disparo, 06:15 BRT, `CRON_TZ=America/Sao_Paulo 15 6 * * *`, depois da janela do cron do Hobby):
-
-> Você é o Agent 2 do Market Intelligence OS. Leia `market-intelligence-os/docs/financial-intelligence.md`. Execute `curl -s -H "Authorization: Bearer $MI_CRON_SECRET" "$MI_BASE_URL/api/analysis"` para obter instruções, schema e pacote do dia. Se não houver pacote PENDING, encerre. Escreva a análise seguindo estritamente as instruções: todo número precisa estar em um fato citado, e notícia de fonte única deve ser atribuída. Salve em `analysis.json` e publique com `curl -s -X POST -H "Authorization: Bearer $MI_CRON_SECRET" -H "content-type: application/json" -d "{\"date\":\"AAAA-MM-DD\",\"analysis\":$(cat analysis.json)}" "$MI_BASE_URL/api/analysis"`. Se o QC retornar correções, revise e publique de novo. Não altere código.
-
-Requisitos do ambiente da rotina: variáveis `MI_BASE_URL` e `MI_CRON_SECRET`, e o domínio do deploy liberado na política de rede.
+Detalhes completos, com prompt, variáveis e diagnóstico, em [claude-code-routine.md](claude-code-routine.md). Resumo:
+- Disparo: **06:15 BRT** (`CRON_TZ=America/Sao_Paulo 15 6 * * *`), sessão nova a cada disparo, depois da janela 05:00–05:59 do cron.
+- Ambiente da rotina: variáveis **`MI_BASE_URL`** (URL de produção) e **`CRON_SECRET`** (o mesmo valor cadastrado na Vercel), e o domínio de produção liberado na política de rede.
+- Fluxo: `node scripts/routine.mjs get` → escrever `analysis.json` → `node scripts/routine.mjs submit --file analysis.json`. O script envia `Authorization: Bearer $CRON_SECRET`, nunca imprime o segredo e falha (exit ≠ 0) em qualquer HTTP diferente de 200 ou status diferente de `PUBLISHED`.
 
 ## Rodar manualmente
 - Dashboard: **/admin → "Rodar Morning Intelligence agora"** (`POST /api/run`).

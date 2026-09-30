@@ -487,8 +487,17 @@ export const MarketRow = z.object({
   verification_method: VerificationMethod.default('unavailable'),
   core: z.boolean().default(false),
   session: z.enum(['regular_close', 'intraday', 'fixing', 'continuous', 'settlement', 'official_close', 'release']).nullable().default(null),
+  /**
+   * Manual "Atualizar agora" only: the current (intraday) quote, kept apart from the official
+   * close above. Always from an unofficial vendor, never VERIFIED, never cited by the brief.
+   */
+  live: z
+    .object({ value: z.number(), change_pct: z.number().nullable(), observed_at: z.string(), reference_date: z.string(), source: z.string(), is_intraday: z.boolean() })
+    .nullable()
+    .default(null),
 })
 export type MarketRow = z.infer<typeof MarketRow>
+export type LiveQuote = NonNullable<MarketRow['live']> & { metric: string }
 
 export const MacroRow = z.object({
   metric: z.string(),

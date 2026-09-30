@@ -13,7 +13,8 @@ export function Agenda({ s, events }: { s: IntelligenceSnapshot; events: Calenda
   const weekStart = addDays(s.date, -day)
   const weekEnd = addDays(weekStart, 6)
   const weekEvents = events
-    .filter((e) => e.date >= weekStart && e.date <= weekEnd)
+    // Only relevant events: LOW importance is left out of the week view (holidays always stay).
+    .filter((e) => e.date >= weekStart && e.date <= weekEnd && (e.importance !== 'LOW' || e.category === 'HOLIDAY'))
     .sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? '99').localeCompare(b.time ?? '99'))
 
   return (

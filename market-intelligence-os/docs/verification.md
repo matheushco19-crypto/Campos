@@ -50,6 +50,11 @@ A linhagem vem de `lineage` em `config/sources.ts` (ou do mapeamento do ativo em
 
 Um valor intradiário nunca é exibido como fechamento (selo "INTRADIÁRIO" na tabela). O contrário também vale: um valor só é `intraday` se a data de referência for o pregão corrente da bolsa no momento da coleta. Uma série diária com a data de ontem, coletada com a bolsa aberta, é o fechamento de ontem: `regular_close`, com `market_status = OPEN`. Bundles importados têm a sessão e a classificação de notícias recalculadas pelas regras atuais, porque as duas são funções puras.
 
+## Mercados: modo automático × manual
+- **Automático (cron da manhã):** séries diárias usam só pregões concluídos (`completedBars`). Se nenhuma fonte responder para um ativo, o fato é preenchido com o **último fechamento oficial armazenado** (mesmo valor, mesma data de referência e mesma verificação), marcado `source_fallback` com a nota "Último fechamento oficial disponível…", desde que dentro de `maxAgeDays`. Fora do prazo continua `UNAVAILABLE`, sem estimativa.
+- **Manual ("Atualizar agora" → `POST /api/run?live=1`):** além das fontes oficiais, busca a cotação corrente no endpoint JSON v8 do Yahoo (o v7 `/quote` responde 401 sem crumb). O valor oficial continua sendo o fato verificado; a cotação corrente fica em `market_snapshot[].live` (valor, variação contra o último fechamento, horário, fonte) e aparece como linha "AGORA … · Yahoo, não oficial". Nunca é `VERIFIED` e nunca é citada no texto.
+- **FRED sem chave:** após 2 timeouts do `fredgraph.csv` na mesma coleta, as demais consultas sem chave falham de imediato com o motivo. Com `FRED_API_KEY` a API oficial é usada e nunca é pulada.
+
 ## Metric Alignment (`src/engines/metric-alignment.ts`)
 A métrica nomeada no texto precisa ser a métrica do fato. Aliases: IPCA-15 → `BR_IPCA15_MOM`, IPCA → `BR_IPCA_MOM`/`BR_IPCA_12M`, IGP-M → `BR_IGPM_MOM`, payroll/nonfarm → `US_PAYROLLS_CHANGE`, CPI → `US_CPI_YOY`, PCE → `US_PCE_YOY`, Selic → `BR_SELIC_TARGET`, Selic efetiva → `BR_SELIC_EFFECTIVE`, CDI → `BR_CDI`, DI futuro/DI1Xnn → `BR_DI1_*`, FOMC/Fed Funds → `US_FED_FUNDS_UPPER`, taxa de depósito do BCE → `EU_ECB_DEPOSIT_RATE`, Treasury → `US10Y`/`US_UST_*`. ADP não tem métrica integrada.
 1. Métrica nomeada com fato disponível e não citado → o fato é associado como evidência principal.

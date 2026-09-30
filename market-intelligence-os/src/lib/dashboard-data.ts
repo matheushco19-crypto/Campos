@@ -24,6 +24,8 @@ export interface DashboardData {
   snapshot: IntelligenceSnapshot | null
   /** Set when the shown version is not the newest one (e.g. a newer FAILED_QC or AWAITING_ANALYSIS). */
   newerUnpublished: { version: number; status: string } | null
+  /** Agent 2 hand-off state for the date: PENDING = waiting for the Claude Code routine. */
+  analysisPacketStatus: 'PENDING' | 'SUBMITTED' | null
   versions: { id: string; version: number; generated_at: string; status: string }[]
   versionDiff: VersionDiff | null
   facts: VerifiedFact[]
@@ -50,6 +52,7 @@ export async function loadDashboard(params: Params): Promise<DashboardData> {
     nextDate: null,
     snapshot: null,
     newerUnpublished: null,
+    analysisPacketStatus: null,
     versions: [],
     versionDiff: null,
     facts: [],
@@ -130,7 +133,9 @@ export async function loadDashboard(params: Params): Promise<DashboardData> {
       byFormat: summary ? Object.entries(summary.by_format).filter(([, v]) => v.n > 0).map(([format, v]) => ({ format, n: v.n, efficiency: v.median_efficiency })) : [],
     }
 
-    return { date, today, availableDates, prevDate, nextDate, snapshot, newerUnpublished, versions, versionDiff, facts, history, compare, previous, events, pipeline, performance, strategy, storage: repo.store.kind, error: null }
+    const packet = await repo.getAnalysisPacket(date).catch(() => null)
+    const analysisPacketStatus = packet ? (packet.status === 'SUBMITTED' ? 'SUBMITTED' : 'PENDING') : null
+    return { date, today, availableDates, prevDate, nextDate, snapshot, newerUnpublished, analysisPacketStatus, versions, versionDiff, facts, history, compare, previous, events, pipeline, performance, strategy, storage: repo.store.kind, error: null }
   } catch (e) {
     return { ...empty(e instanceof Error ? e.message : String(e)), storage: repo.store.kind }
   }

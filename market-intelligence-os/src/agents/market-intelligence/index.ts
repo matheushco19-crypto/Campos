@@ -4,15 +4,16 @@ import { SOURCES } from '../../../config/sources'
 import { getEnv } from '../../core/env'
 import { stableId } from '../../core/ids'
 import { errorMessage } from '../../core/logger'
-import { CalendarEvent, NewsItem, RawObservation, RunError, SourceHealth, type EventCluster, type JobName, type VerifiedFact } from '../../core/schemas'
+import { CalendarEvent, NewsItem, RawObservation, RunError, SourceHealth, type EventCluster, type JobName, type LiveQuote, type VerifiedFact } from '../../core/schemas'
 import { httpStats } from '../../core/http'
 import { classifyNews } from '../../engines/news-classifier'
 import { clusterNews } from '../../engines/news-clustering'
 import { marketSignals, scoreClusters, scoreItem, selectClusters } from '../../engines/relevance'
 import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
-import { verifyAll } from '../../verification/engine'
+import { isUnofficialSource, verifyAll } from '../../verification/engine'
 import { collectMacro } from './collectors/macro'
+import { resetFredBreaker } from './collectors/fred-breaker'
 import { collectMarkets } from './collectors/market'
 import { describeSession } from './collectors/market-status'
 import { collectNews } from './collectors/news'
@@ -66,9 +67,12 @@ export interface Agent1Output {
   errors: RunError[]
   health: SourceHealth[]
   status: 'SUCCESS' | 'PARTIAL' | 'FAILED'
+  /** Manual live runs: current quotes newer than the official close (display only). */
+  liveQuotes: LiveQuote[]
 }
 
 export async function collectBundle(briefDate: string, now: Date, scope: ('markets' | 'macro' | 'news')[] = ['markets', 'macro', 'news'], options: { liveQuote?: boolean } = {}): Promise<CollectionBundle> {
+  resetFredBreaker()
   const [markets, macro, news] = await Promise.all([
     scope.includes('markets') ? collectMarkets(now, undefined, {}, options) : null,
     scope.includes('macro') ? collectMacro(now) : null,
@@ -141,6 +145,24 @@ function resessionBundle(bundle: CollectionBundle): CollectionBundle {
   }
 }
 
+/**
+ * Current quotes from an unofficial vendor that are newer than (or replace a missing) official
+ * value. They are shown next to the official close, clearly labelled, and never verified.
+ */
+export function liveQuotesFrom(observations: RawObservation[], facts: VerifiedFact[]): LiveQuote[] {
+  const byMetric = new Map(facts.filter((f) => f.category === 'MARKET').map((f) => [f.metric, f]))
+  const out: LiveQuote[] = []
+  for (const o of observations) {
+    if (o.category !== 'MARKET' || !isUnofficialSource(o.sourceId) || !o.referencePeriod) continue
+    const f = byMetric.get(o.metric)
+    if (f?.primary_source === o.sourceId) continue // already the displayed value (and labelled unofficial)
+    if (f?.reference_period && o.referencePeriod < f.reference_period) continue
+    if (f?.reference_period === o.referencePeriod && f.value === o.value) continue
+    out.push({ metric: o.metric, value: o.value, change_pct: o.changePct ?? null, observed_at: o.asOf, reference_date: o.referencePeriod, source: o.sourceId, is_intraday: o.session?.is_intraday ?? o.marketStatus === 'OPEN' })
+  }
+  return out
+}
+
 export async function runMarketIntelligence(repo: Repository, rawInput: Agent1Input): Promise<Agent1Output> {
   const input = Agent1Input.parse(rawInput)
   const logger = await new RunLogger(repo, 'market-intelligence', { job: (input.job as JobName) ?? null, briefDate: input.briefDate, parentRunId: input.parentRunId ?? null }).start()
@@ -171,6 +193,17 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
         if (prev) previousFacts.set(m, prev)
       }),
     )
+    // Market metrics without any observation this run: look up their last official close.
+    const lastKnown = new Map<string, VerifiedFact>()
+    if (input.scope.includes('markets')) {
+      const observed = new Set(bundle.observations.map((o) => o.metric))
+      await Promise.all(
+        ASSETS.filter((a) => a.enabled && !observed.has(a.metric)).map(async (a) => {
+          const f = await repo.getLastKnownFact(a.metric, input.briefDate)
+          if (f) lastKnown.set(a.metric, f)
+        }),
+      )
+    }
     const scopeFilter = (cat: 'MARKET' | 'MACRO') => (cat === 'MARKET' ? input.scope.includes('markets') : input.scope.includes('macro'))
     const { facts: allFacts, rejected } = verifyAll(bundle.observations, {
       briefDate: input.briefDate,
@@ -178,6 +211,7 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
       now: input.now,
       strictMacro: getEnv().MI_VERIFICATION_STRICT_MACRO === 'true',
       previousFacts,
+      lastKnown,
     })
     const facts = allFacts.filter((f) => scopeFilter(f.category as 'MARKET' | 'MACRO'))
     for (const r of rejected) logger.error('validation', `${r.observation.metric}: ${r.reason}`, r.observation.sourceId)
@@ -229,10 +263,10 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
     const anyData = bundle.observations.length > 0 || bundle.news.length > 0
     const status = !anyData ? 'FAILED' : bundle.errors.length ? 'PARTIAL' : 'SUCCESS'
     await logger.finish(status)
-    return { runId: logger.id, facts, clusters, newsCount: bundle.news.length, errors: logger.run.errors, health: bundle.health, status }
+    return { runId: logger.id, facts, clusters, newsCount: bundle.news.length, errors: logger.run.errors, health: bundle.health, status, liveQuotes: input.liveQuote ? liveQuotesFrom(bundle.observations, facts) : [] }
   } catch (e) {
     logger.error('agent1', errorMessage(e))
     await logger.finish('FAILED')
-    return { runId: logger.id, facts: [], clusters: [], newsCount: 0, errors: logger.run.errors, health: [], status: 'FAILED' }
+    return { runId: logger.id, facts: [], clusters: [], newsCount: 0, errors: logger.run.errors, health: [], status: 'FAILED', liveQuotes: [] }
   }
 }
