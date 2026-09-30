@@ -54,6 +54,7 @@ export const Agent1Input = z.object({
    * registered source and go through the same validation/verification.
    */
   extraObservations: z.array(RawObservation).default([]),
+  liveQuote: z.boolean().default(false),
 })
 export type Agent1Input = z.input<typeof Agent1Input>
 
@@ -67,9 +68,9 @@ export interface Agent1Output {
   status: 'SUCCESS' | 'PARTIAL' | 'FAILED'
 }
 
-export async function collectBundle(briefDate: string, now: Date, scope: ('markets' | 'macro' | 'news')[] = ['markets', 'macro', 'news']): Promise<CollectionBundle> {
+export async function collectBundle(briefDate: string, now: Date, scope: ('markets' | 'macro' | 'news')[] = ['markets', 'macro', 'news'], options: { liveQuote?: boolean } = {}): Promise<CollectionBundle> {
   const [markets, macro, news] = await Promise.all([
-    scope.includes('markets') ? collectMarkets(now) : null,
+    scope.includes('markets') ? collectMarkets(now, undefined, {}, options) : null,
     scope.includes('macro') ? collectMacro(now) : null,
     scope.includes('news') ? collectNews(briefDate, now) : null,
   ])
@@ -146,7 +147,7 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
   const started = Date.now()
   httpStats.reset()
   try {
-    const collected = input.bundle ? resessionBundle(input.bundle) : await collectBundle(input.briefDate, input.now, input.scope)
+    const collected = input.bundle ? resessionBundle(input.bundle) : await collectBundle(input.briefDate, input.now, input.scope, { liveQuote: input.liveQuote })
     const bundle = mergeExtraObservations(collected, input.extraObservations)
     logger.sources(bundle.health)
     logger.errors(bundle.errors)
