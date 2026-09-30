@@ -22,6 +22,7 @@ import {
   parseTwelveData,
   parseFmpQuote,
   parseYahooChart,
+  parseYahooQuote,
   parseB3DiFile,
   pctChange,
   type DiContractRow,
@@ -113,7 +114,7 @@ async function latestDiFiles(now: Date, http: FetchOptions): Promise<{ rows: DiC
   throw lastError instanceof Error ? lastError : new Error('B3: no DI1 file found in the last 6 days')
 }
 
-export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping, now: Date, http: FetchOptions = {}): Promise<Fetched> {
+export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping, now: Date, http: FetchOptions = {}, options: { liveQuote?: boolean } = {}): Promise<Fetched> {
   const env = getEnv()
   switch (m.sourceId) {
     case 'brapi': {
@@ -243,6 +244,13 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
     }
     case 'yahoo': {
       // Unofficial structured JSON (never HTML). Display fallback only: never counts toward VERIFIED.
+      if (options.liveQuote) {
+        const url = `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(m.symbol)}`
+        const q = parseYahooQuote(await fetchJson(url, { retries: 0, ...http }))
+        const trade = q.lastTrade ?? now.toISOString()
+        const session = sessionOf(asset, trade)
+        return { value: q.value, previous: q.previous, changePct: q.changePct, ...session, url, notes: 'Yahoo Finance (fornecedor não oficial): cotação corrente para execução manual; não conta para VERIFIED.' }
+      }
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.symbol)}?range=5d&interval=1d`
       const { bars } = parseYahooChart(await fetchJson(url, { retries: 0, ...http }))
       const { last, prev } = lastTwo(completedBars(asset, bars, now))
@@ -274,30 +282,30 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
  * (recorded, not counted as failures). A source that refuses us is never retried
  * around its block.
  */
-export function skipReason(m: SourceMapping): string | null {
+export function skipReason(m: SourceMapping, options: { liveQuote?: boolean } = {}): string | null {
   const env = getEnv()
   if (m.sourceId === 'brapi' && !env.BRAPI_TOKEN) return 'BRAPI_TOKEN ausente'
   if (m.sourceId === 'twelvedata' && !env.TWELVEDATA_API_KEY) return 'TWELVEDATA_API_KEY ausente'
   if (m.sourceId === 'fmp' && !env.FMP_API_KEY) return 'FMP_API_KEY ausente'
-  if (m.sourceId === 'yahoo' && env.MI_ENABLE_YAHOO_FALLBACK !== 'true') return 'Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)'
+  if (m.sourceId === 'yahoo' && env.MI_ENABLE_YAHOO_FALLBACK !== 'true' && !options.liveQuote) return 'Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)'
   if (m.sourceId === 'coingecko' && !env.COINGECKO_DEMO_KEY) return 'COINGECKO_DEMO_KEY ausente (403 sem chave)'
   if (m.sourceId === 'stooq' && env.MI_ENABLE_STOOQ !== 'true') return 'Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)'
   return null
 }
 
-export async function collectMarkets(now = new Date(), assets = ASSETS.filter((a) => a.enabled), http: FetchOptions = {}): Promise<CollectorResult> {
+export async function collectMarkets(now = new Date(), assets = ASSETS.filter((a) => a.enabled), http: FetchOptions = {}, options: { liveQuote?: boolean } = {}): Promise<CollectorResult> {
   const result: CollectorResult = { observations: [], health: [], errors: [], skipped: [] }
   const retrievedAt = now.toISOString()
   const tasks = assets.flatMap((asset) =>
     asset.sources.map((m) => async () => {
-      const skip = skipReason(m)
+      const skip = skipReason(m, options)
       if (skip) {
         result.skipped.push(`${asset.metric}@${m.sourceId}: ${skip}`)
         return
       }
       const started = Date.now()
       try {
-        const f = await fetchMarketFromSource(asset, m, now, http)
+        const f = await fetchMarketFromSource(asset, m, now, http, options)
         // Official fixings (PTAX, ECB reference rates) and B3 settlements are final once published.
         const marketStatus = ['bcb-ptax', 'ecb-fx', 'b3-arquivos'].includes(m.sourceId) ? 'CLOSED' : observationStatus(asset.exchange, f.referenceDate, now)
         const obs: RawObservation = {
