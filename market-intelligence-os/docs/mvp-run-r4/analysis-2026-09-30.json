@@ -1,0 +1,253 @@
+{
+  "lede": {
+    "text": "O IPCA-15 de setembro subiu 0,70%, depois de -0,40% em agosto, e encerrou a trégua dos preços; no mesmo dia, o Banco Central mostrou a dívida bruta em 82,86% do PIB.",
+    "fact_ids": [
+      "fact_587bf9fa08135b6931a7",
+      "fact_558e937b1b1f2bcdacb6"
+    ],
+    "cluster_ids": [
+      "evt_9ca6e24dca1b012c0065",
+      "evt_71bebaececdda5f37d4a"
+    ]
+  },
+  "what_matters": [
+    {
+      "headline": "IPCA-15 volta a subir em setembro",
+      "why_it_matters": "A prévia da inflação avançou 0,70%, contra -0,40% em agosto, segundo o IBGE. Com a Selic em 13,75%, uma inflação corrente mais alta reduz o juro real e o espaço para cortes.",
+      "fact_ids": [
+        "fact_587bf9fa08135b6931a7",
+        "fact_4ec7b659ee4a10d3409a"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    {
+      "headline": "Dívida bruta sobe para 82,86% do PIB",
+      "why_it_matters": "Segundo o Banco Central, o setor público voltou a ter déficit primário em agosto e a dívida bruta subiu de 82,56% para 82,86% do PIB. É esse número que o mercado usa para cobrar prêmio nos vencimentos longos.",
+      "fact_ids": [
+        "fact_558e937b1b1f2bcdacb6"
+      ],
+      "cluster_ids": [
+        "evt_71bebaececdda5f37d4a"
+      ]
+    },
+    {
+      "headline": "Curva de DI recua nos vencimentos longos",
+      "why_it_matters": "O DI1V31, que representa o prazo de cinco anos, fechou em 13,997%, 6 bps abaixo do dia anterior, e o DI1V27 ficou em 13,559%. A parte longa segue acima da Selic efetiva de 13,65%, sinal de prêmio fiscal ainda no preço.",
+      "fact_ids": [
+        "fact_cbf2000f2e93ac4e84d2",
+        "fact_af5175d94e379019e646",
+        "fact_4c76ae154cda569dd76e"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "headline": "Treasury de 10 anos em 5,26% e curva mais inclinada",
+      "why_it_matters": "O Treasury de 10 anos subiu para 5,26% e o spread 2s10s dos Treasuries abriu para 37 bps. O Fed Funds segue em 4%, então a alta vem do prêmio de prazo, e juro longo americano mais alto encarece o capital para emergentes.",
+      "fact_ids": [
+        "fact_9e06e7115a42ba963c37",
+        "fact_c4325498461e88f70b0a",
+        "fact_183094a439f259ab993e"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "headline": "Emprego formal forte no Caged de agosto",
+      "why_it_matters": "Segundo o Ministério do Trabalho, o saldo de vagas com carteira foi positivo e acima do mês anterior. O desemprego da PNAD está em 5,3%, o que mantém a renda e o consumo firmes.",
+      "fact_ids": [
+        "fact_2bf827b38622e82ace95"
+      ],
+      "cluster_ids": [
+        "evt_e63e1a7e13cbaf5b1c59"
+      ]
+    },
+    {
+      "headline": "PCE dos EUA sobe para 3,42%",
+      "why_it_matters": "O PCE, a medida de inflação que o Fed acompanha, foi a 3,42% em 12 meses em agosto, contra 3,36% no mês anterior. Com o Fed Funds em 4%, o dado reforça a cautela do Fed antes da próxima reunião.",
+      "fact_ids": [
+        "fact_3e73053db18970e14384",
+        "fact_183094a439f259ab993e"
+      ],
+      "cluster_ids": [
+        "evt_f2bad112c285d1ad621e"
+      ]
+    }
+  ],
+  "macro_watch": {
+    "BR": [
+      {
+        "text": "IPCA de agosto em -0,32% e 4,22% em 12 meses (IBGE); a prévia de setembro já aponta alta.",
+        "fact_ids": [
+          "fact_f351eddf67874d2642af",
+          "fact_02e2f8e6c74d5838304b"
+        ],
+        "cluster_ids": []
+      },
+      {
+        "text": "Focus projeta IPCA de 4,99% e Selic de 13,5% no fim do ano.",
+        "fact_ids": [
+          "fact_a35c1dbd5430cde62d9b",
+          "fact_25fb8bc7d88a29f5324c"
+        ],
+        "cluster_ids": []
+      }
+    ],
+    "US": [
+      {
+        "text": "CPI em 3,4% em 12 meses e payroll de 162 mil vagas em agosto; o dado de setembro sai na sexta.",
+        "fact_ids": [
+          "fact_dc721373fa010672ab82",
+          "fact_8bbcd8333215f0665560"
+        ],
+        "cluster_ids": []
+      }
+    ],
+    "CN": [],
+    "EU": [
+      {
+        "text": "A taxa de depósito do BCE está em 2,50%, acima dos 2,25% anteriores.",
+        "fact_ids": [
+          "fact_c1788607531574a0dece"
+        ],
+        "cluster_ids": []
+      }
+    ]
+  },
+  "insights": [
+    {
+      "title": "A trégua dos preços acabou antes do Copom",
+      "what_happened": "O IPCA-15 de setembro subiu 0,70%, depois de uma queda de 0,40% em agosto, segundo o IBGE.",
+      "why_it_happened": "A prévia mede o período até meados do mês, quando o efeito de alimentos e itens voláteis que derrubou agosto começou a se desfazer.",
+      "what_it_changes": "Minha leitura é que a alta reduz o espaço para o Copom cortar a Selic de 13,75% no ritmo que o Focus projeta, e os vencimentos curtos de DI ficam mais sensíveis ao IPCA cheio de setembro.",
+      "lenses": [
+        "inflação",
+        "juros"
+      ],
+      "fact_ids": [
+        "fact_587bf9fa08135b6931a7",
+        "fact_4ec7b659ee4a10d3409a",
+        "fact_25fb8bc7d88a29f5324c"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    {
+      "title": "O prêmio da curva longa é fiscal, não monetário",
+      "what_happened": "A dívida bruta subiu para 82,86% do PIB, e o DI de cinco anos ficou em 13,997%, acima da Selic efetiva de 13,65%.",
+      "why_it_happened": "Quando a dívida cresce sem sinal de estabilização, o investidor exige mais juro para emprestar ao governo por prazos longos, mesmo com a política monetária parada.",
+      "what_it_changes": "O principal risco que eu monitoraria é a inclinação da curva: títulos prefixados longos pagam esse prêmio, mas carregam duration alta e reagem mal a qualquer piora fiscal.",
+      "lenses": [
+        "duration",
+        "risco",
+        "juros"
+      ],
+      "fact_ids": [
+        "fact_558e937b1b1f2bcdacb6",
+        "fact_cbf2000f2e93ac4e84d2",
+        "fact_4c76ae154cda569dd76e"
+      ],
+      "cluster_ids": [
+        "evt_71bebaececdda5f37d4a"
+      ]
+    },
+    {
+      "title": "Juro longo americano ainda dita o custo de capital",
+      "what_happened": "O Treasury de 10 anos está em 5,26%, com o spread 2s10s dos Treasuries em 37 bps. O Fed Funds segue em 4%.",
+      "why_it_happened": "A curva inclina quando o mercado exige mais prêmio para prazos longos, por inflação persistente ou por oferta de títulos, e não por expectativa de alta do Fed.",
+      "what_it_changes": "Minha leitura é que, com juro longo americano nesse nível, o diferencial para o Brasil fica menos confortável e o câmbio responde mais ao payroll de sexta.",
+      "lenses": [
+        "juros",
+        "câmbio",
+        "valuation"
+      ],
+      "fact_ids": [
+        "fact_9e06e7115a42ba963c37",
+        "fact_c4325498461e88f70b0a",
+        "fact_183094a439f259ab993e"
+      ],
+      "cluster_ids": []
+    }
+  ],
+  "uhnw_lens": [
+    {
+      "theme": "alocação",
+      "text": "Com CDI em 13,65% e inflação voltando a subir, vale revisar quanto da carteira está em pós-fixado e quanto em prefixado longo: o segundo paga prêmio fiscal, mas oscila mais.",
+      "fact_ids": [
+        "fact_8a70d60f15bf7d29e64b"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "theme": "exposição internacional",
+      "text": "Com o Treasury de 10 anos em 5,26%, a pergunta útil é se a parcela dolarizada está capturando esse juro ou parada em caixa sem remuneração.",
+      "fact_ids": [
+        "fact_9e06e7115a42ba963c37"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "theme": "liquidez",
+      "text": "Para famílias empresárias, a alta da dívida pública e a curva inclinada são um bom motivo para revisar o colchão de liquidez antes das eleições de outubro.",
+      "fact_ids": [],
+      "cluster_ids": [
+        "evt_71bebaececdda5f37d4a"
+      ]
+    }
+  ],
+  "content_lab": {
+    "story": {
+      "title": "A prévia virou",
+      "angle": "O IPCA-15 saiu de queda para alta em um mês, e isso muda a conversa sobre cortes de juros.",
+      "main_idea": "Um mês de inflação baixa não é tendência; a prévia de setembro mostrou o preço voltando.",
+      "fact_ids": [
+        "fact_587bf9fa08135b6931a7"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    "carousel": {
+      "title": "IPCA, IPCA-15 e Focus: o que cada um mede",
+      "angle": "No mesmo dia temos o IPCA de agosto em queda e o IPCA-15 de setembro em alta: dá para explicar a diferença sem confundir os dois.",
+      "main_idea": "O IPCA-15 é uma prévia com período de coleta diferente; comparar os dois exige olhar o mês de referência de cada um.",
+      "fact_ids": [
+        "fact_587bf9fa08135b6931a7",
+        "fact_f351eddf67874d2642af"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    "reel": {
+      "title": "Por que a dívida pública mexe no seu prefixado",
+      "angle": "A dívida bruta subiu e o DI longo segue acima da Selic efetiva: o prêmio fiscal aparece no preço do título.",
+      "main_idea": "Juro longo alto não é só Banco Central; é o preço que o mercado cobra para financiar o governo por mais tempo.",
+      "hook": "Por que o seu título prefixado de cinco anos paga mais do que a Selic?",
+      "development": "A dívida bruta subiu para 82,86% do PIB. Quanto maior a dívida sem sinal de estabilização, mais o investidor pede para emprestar ao governo por prazos longos. Por isso o DI de cinco anos está acima da Selic efetiva.",
+      "closing": "O prêmio existe porque o risco existe: prazo longo paga mais e também oscila mais.",
+      "cta": "Salve para rever quando sair o próximo dado fiscal.",
+      "fact_ids": [
+        "fact_558e937b1b1f2bcdacb6",
+        "fact_cbf2000f2e93ac4e84d2",
+        "fact_4c76ae154cda569dd76e"
+      ],
+      "cluster_ids": [
+        "evt_71bebaececdda5f37d4a"
+      ]
+    },
+    "take": {
+      "title": "Inflação corrente e juro real",
+      "angle": "Com a Selic parada e a inflação corrente voltando a subir, o juro real cai sem ninguém mexer na taxa.",
+      "main_idea": "O juro real muda com a inflação, não só com o Copom; é ele que decide o retorno de verdade.",
+      "fact_ids": [
+        "fact_4ec7b659ee4a10d3409a",
+        "fact_587bf9fa08135b6931a7"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    }
+  }
+}

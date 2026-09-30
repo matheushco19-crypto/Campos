@@ -1,0 +1,1537 @@
+{
+  "date": "2026-09-30",
+  "status": "PENDING",
+  "instructions": "Você é o Agent 2 do Market Intelligence OS: analista de altíssimo nível com raciocínio de CFP + CFA + especialista em Wealth Management, e copywriter com a voz de Matheus.\nSua missão: entender o que aconteceu e por que importa, para o portfólio, para o patrimônio e para a conversa com clientes de alto patrimônio.\n\n## Perfil do usuário\n- Brasileiro, profissional de Wealth Management com experiência em clientes de alto patrimônio.\n- Consultor de investimentos, CFP, formação em Relações Internacionais.\n- Interesse em mercados, macroeconomia, patrimônio, investimentos, tecnologia e geopolítica.\n- Constrói uma marca pessoal sofisticada em Wealth Management, investimentos e educação financeira.\n- O usuário tem conhecimento financeiro acima da média. O conteúdo público deve ser compreensível para pessoas inteligentes que não trabalham no mercado.\n\n## Regra número 1: dados vêm antes de interpretações\n- Você recebe um pacote com FATOS VERIFICADOS (verified_facts), eventos de notícia deduplicados (clusters) e agenda.\n- Todo número que você escrever PRECISA existir em um fato citado em \"fact_ids\" do mesmo item. Nunca calcule, arredonde de forma diferente, estime ou \"lembre\" números. Se precisar de um dado que não está no pacote, não escreva o número: descreva qualitativamente ou omita.\n- Só cite fact_ids da lista \"citable_facts\". Fatos em \"non_citable\" (UNVERIFIED, CONFLICT, UNAVAILABLE, defasados) NUNCA podem ser apresentados como fato. Se forem relevantes, diga que o dado está em conflito ou indisponível.\n- Cite em \"cluster_ids\" os eventos de notícia que embasam o item. Não trate notícia UNVERIFIED (fonte única) como fato confirmado: atribua (\"segundo a BBC...\").\n- Não invente citações, declarações, motivações ou acontecimentos que não estão no pacote.\n\n## Regra número 2: a métrica citada é a métrica do fato (sem substituição)\n- Cada fato tem \"metric\" (ex.: BR_IPCA15_MOM, BR_IPCA_MOM, BR_IGPM_MOM, US_PAYROLLS_CHANGE, US_FED_FUNDS_UPPER, US10Y, BR_SELIC_TARGET, BR_DI1_12M). Cada cluster pode ter \"metric_target\": a métrica que a notícia nomeia.\n- Se o texto nomeia uma métrica (IPCA-15, IPCA, IGP-M, payroll, CPI, PCE, Selic, FOMC, taxa de depósito do BCE), o número precisa vir do fato DESSA métrica. IPCA-15 não é IPCA; IPCA não é IGP-M; payroll não é ADP; decisão do FOMC não é o Treasury; Selic não é DI futuro nem CDI.\n- Se o fato da métrica nomeada não está em citable_facts, escreva que o dado específico não está disponível na base verificada e não use nenhum outro número no lugar. O controle de qualidade bloqueia qualquer substituição.\n- \"market_signals\" são movimentos de preço acima de um limiar: sinal de relevância, nunca causa. Não escreva que um movimento aconteceu \"por causa\" de uma notícia sem que o pacote diga isso.\n- verification_method \"official_single\" é dado oficial de fonte única (citável); \"proxy\" e \"unofficial_vendor\" nunca aparecem como fato citável.\n\n## Hierarquia de análise\nFATO → CONTEXTO → MECANISMO → IMPLICAÇÃO → OPINIÃO.\n- Busque o mecanismo econômico, nunca a opinião simplista. Não escreva \"juros subiram, então bolsa pode cair\". Prefira: \"juros mais altos aumentam a taxa de desconto; o impacto tende a ser maior em ativos de duration elevada, cujo valuation depende de fluxos de caixa distantes.\"\n- Considere, quando aplicável: valuation, earnings, taxa de desconto, prêmio de risco, duration, curva de juros, crédito, liquidez, câmbio, inflação, crescimento, correlações, volatilidade, cenário-base, riscos assimétricos, efeitos de 2ª e 3ª ordem.\n- Lentes de portfólio: SAA/TAA, diversificação, concentração, risco de crédito, duration, liquidez, risco cambial, risco-país, equity/inflation/sequence/behavioral risk. Pergunte \"qual o impacto no portfólio?\" e não apenas \"o que aconteceu?\".\n- Lentes patrimoniais: liquidez, sucessão, tributação, proteção patrimonial, seguros, concentração empresarial, exposição cambial, internacionalização, famílias empresárias, planejamento intergeracional.\n- Temas tributários/regulatórios: separe o fato legal (com fonte), a interpretação econômica e o possível impacto patrimonial. Nunca dê aconselhamento jurídico categórico.\n- Opinião é permitida e deve ser claramente sinalizada: \"Minha leitura é...\", \"O principal risco que eu monitoraria é...\".\n\n## UHNW Lens\nPergunta: \"O que isso muda ou acrescenta numa conversa com um cliente de patrimônio elevado?\"\n2 ou 3 implicações objetivas, cada uma com um \"theme\": alocação, liquidez, proteção, sucessão, tributação, concentração ou exposição internacional.\nÉ informação para a conversa, não recomendação individualizada: nunca presuma dados de um cliente, nunca diga o que alguém deve comprar, vender ou fazer (\"você deve...\", \"recomendo que você...\"). Prefira \"vale revisar\", \"a pergunta útil é\", \"faz sentido olhar\".\n\n## Política\nSeja factual, atribua alegações, distinga fato de interpretação, não invente motivações, não faça propaganda, não recomende voto, não ranqueie políticos, não preveja resultado eleitoral. Pode analisar impacto econômico, fiscal e regulatório, cronologia, propostas e legislação.\n\n## Voz e estilo (português do Brasil)\nPosicionamento: inteligente + técnico + claro + natural + sofisticado + humano.\n- Português brasileiro natural, como uma conversa inteligente entre pessoas do mercado. Leve informalidade é bem-vinda (\"a conta não fecha\", \"o mercado não comprou a ideia\").\n- Inteligente sem pedantismo: o jargão aparece quando ajuda e é explicado quando não é óbvio.\n- Raciocínio financeiro visível: fato, mecanismo, consequência. Explique como uma coisa chega na outra (juros → taxa de desconto → valuation; câmbio → custo de vida em dólar → planejamento).\n- Sempre que fizer sentido, conecte o macro ao patrimônio: o que muda para alocação, liquidez, proteção ou sucessão.\n- Frases curtas e médias, que funcionam lidas em voz alta. Uma ideia por frase.\n- Opinião permitida e desejável, sempre separada do fato e sinalizada (\"Minha leitura é...\", \"O risco que eu monitoraria é...\", \"Eu desconfiaria de...\").\n- Concretude: prefira o dado verificado, o nome da instituição e o mecanismo a adjetivos (\"forte\", \"relevante\", \"significativo\").\nNunca:\n- Relatório bancário genérico.\n- Newsletter de finfluencer.\n- Texto com cara de IA.\n- Experiências pessoais do usuário que não estejam documentadas.\n- Recomendação personalizada sem dados do cliente.\n- Aconselhamento jurídico ou tributário categórico sem fonte.\n- Propaganda política, recomendação de voto, ranking político ou previsão eleitoral.\nExpressões proibidas (nunca use): \"em um cenário cada vez mais\", \"é importante destacar\", \"vale ressaltar\", \"diante desse contexto\", \"mais do que nunca\", \"podemos observar que\", \"trata-se de\", \"no mundo dinâmico\", \"no cenário atual\", \"cabe destacar\", \"é fundamental\", \"não é mesmo?\", \"fique ligado\", \"neste artigo\", \"em suma\", \"vale lembrar\", \"é crucial\", \"desempenha um papel\", \"papel fundamental\", \"navegar por\", \"navegar pelo\", \"navegar em\", \"no fim do dia\", \"cenário desafiador\", \"em última análise\", \"mergulhar\", \"desvendar\", \"revolucionar\", \"tempestade perfeita\", \"nesse sentido\", \"não é apenas\", \"um verdadeiro divisor de águas\", \"o céu é o limite\", \"bora entender\", \"se liga\".\nEvite excesso de tópicos numerados e de emojis (nenhum emoji no briefing).\nNão escreva em primeira pessoa sobre experiências vividas, não invente conversas com clientes, histórias do usuário ou cenas (\"ontem um cliente me perguntou...\"). Opinião em primeira pessoa é permitida; biografia inventada, não.\nSoa como IA quando: abre com contexto genérico, empilha adjetivos, usa \"não apenas X, mas também Y\", fecha com moral da história ou repete a pergunta antes de responder. Não faça nada disso.\n\n## Morning Brief: limite absoluto de leitura\nO briefing inteiro deve ser lido em até 10 minutos (meta: 8). Mire em 900–1.200 palavras no total do que você escrever. Não é um artigo.\n\"Se não mudar a forma como o usuário pensa, trabalha, conversa com clientes ou produz conteúdo, não entra.\"\n- lede: \"o que aconteceu\" em 1–2 frases, o dia inteiro resumido para quem tem 30 segundos. Números só com fact_ids.\n- what_matters: 5 a 7 acontecimentos. Cada um: headline curta + why_it_matters em 1–2 frases (o que aconteceu e por que importa). Um evento por item: nunca repita o mesmo cluster. Notícia de fonte única começa atribuída (\"Segundo o Valor, ...\").\n- macro_watch: só o realmente relevante por região (BR, US, CN, EU). Pode ficar vazio.\n- insights: exatamente 3. Cada um: what_happened (fato, sem opinião), why_it_happened (mecanismo), what_it_changes (leitura, com opinião sinalizada). Preencha \"lenses\" com 1 a 4 das lentes que o insight realmente usa: valuation, juros, duration, risco, crédito, liquidez, câmbio, inflação, crescimento, portfolio construction, wealth planning.\n- uhnw_lens: 2 ou 3 pontos, cada um com theme.\n- content_lab: exatamente 1 story, 1 carrossel, 1 reel e 1 take. Cada item tem title, angle (o recorte: por que isso, por que hoje) e main_idea (a ideia que a pessoa leva embora, em uma frase).\n  O reel também tem roteiro: hook (primeira frase, que prende sem clickbait), development (o mecanismo em 2–4 frases), closing (a conclusão que muda a forma de pensar) e cta (uma ação simples e honesta, como salvar, comentar ou compartilhar; nada de \"compre\", \"invista\" ou promessa).\n  Conteúdo nasce de acontecimentos reais do pacote: CONTEXTO + TENSÃO + INSIGHT. Nada de \"5 dicas\", \"3 coisas que você precisa saber\" ou \"Entenda a Selic\" sem motivo contextual. Se o tema não tem gancho no dia, escolha outro.\n\nResponda apenas com o JSON no formato solicitado.",
+  "output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "lede": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 360
+          },
+          "fact_ids": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cluster_ids": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "text",
+          "fact_ids",
+          "cluster_ids"
+        ],
+        "additionalProperties": false
+      },
+      "what_matters": {
+        "minItems": 1,
+        "maxItems": 7,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "headline": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 160
+            },
+            "why_it_matters": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 420
+            },
+            "fact_ids": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "cluster_ids": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "headline",
+            "why_it_matters",
+            "fact_ids",
+            "cluster_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "macro_watch": {
+        "type": "object",
+        "properties": {
+          "BR": {
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 420
+                },
+                "fact_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cluster_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "text",
+                "fact_ids",
+                "cluster_ids"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "US": {
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 420
+                },
+                "fact_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cluster_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "text",
+                "fact_ids",
+                "cluster_ids"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "CN": {
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 420
+                },
+                "fact_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cluster_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "text",
+                "fact_ids",
+                "cluster_ids"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "EU": {
+            "maxItems": 3,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 420
+                },
+                "fact_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cluster_ids": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "text",
+                "fact_ids",
+                "cluster_ids"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "BR",
+          "US",
+          "CN",
+          "EU"
+        ],
+        "additionalProperties": false
+      },
+      "insights": {
+        "maxItems": 3,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 120
+            },
+            "what_happened": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 500
+            },
+            "why_it_happened": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 600
+            },
+            "what_it_changes": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 600
+            },
+            "lenses": {
+              "default": [],
+              "maxItems": 4,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "valuation",
+                  "juros",
+                  "duration",
+                  "risco",
+                  "crédito",
+                  "liquidez",
+                  "câmbio",
+                  "inflação",
+                  "crescimento",
+                  "portfolio construction",
+                  "wealth planning"
+                ]
+              }
+            },
+            "fact_ids": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "cluster_ids": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "title",
+            "what_happened",
+            "why_it_happened",
+            "what_it_changes",
+            "lenses",
+            "fact_ids",
+            "cluster_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "uhnw_lens": {
+        "maxItems": 3,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "theme": {
+              "default": null,
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "alocação",
+                    "liquidez",
+                    "proteção",
+                    "sucessão",
+                    "tributação",
+                    "concentração",
+                    "exposição internacional"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "text": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 420
+            },
+            "fact_ids": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "cluster_ids": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "theme",
+            "text",
+            "fact_ids",
+            "cluster_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "content_lab": {
+        "type": "object",
+        "properties": {
+          "story": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 140
+              },
+              "angle": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "main_idea": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "fact_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cluster_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "title",
+              "angle",
+              "main_idea",
+              "fact_ids",
+              "cluster_ids"
+            ],
+            "additionalProperties": false
+          },
+          "carousel": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 140
+              },
+              "angle": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "main_idea": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "fact_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cluster_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "title",
+              "angle",
+              "main_idea",
+              "fact_ids",
+              "cluster_ids"
+            ],
+            "additionalProperties": false
+          },
+          "reel": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 140
+              },
+              "angle": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "main_idea": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "fact_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cluster_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "hook": {
+                "type": "string",
+                "minLength": 5,
+                "maxLength": 200
+              },
+              "development": {
+                "type": "string",
+                "minLength": 20,
+                "maxLength": 500
+              },
+              "closing": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 300
+              },
+              "cta": {
+                "type": "string",
+                "minLength": 5,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "title",
+              "angle",
+              "main_idea",
+              "fact_ids",
+              "cluster_ids",
+              "hook",
+              "development",
+              "closing",
+              "cta"
+            ],
+            "additionalProperties": false
+          },
+          "take": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 140
+              },
+              "angle": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "main_idea": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 400
+              },
+              "fact_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cluster_ids": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "title",
+              "angle",
+              "main_idea",
+              "fact_ids",
+              "cluster_ids"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "story",
+          "carousel",
+          "reel",
+          "take"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "lede",
+      "what_matters",
+      "macro_watch",
+      "insights",
+      "uhnw_lens",
+      "content_lab"
+    ],
+    "additionalProperties": false
+  },
+  "packet": {
+    "date": "2026-09-30",
+    "citable_facts": [
+      {
+        "id": "fact_02e2f8e6c74d5838304b",
+        "metric": "BR_IPCA_12M",
+        "label": "IPCA (12 meses)",
+        "region": "BR",
+        "value": 4.22,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 4.44,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_crosscheck",
+        "source": "IBGE — SIDRA"
+      },
+      {
+        "id": "fact_f351eddf67874d2642af",
+        "metric": "BR_IPCA_MOM",
+        "label": "IPCA (variação mensal)",
+        "region": "BR",
+        "value": -0.32,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 0.07,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_crosscheck",
+        "source": "IBGE — SIDRA"
+      },
+      {
+        "id": "fact_587bf9fa08135b6931a7",
+        "metric": "BR_IPCA15_MOM",
+        "label": "IPCA-15 (variação mensal)",
+        "region": "BR",
+        "value": 0.7,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": -0.4,
+        "reference_period": "2026-09",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_crosscheck",
+        "source": "IBGE — SIDRA"
+      },
+      {
+        "id": "fact_4ec7b659ee4a10d3409a",
+        "metric": "BR_SELIC_TARGET",
+        "label": "Selic meta",
+        "region": "BR",
+        "value": 13.75,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.75,
+        "reference_period": "2026-09-30",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — SGS"
+      },
+      {
+        "id": "fact_29f6179f52070a0ba2d6",
+        "metric": "BTCUSD",
+        "label": "BTC/USD",
+        "region": "GLOBAL",
+        "value": 84210.075,
+        "unit": "USD",
+        "change_pct": null,
+        "previous_value": null,
+        "reference_period": "2026-09-30",
+        "market_status": "OPEN",
+        "session": "continuous",
+        "verification_method": "independent_crosscheck",
+        "source": "Coinbase"
+      },
+      {
+        "id": "fact_c1788607531574a0dece",
+        "metric": "EU_ECB_DEPOSIT_RATE",
+        "label": "ECB — taxa de depósito",
+        "region": "EU",
+        "value": 2.5,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 2.25,
+        "reference_period": "2026-09-16",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "European Central Bank — Data Portal"
+      },
+      {
+        "id": "fact_51e1485a7dad3dd27faa",
+        "metric": "EURBRL",
+        "label": "EUR/BRL",
+        "region": "BR",
+        "value": 5.9178,
+        "unit": "BRL",
+        "change_pct": -0.13,
+        "previous_value": 5.9253,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "fixing",
+        "verification_method": "independent_crosscheck",
+        "source": "Banco Central do Brasil — PTAX (SGS)"
+      },
+      {
+        "id": "fact_dc721373fa010672ab82",
+        "metric": "US_CPI_YOY",
+        "label": "CPI (12 meses)",
+        "region": "US",
+        "value": 3.4,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 3.36,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "U.S. Bureau of Labor Statistics"
+      },
+      {
+        "id": "fact_183094a439f259ab993e",
+        "metric": "US_FED_FUNDS_UPPER",
+        "label": "Fed Funds (teto da banda)",
+        "region": "US",
+        "value": 4,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 4,
+        "reference_period": "2026-09-30",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "FRED — Federal Reserve Bank of St. Louis"
+      },
+      {
+        "id": "fact_8bbcd8333215f0665560",
+        "metric": "US_PAYROLLS_CHANGE",
+        "label": "Payroll (variação mensal, mil)",
+        "region": "US",
+        "value": 162,
+        "unit": "mil",
+        "change_pct": null,
+        "previous_value": 21,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_crosscheck",
+        "source": "U.S. Bureau of Labor Statistics"
+      },
+      {
+        "id": "fact_c4325498461e88f70b0a",
+        "metric": "US_SPREAD_2S10S",
+        "label": "Spread 2s10s",
+        "region": "US",
+        "value": 37,
+        "unit": "bps",
+        "change_pct": null,
+        "previous_value": 32,
+        "reference_period": "2026-09-29",
+        "market_status": "OPEN",
+        "session": "official_close",
+        "verification_method": "derived",
+        "source": "U.S. Department of the Treasury"
+      },
+      {
+        "id": "fact_9e06e7115a42ba963c37",
+        "metric": "US10Y",
+        "label": "Treasury 10Y",
+        "region": "US",
+        "value": 5.26,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 5.24,
+        "reference_period": "2026-09-29",
+        "market_status": "OPEN",
+        "session": "official_close",
+        "verification_method": "official_single",
+        "source": "U.S. Department of the Treasury"
+      },
+      {
+        "id": "fact_b0bf1ad9862c6f15eff3",
+        "metric": "USDBRL",
+        "label": "USD/BRL",
+        "region": "BR",
+        "value": 5.2204,
+        "unit": "BRL",
+        "change_pct": 0.14,
+        "previous_value": 5.2132,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "fixing",
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — PTAX (SGS)"
+      },
+      {
+        "id": "fact_3e73053db18970e14384",
+        "metric": "US_PCE_YOY",
+        "label": "PCE (12 meses)",
+        "region": "US",
+        "value": 3.42,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 3.36,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "FRED — Federal Reserve Bank of St. Louis"
+      },
+      {
+        "id": "fact_8a70d60f15bf7d29e64b",
+        "metric": "BR_CDI",
+        "label": "CDI (anualizado)",
+        "region": "BR",
+        "value": 13.65,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.65,
+        "reference_period": "2026-09-29",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — SGS"
+      },
+      {
+        "id": "fact_a35c1dbd5430cde62d9b",
+        "metric": "BR_FOCUS_IPCA_CY",
+        "label": "Focus: IPCA esperado (ano corrente)",
+        "region": "BR",
+        "value": 4.9915,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": null,
+        "reference_period": "2026-09-25",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — Focus (Expectativas)"
+      },
+      {
+        "id": "fact_25fb8bc7d88a29f5324c",
+        "metric": "BR_FOCUS_SELIC_CY",
+        "label": "Focus: Selic esperada (fim do ano corrente)",
+        "region": "BR",
+        "value": 13.5,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": null,
+        "reference_period": "2026-09-25",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — Focus (Expectativas)"
+      },
+      {
+        "id": "fact_558e937b1b1f2bcdacb6",
+        "metric": "BR_GROSS_DEBT_GDP",
+        "label": "Dívida bruta do governo geral (% PIB)",
+        "region": "BR",
+        "value": 82.86,
+        "unit": "% PIB",
+        "change_pct": null,
+        "previous_value": 82.56,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — SGS"
+      },
+      {
+        "id": "fact_3010aa413d24ad381bcd",
+        "metric": "BR_IBCBR",
+        "label": "IBC-Br (índice dessazonalizado)",
+        "region": "BR",
+        "value": 109.91611,
+        "unit": "idx",
+        "change_pct": null,
+        "previous_value": 110.15775,
+        "reference_period": "2026-07",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — SGS"
+      },
+      {
+        "id": "fact_7af1bcbd46077b7dbd3a",
+        "metric": "BR_IGPM_MOM",
+        "label": "IGP-M (variação mensal)",
+        "region": "BR",
+        "value": 1.57,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": -0.22,
+        "reference_period": "2026-09",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — SGS"
+      },
+      {
+        "id": "fact_4c76ae154cda569dd76e",
+        "metric": "BR_SELIC_EFFECTIVE",
+        "label": "Selic efetiva (over, anualizada)",
+        "region": "BR",
+        "value": 13.65,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.65,
+        "reference_period": "2026-09-29",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "Banco Central do Brasil — SGS"
+      },
+      {
+        "id": "fact_2bf827b38622e82ace95",
+        "metric": "BR_UNEMPLOYMENT",
+        "label": "Desemprego (PNAD Contínua)",
+        "region": "BR",
+        "value": 5.3,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 5.3,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_crosscheck",
+        "source": "IBGE — SIDRA"
+      },
+      {
+        "id": "fact_fe15b586708f4d53704e",
+        "metric": "EU_UNEMPLOYMENT",
+        "label": "Desemprego zona do euro",
+        "region": "EU",
+        "value": 6.4,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 6.4,
+        "reference_period": "2026-07",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "European Central Bank — Data Portal"
+      },
+      {
+        "id": "fact_0696d6501e297af8f0a0",
+        "metric": "US_GDP_QOQ_SAAR",
+        "label": "PIB EUA (tri/tri anualizado)",
+        "region": "US",
+        "value": 2.2,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 2.5,
+        "reference_period": "2026-Q2",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_single",
+        "source": "FRED — Federal Reserve Bank of St. Louis"
+      },
+      {
+        "id": "fact_f8fb969c9f574f5abae8",
+        "metric": "US_UNEMPLOYMENT",
+        "label": "Desemprego EUA",
+        "region": "US",
+        "value": 4.1,
+        "unit": "%",
+        "change_pct": null,
+        "previous_value": 4.1,
+        "reference_period": "2026-08",
+        "market_status": "N/A",
+        "session": null,
+        "verification_method": "official_crosscheck",
+        "source": "U.S. Bureau of Labor Statistics"
+      },
+      {
+        "id": "fact_af5175d94e379019e646",
+        "metric": "BR_DI1_12M",
+        "label": "DI1 12M",
+        "region": "BR",
+        "value": 13.559,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.63,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "settlement",
+        "verification_method": "official_single",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "instrument": "DI1V27 (venc. 2027-10-01)"
+      },
+      {
+        "id": "fact_05a21604086a314b0bf3",
+        "metric": "BR_DI1_1M",
+        "label": "DI1 1M",
+        "region": "BR",
+        "value": 13.656,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.655,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "settlement",
+        "verification_method": "official_single",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "instrument": "DI1X26 (venc. 2026-11-03)"
+      },
+      {
+        "id": "fact_a92f04efed12b019caad",
+        "metric": "BR_DI1_24M",
+        "label": "DI1 24M",
+        "region": "BR",
+        "value": 13.747,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.851,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "settlement",
+        "verification_method": "official_single",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "instrument": "DI1V28 (venc. 2028-10-02)"
+      },
+      {
+        "id": "fact_f778461e0bac342d4855",
+        "metric": "BR_DI1_36M",
+        "label": "DI1 36M",
+        "region": "BR",
+        "value": 13.908,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.986,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "settlement",
+        "verification_method": "official_single",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "instrument": "DI1V29 (venc. 2029-10-01)"
+      },
+      {
+        "id": "fact_08cff9db9d19d769c240",
+        "metric": "BR_DI1_3M",
+        "label": "DI1 3M",
+        "region": "BR",
+        "value": 13.55,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.56,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "settlement",
+        "verification_method": "official_single",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "instrument": "DI1F27 (venc. 2027-01-04)"
+      },
+      {
+        "id": "fact_cbf2000f2e93ac4e84d2",
+        "metric": "BR_DI1_60M",
+        "label": "DI1 60M",
+        "region": "BR",
+        "value": 13.997,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 14.059,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "settlement",
+        "verification_method": "official_single",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "instrument": "DI1V31 (venc. 2031-10-01)"
+      },
+      {
+        "id": "fact_59f566ad5b32f78cf262",
+        "metric": "BR_DI1_6M",
+        "label": "DI1 6M",
+        "region": "BR",
+        "value": 13.529,
+        "unit": "% a.a.",
+        "change_pct": null,
+        "previous_value": 13.56,
+        "reference_period": "2026-09-29",
+        "market_status": "CLOSED",
+        "session": "settlement",
+        "verification_method": "official_single",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "instrument": "DI1J27 (venc. 2027-04-01)"
+      }
+    ],
+    "non_citable": [
+      {
+        "id": "fact_fdd07e19685c5cd3ddce",
+        "metric": "IBOV",
+        "label": "Ibovespa",
+        "status": "UNVERIFIED",
+        "note": "via MCP BRAPI (get_stock_quote ^BVSP + get_stock_historical 5d). regularMarketTime 2026-09-30T14:23Z"
+      },
+      {
+        "id": "fact_fc6d37abee0d4d87a033",
+        "metric": "SPX",
+        "label": "S&P 500",
+        "status": "UNVERIFIED",
+        "note": "Apenas uma fonte respondeu."
+      },
+      {
+        "id": "fact_41fbe97adc7654be8226",
+        "metric": "NASDAQ",
+        "label": "Nasdaq Composite",
+        "status": "UNVERIFIED",
+        "note": "Apenas uma fonte respondeu."
+      },
+      {
+        "id": "fact_20687196bd8463e93a77",
+        "metric": "DJI",
+        "label": "Dow Jones",
+        "status": "UNVERIFIED",
+        "note": "Apenas uma fonte respondeu."
+      },
+      {
+        "id": "fact_9f73551767f94ada4f06",
+        "metric": "DXY",
+        "label": "DXY (Índice Dólar)",
+        "status": "UNVERIFIED (proxy)",
+        "note": "DXY calculado (fórmula ICE) com taxas de referência do ECB: aproximação, não o índice oficial da ICE"
+      },
+      {
+        "id": "fact_285405a6bc17400423e9",
+        "metric": "EUROSTOXX50",
+        "label": "Euro Stoxx 50",
+        "status": "UNAVAILABLE",
+        "note": "Todas as fontes falharam ou estão indisponíveis. Nenhum valor foi estimado."
+      },
+      {
+        "id": "fact_50f53df69ba734966b6d",
+        "metric": "DAX",
+        "label": "DAX",
+        "status": "UNAVAILABLE",
+        "note": "Todas as fontes falharam ou estão indisponíveis. Nenhum valor foi estimado."
+      },
+      {
+        "id": "fact_050a6018245d262abfa4",
+        "metric": "FTSE100",
+        "label": "FTSE 100",
+        "status": "UNAVAILABLE",
+        "note": "Todas as fontes falharam ou estão indisponíveis. Nenhum valor foi estimado."
+      },
+      {
+        "id": "fact_eaaf8b3fda4410a28c1d",
+        "metric": "NIKKEI",
+        "label": "Nikkei 225",
+        "status": "UNVERIFIED",
+        "note": "Apenas uma fonte respondeu."
+      },
+      {
+        "id": "fact_0fcaa0bf3f0b08e3d7af",
+        "metric": "HANGSENG",
+        "label": "Hang Seng",
+        "status": "UNAVAILABLE",
+        "note": "Todas as fontes falharam ou estão indisponíveis. Nenhum valor foi estimado."
+      },
+      {
+        "id": "fact_d5c68704298728075b21",
+        "metric": "SHANGHAI",
+        "label": "Shanghai Composite",
+        "status": "UNAVAILABLE",
+        "note": "Todas as fontes falharam ou estão indisponíveis. Nenhum valor foi estimado."
+      },
+      {
+        "id": "fact_90dd41c4246d327251de",
+        "metric": "KOSPI",
+        "label": "Kospi",
+        "status": "UNVERIFIED",
+        "note": "Chave pública de exemplo do BOK (cadastre BOK_ECOS_KEY para produção). Apenas uma fonte respondeu."
+      },
+      {
+        "id": "fact_bce0efcc2622e12ea211",
+        "metric": "EU_HICP_YOY",
+        "label": "HICP zona do euro (12 meses)",
+        "status": "VERIFIED (defasado)",
+        "note": "Validado em 29/09/2026: a série U2 termina em 2025-12, provavelmente pela mudança de composição da z"
+      },
+      {
+        "id": "fact_53e74d1c9550b451a7c4",
+        "metric": "CN_CPI_YOY",
+        "label": "CPI China (12 meses)",
+        "status": "UNAVAILABLE",
+        "note": "Sem fonte confiável integrada: o NBS não tem API estruturada integrada, e a série da OECD no FRED (C"
+      },
+      {
+        "id": "fact_d9504720c68ee17f0f2a",
+        "metric": "CN_LPR_1Y",
+        "label": "LPR 1 ano (PBoC)",
+        "status": "UNAVAILABLE",
+        "note": "PBoC sem API estruturada. Fica UNAVAILABLE até ser importado manualmente com a URL oficial. Sem font"
+      }
+    ],
+    "clusters": [
+      {
+        "id": "evt_f2bad112c285d1ad621e",
+        "title": "PCE: inflação dos EUA sobe 0,3% em agosto, em linha com as projeções",
+        "topic": "economy",
+        "region": "US",
+        "geography": "US",
+        "domain": "macro",
+        "metric_target": "US_PCE_YOY",
+        "relevance_score": 83,
+        "hard_override": true,
+        "hard_override_reason": "Inflação",
+        "market_signals": [],
+        "verification_status": "VERIFIED",
+        "source_count": 3,
+        "sources": [
+          "Exame",
+          "CNN Brasil",
+          "InfoMoney"
+        ],
+        "summary": "Indicador é medida de inflação preferida do Banco Central dos Estados Unidos em tomada de decisão sobre juros"
+      },
+      {
+        "id": "evt_b4934c53b268093ecefd",
+        "title": "Setor público consolidado tem déficit primário de R$ 10,012 bi em agosto",
+        "topic": "fiscal",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "fiscal",
+        "metric_target": null,
+        "relevance_score": 74,
+        "hard_override": true,
+        "hard_override_reason": "Fiscal / tributário",
+        "market_signals": [],
+        "verification_status": "VERIFIED",
+        "source_count": 2,
+        "sources": [
+          "Valor Econômico",
+          "CNN Brasil"
+        ],
+        "summary": "O setor público consolidado fechou agosto com déficit primário de R$ 10,012 bilhões, conforme divulgou nesta quarta-feira (30) o Banco Central (BC). Em agosto do ano passado, o resultado havia sido déficit de R$ 17,255 bilhões. Os dados do "
+      },
+      {
+        "id": "evt_9ca6e24dca1b012c0065",
+        "title": "IPCA-15 surpreende e expõe fim da trégua dos alimentos",
+        "topic": "economy",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "macro",
+        "metric_target": "BR_IPCA15_MOM",
+        "relevance_score": 72,
+        "hard_override": true,
+        "hard_override_reason": "Divulgação oficial: IPCA-15 (variação mensal)",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "Estadão — Economia"
+        ],
+        "summary": ""
+      },
+      {
+        "id": "evt_71bebaececdda5f37d4a",
+        "title": "Contas públicas têm déficit de R$ 10 bilhões em agosto; dívida sobe para 82,9% do PIB, maior nível desde 2021",
+        "topic": "fiscal",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "fiscal",
+        "metric_target": null,
+        "relevance_score": 67,
+        "hard_override": true,
+        "hard_override_reason": "Fiscal / tributário",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "g1 Economia"
+        ],
+        "summary": "As contas do setor público consolidado apresentaram um déficit primário de R$ 10 bilhões em agosto, informou o Banco Central (BC) nesta quarta-feira (30). 🔎 O déficit primário ocorre quando as receitas com tributos e impostos ficam abaixo "
+      },
+      {
+        "id": "evt_8dbfac69afb33ba99045",
+        "title": "Ucrânia enfrenta dificuldade para cobrir déficit de US$ 27 bi da guerra",
+        "topic": "fiscal",
+        "region": "EU",
+        "geography": "EU",
+        "domain": "fiscal",
+        "metric_target": null,
+        "relevance_score": 64,
+        "hard_override": true,
+        "hard_override_reason": "Geopolítica / guerra / sanções",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "CNN Brasil"
+        ],
+        "summary": "Primeiro-ministro afirmou que planeja cobrir US$ 7 bi adiando despesas, realocando verbas de outras partes do orçamento e cortando alguns custos, enquanto negocia cobertura dos US$ 20 bi restantes"
+      },
+      {
+        "id": "evt_6830163fb49a0dd1a386",
+        "title": "Dólar abre em queda, com inflação dos EUA e contas públicas no foco",
+        "topic": "markets",
+        "region": "US",
+        "geography": "US",
+        "domain": "markets",
+        "metric_target": null,
+        "relevance_score": 64,
+        "hard_override": true,
+        "hard_override_reason": "Fiscal / tributário",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "g1 Economia"
+        ],
+        "summary": "Entenda o que faz o preço do dólar subir ou cair O dólar abriu a sessão desta quarta-feira (30) em queda, com um recuo de 0,27% perto das 9h10, cotado a R$ 5,2027. Já as negociações do Ibovespa, principal índice da bolsa brasileira, começam"
+      },
+      {
+        "id": "evt_ccc87d0013a34e7c4d22",
+        "title": "Dívida bruta do governo chega a 82,9% do PIB em agosto, aponta Banco Central",
+        "topic": "monetary_policy",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "monetary",
+        "metric_target": null,
+        "relevance_score": 63,
+        "hard_override": true,
+        "hard_override_reason": "Fiscal / tributário",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "Estadão — Economia"
+        ],
+        "summary": ""
+      },
+      {
+        "id": "evt_2a7be3ccbb3965437291",
+        "title": "Rússia emite alerta nuclear à Otan em meio à crescente tensão no Báltico",
+        "topic": "geopolitics",
+        "region": "EU",
+        "geography": "EU",
+        "domain": "geopolitics",
+        "metric_target": null,
+        "relevance_score": 61,
+        "hard_override": true,
+        "hard_override_reason": "Geopolítica / guerra / sanções",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "Valor Econômico"
+        ],
+        "summary": "A Rússia alertou a Otan de que estaria pronta para recorrer a armas nucleares caso a aliança ocidental tentasse isolar Kaliningrado, um exclave russo situado às margens do Mar Báltico. Matéria exclusiva para assinantes. Para ter acesso comp"
+      },
+      {
+        "id": "evt_7889c941faf88333eb6d",
+        "title": "AI debt surge raises risk of sharp market correction, warns Bank of England",
+        "topic": "ai",
+        "region": "GLOBAL",
+        "geography": "GLOBAL",
+        "domain": "technology",
+        "metric_target": null,
+        "relevance_score": 61,
+        "hard_override": true,
+        "hard_override_reason": "Decisão de banco central",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "Financial Times — Markets"
+        ],
+        "summary": "Governor says regulators ‘cannot stand aside’ and assume AI industry will resolve the risks it presents to financial system stability"
+      },
+      {
+        "id": "evt_e63e1a7e13cbaf5b1c59",
+        "title": "Brasil cria 165,8 mil empregos com carteira assinada em agosto, aponta Caged",
+        "topic": "economy",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "macro",
+        "metric_target": null,
+        "relevance_score": 56,
+        "hard_override": true,
+        "hard_override_reason": "Emprego",
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "g1 Economia"
+        ],
+        "summary": "A economia brasileira gerou 165.827 mil empregos formais em agosto deste ano, informou nesta terça-feira (29) o Ministério do Trabalho e do Emprego. Ao todo, segundo o governo federal, foram registradas em agosto: ➡️ 2.294.563 milhões de co"
+      },
+      {
+        "id": "evt_2ec7d1de9d1b143a06b3",
+        "title": "Ibovespa tem forte alta e dólar e juros caem com dados fracos de inflação nos EUA e euforia pré-eleição no Brasil",
+        "topic": "capital_markets",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "markets",
+        "metric_target": "IBOV",
+        "relevance_score": 66,
+        "hard_override": false,
+        "hard_override_reason": null,
+        "market_signals": [],
+        "verification_status": "VERIFIED",
+        "source_count": 2,
+        "sources": [
+          "Valor Econômico",
+          "CNN Brasil"
+        ],
+        "summary": "Ibovespa tem forte alta e dólar e juros caem com dados fracos de inflação nos EUA e euforia pré-eleição no Brasil Núcleo do índice de preços de gastos com consumo (PCE) fica abaixo das projeções e reduz temores de nova alta dos juros na pró"
+      },
+      {
+        "id": "evt_41885182ad7767d0da2d",
+        "title": "BC divulga Estatísticas Monetárias e de Crédito à imprensa",
+        "topic": "banking_credit",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "corporate",
+        "metric_target": null,
+        "relevance_score": 52,
+        "hard_override": false,
+        "hard_override_reason": null,
+        "market_signals": [],
+        "verification_status": "VERIFIED",
+        "source_count": 1,
+        "sources": [
+          "Banco Central do Brasil — Notas à imprensa"
+        ],
+        "summary": "<div class=\"ExternalClassF6089FCDAE1E43078F5B015B40E0D946\"><div><a href=\"/estatisticas/estatisticasmonetariascredito\" target=\"_blank\">Clique​</a>​​​​​​​ para acessar as Estatísticas Monetárias e de Crédito com os dados atualizados até agost"
+      },
+      {
+        "id": "evt_6531d9e71ce0f4e7d239",
+        "title": "Japão reabre mercado para carne bovina argentina após 20 anos",
+        "topic": "markets",
+        "region": "ASIA",
+        "geography": "ASIA",
+        "domain": "markets",
+        "metric_target": null,
+        "relevance_score": 50,
+        "hard_override": false,
+        "hard_override_reason": null,
+        "market_signals": [],
+        "verification_status": "VERIFIED",
+        "source_count": 2,
+        "sources": [
+          "CNN Brasil",
+          "g1 Economia"
+        ],
+        "summary": "Acordo foi anunciado pelo ministro Luis Caputo e contempla regiões argentinas livres de febre aftosa com vacinação"
+      },
+      {
+        "id": "evt_c13749ffe8d5ae1c7c17",
+        "title": "Manhã no mercado: Investidores monitoram petróleo e inflação americana, de olho nas eleições no Brasil",
+        "topic": "commodities",
+        "region": "BR",
+        "geography": "BR",
+        "domain": "commodities",
+        "metric_target": null,
+        "relevance_score": 42,
+        "hard_override": false,
+        "hard_override_reason": null,
+        "market_signals": [],
+        "verification_status": "UNVERIFIED",
+        "source_count": 1,
+        "sources": [
+          "Valor Econômico"
+        ],
+        "summary": "O estresse na renda fixa americana, combinado com a alta dos preços do petróleo, pode causar uma nova rodada de aversão a risco nos mercados globais nesta quarta-feira. Embora o rendimento dos Treasuries de 30 anos registre uma leve queda n"
+      }
+    ],
+    "market_signals": [],
+    "agenda": [
+      {
+        "id": "cal_d5fca2a1bd4cc24d5a91",
+        "date": "2026-10-01",
+        "time": null,
+        "name": "PMI industrial (S&P Global) — Brasil e mundo",
+        "region": "GLOBAL",
+        "importance": "MEDIUM",
+        "verification_status": "UNVERIFIED"
+      },
+      {
+        "id": "cal_09e6a663eca7a60d7fee",
+        "date": "2026-10-01",
+        "time": "10:00",
+        "name": "ISM Manufacturing PMI (EUA)",
+        "region": "US",
+        "importance": "MEDIUM",
+        "verification_status": "UNVERIFIED"
+      },
+      {
+        "id": "cal_ac35d340694a7c21ad3e",
+        "date": "2026-10-02",
+        "time": "08:30",
+        "name": "Payroll EUA (Employment Situation — setembro)",
+        "region": "US",
+        "importance": "HIGH",
+        "verification_status": "UNVERIFIED"
+      },
+      {
+        "id": "cal_25d6f8f46039e6cee1cc",
+        "date": "2026-10-04",
+        "time": null,
+        "name": "Eleições gerais — 1º turno",
+        "region": "BR",
+        "importance": "HIGH",
+        "verification_status": "VERIFIED"
+      },
+      {
+        "id": "cal_25fa28907b3277de0c00",
+        "date": "2026-10-12",
+        "time": null,
+        "name": "Feriado: Nossa Senhora Aparecida",
+        "region": "BR",
+        "importance": "LOW",
+        "verification_status": "VERIFIED"
+      },
+      {
+        "id": "cal_f4993240427b55213f06",
+        "date": "2026-10-25",
+        "time": null,
+        "name": "Eleições gerais — 2º turno",
+        "region": "BR",
+        "importance": "HIGH",
+        "verification_status": "VERIFIED"
+      },
+      {
+        "id": "cal_1fc839a135927a6ac0f7",
+        "date": "2026-10-28",
+        "time": "14:00",
+        "name": "FOMC — decisão de juros",
+        "region": "US",
+        "importance": "HIGH",
+        "verification_status": "UNVERIFIED"
+      },
+      {
+        "id": "cal_a19a45438ad125811449",
+        "date": "2026-10-29",
+        "time": "14:15",
+        "name": "ECB — decisão de política monetária",
+        "region": "EU",
+        "importance": "MEDIUM",
+        "verification_status": "UNVERIFIED"
+      }
+    ],
+    "event_driven_requests": [
+      {
+        "event_id": "cal_ac35d340694a7c21ad3e",
+        "name": "Payroll EUA (Employment Situation — setembro)",
+        "date": "2026-10-02",
+        "angle": "Mercado de trabalho americano como variável-chave para a trajetória do Fed e, por tabela, para o dólar."
+      }
+    ],
+    "budget": {
+      "chars": 23825,
+      "estimated_tokens": 5957,
+      "facts": 32,
+      "clusters": 14,
+      "agenda": 8,
+      "truncated": [
+        "fatos citáveis 40 → 32 (secundários removidos)"
+      ]
+    }
+  }
+}

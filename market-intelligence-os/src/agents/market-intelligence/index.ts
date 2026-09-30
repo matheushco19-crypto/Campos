@@ -1,10 +1,12 @@
 import { z } from 'zod'
+import { ASSETS } from '../../../config/assets'
 import { SOURCES } from '../../../config/sources'
 import { getEnv } from '../../core/env'
 import { stableId } from '../../core/ids'
 import { errorMessage } from '../../core/logger'
 import { CalendarEvent, NewsItem, RawObservation, RunError, SourceHealth, type EventCluster, type JobName, type VerifiedFact } from '../../core/schemas'
 import { httpStats } from '../../core/http'
+import { classifyNews } from '../../engines/news-classifier'
 import { clusterNews } from '../../engines/news-clustering'
 import { marketSignals, scoreClusters, scoreItem, selectClusters } from '../../engines/relevance'
 import { RunLogger } from '../../observability/run-logger'
@@ -12,6 +14,7 @@ import type { Repository } from '../../storage/repository'
 import { verifyAll } from '../../verification/engine'
 import { collectMacro } from './collectors/macro'
 import { collectMarkets } from './collectors/market'
+import { describeSession } from './collectors/market-status'
 import { collectNews } from './collectors/news'
 
 export { MARKET_INTELLIGENCE_INSTRUCTIONS } from './instructions'
@@ -120,13 +123,30 @@ export function mergeExtraObservations(bundle: CollectionBundle, extra: RawObser
   }
 }
 
+/**
+ * Session labels are a pure function of (asset, source, reference date, observed time, market
+ * status, collection time): re-derive them for an imported bundle so it is labelled by the
+ * current rules (e.g. a previous close collected while the exchange trades is not intraday).
+ */
+function resessionBundle(bundle: CollectionBundle): CollectionBundle {
+  const at = new Date(bundle.collected_at)
+  return {
+    ...bundle,
+    observations: bundle.observations.map((o) => {
+      const asset = ASSETS.find((a) => a.metric === o.metric)
+      if (o.category !== 'MARKET' || !asset || !o.session || !o.marketStatus || !o.referencePeriod) return o
+      return { ...o, session: describeSession(asset, o.sourceId, o.referencePeriod, o.asOf, o.marketStatus, at) }
+    }),
+  }
+}
+
 export async function runMarketIntelligence(repo: Repository, rawInput: Agent1Input): Promise<Agent1Output> {
   const input = Agent1Input.parse(rawInput)
   const logger = await new RunLogger(repo, 'market-intelligence', { job: (input.job as JobName) ?? null, briefDate: input.briefDate, parentRunId: input.parentRunId ?? null }).start()
   const started = Date.now()
   httpStats.reset()
   try {
-    const collected = input.bundle ?? (await collectBundle(input.briefDate, input.now, input.scope))
+    const collected = input.bundle ? resessionBundle(input.bundle) : await collectBundle(input.briefDate, input.now, input.scope)
     const bundle = mergeExtraObservations(collected, input.extraObservations)
     logger.sources(bundle.health)
     logger.errors(bundle.errors)
@@ -169,7 +189,14 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
       // Score items first (seeds each cluster with its most relevant story), cluster, then rank clusters.
       const factsForSignals = facts.length ? facts : await repo.getLatestFactsForDate(input.briefDate)
       const signals = marketSignals(factsForSignals)
-      const clustered = clusterNews(bundle.news, input.briefDate, { officialSourceIds: official, rank: (n) => scoreItem(n, input.briefDate, signals) })
+      // Classification is a pure function of headline + summary + source: re-apply it so an imported
+      // bundle (collected by older code, e.g. in a sandbox) is ranked with the current rules.
+      const bySource = new Map(SOURCES.map((s) => [s.id, s]))
+      const news = bundle.news.map((n) => {
+        const src = bySource.get(n.source_id)
+        return { ...n, ...classifyNews(n.headline, n.original_summary ?? '', { officialSource: src?.authority === 'official', defaultRegion: src?.regions[0] }) }
+      })
+      const clustered = clusterNews(news, input.briefDate, { officialSourceIds: official, rank: (n) => scoreItem(n, input.briefDate, signals) })
       const ranked = selectClusters(scoreClusters(clustered.clusters, clustered.items, input.briefDate, signals, factsForSignals))
       clusters = ranked.all
       // All raw news and every cluster (top, watchlist and tail) are persisted; only the top reaches Agent 2.

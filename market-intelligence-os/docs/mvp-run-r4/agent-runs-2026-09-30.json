@@ -1,0 +1,781 @@
+[
+  {
+    "run_id": "run_865a47fc93a64d6f87f3",
+    "parent_run_id": null,
+    "agent": "orchestrator",
+    "job": "MORNING_INTELLIGENCE",
+    "brief_date": "2026-09-30",
+    "started_at": "2026-09-30T14:37:24.723Z",
+    "finished_at": "2026-09-30T14:37:25.665Z",
+    "status": "AWAITING_ANALYSIS",
+    "items_collected": 0,
+    "items_verified": 0,
+    "items_rejected": 0,
+    "errors": [],
+    "sources": [],
+    "execution_metadata": {
+      "llm_mode": "claude_code",
+      "storage": "file",
+      "stages": {
+        "agent1": "SUCCESS",
+        "agent3": "SUCCESS",
+        "agent2": "AWAITING_ANALYSIS",
+        "snapshot": "v1",
+        "research": "0 processed"
+      },
+      "snapshot_id": "snap_2026-09-30_v1",
+      "duration_ms": 942
+    }
+  },
+  {
+    "run_id": "run_b2f40429804e4ad58f93",
+    "parent_run_id": "run_865a47fc93a64d6f87f3",
+    "agent": "market-intelligence",
+    "job": "MORNING_INTELLIGENCE",
+    "brief_date": "2026-09-30",
+    "started_at": "2026-09-30T14:37:24.729Z",
+    "finished_at": "2026-09-30T14:37:25.614Z",
+    "status": "SUCCESS",
+    "items_collected": 403,
+    "items_verified": 41,
+    "items_rejected": 0,
+    "errors": [],
+    "sources": [
+      {
+        "source_id": "fred:SP500",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 245,
+        "error": null
+      },
+      {
+        "source_id": "fred:DJIA",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 376,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:10 Yr",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 549,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS10",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 663,
+        "error": null
+      },
+      {
+        "source_id": "fred:NASDAQCOM",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 680,
+        "error": null
+      },
+      {
+        "source_id": "fred:NIKKEI225",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 720,
+        "error": null
+      },
+      {
+        "source_id": "bcb-ptax:1",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 521,
+        "error": null
+      },
+      {
+        "source_id": "coinbase:BTC-USD",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 23,
+        "error": null
+      },
+      {
+        "source_id": "kraken:XBTUSD",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 29,
+        "error": null
+      },
+      {
+        "source_id": "bitstamp:btcusd",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 13,
+        "error": null
+      },
+      {
+        "source_id": "bcb-ptax:21619",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 682,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:3 Mo",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 106,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS3MO",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 217,
+        "error": null
+      },
+      {
+        "source_id": "ecb-fx:DXY",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1695,
+        "error": null
+      },
+      {
+        "source_id": "ecb-fx:BRL",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 769,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:6 Mo",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 78,
+        "error": null
+      },
+      {
+        "source_id": "ecb-fx:USD",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1128,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:1 Yr",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 97,
+        "error": null
+      },
+      {
+        "source_id": "bok-ecos:802Y001/0001000",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1462,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:2 Yr",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 81,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS6MO",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 221,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:5 Yr",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 113,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:20 Yr",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 99,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS2",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 199,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS1",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 279,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS20",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 209,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS5",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 297,
+        "error": null
+      },
+      {
+        "source_id": "fred:DGS30",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 194,
+        "error": null
+      },
+      {
+        "source_id": "us-treasury:30 Yr",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 210,
+        "error": null
+      },
+      {
+        "source_id": "gemini:btcusd",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1116,
+        "error": null
+      },
+      {
+        "source_id": "b3-arquivos:1M",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1157,
+        "error": null
+      },
+      {
+        "source_id": "b3-arquivos:3M",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1036,
+        "error": null
+      },
+      {
+        "source_id": "b3-arquivos:6M",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1026,
+        "error": null
+      },
+      {
+        "source_id": "b3-arquivos:12M",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 978,
+        "error": null
+      },
+      {
+        "source_id": "b3-arquivos:24M",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 969,
+        "error": null
+      },
+      {
+        "source_id": "b3-arquivos:36M",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 944,
+        "error": null
+      },
+      {
+        "source_id": "b3-arquivos:60M",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 71,
+        "error": null
+      },
+      {
+        "source_id": "sgs:4389",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 544,
+        "error": null
+      },
+      {
+        "source_id": "sgs:432",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 652,
+        "error": null
+      },
+      {
+        "source_id": "sgs:7478",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 754,
+        "error": null
+      },
+      {
+        "source_id": "sgs:1178",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 826,
+        "error": null
+      },
+      {
+        "source_id": "sidra:1737/2265",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 166,
+        "error": null
+      },
+      {
+        "source_id": "sgs:433",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 496,
+        "error": null
+      },
+      {
+        "source_id": "sidra:6381/4099",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 161,
+        "error": null
+      },
+      {
+        "source_id": "sgs:13522",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 396,
+        "error": null
+      },
+      {
+        "source_id": "sidra:7062/355",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1277,
+        "error": null
+      },
+      {
+        "source_id": "sgs:189",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 499,
+        "error": null
+      },
+      {
+        "source_id": "sidra:1737/63",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 959,
+        "error": null
+      },
+      {
+        "source_id": "sgs:24364",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 421,
+        "error": null
+      },
+      {
+        "source_id": "sgs:24369",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 446,
+        "error": null
+      },
+      {
+        "source_id": "fred:DFEDTARU",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 28,
+        "error": null
+      },
+      {
+        "source_id": "sgs:13762",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 415,
+        "error": null
+      },
+      {
+        "source_id": "fred:UNRATE",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 20,
+        "error": null
+      },
+      {
+        "source_id": "focus:IPCA:current_year",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 426,
+        "error": null
+      },
+      {
+        "source_id": "fred:PAYEMS",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 26,
+        "error": null
+      },
+      {
+        "source_id": "bls:LNS14000000",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 214,
+        "error": null
+      },
+      {
+        "source_id": "bls:CUUR0000SA0",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 232,
+        "error": null
+      },
+      {
+        "source_id": "fred:PCEPI",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 17,
+        "error": null
+      },
+      {
+        "source_id": "bls:CES0000000001",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 314,
+        "error": null
+      },
+      {
+        "source_id": "ecb:FM.B.U2.EUR.4F.KR.DFR.LEV",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 283,
+        "error": null
+      },
+      {
+        "source_id": "ecb:ICP.M.U2.N.000000.4.ANR",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 284,
+        "error": null
+      },
+      {
+        "source_id": "focus:Selic:current_year",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 682,
+        "error": null
+      },
+      {
+        "source_id": "fred:A191RL1Q225SBEA",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 349,
+        "error": null
+      },
+      {
+        "source_id": "ecb:LFSI.M.I9.S.UNEHRT.TOTAL0.15_74.T",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 266,
+        "error": null
+      },
+      {
+        "source_id": "rss-bbc-business",
+        "ok": true,
+        "items": 26,
+        "latency_ms": 79,
+        "error": null
+      },
+      {
+        "source_id": "rss-infomoney",
+        "ok": true,
+        "items": 10,
+        "latency_ms": 184,
+        "error": null
+      },
+      {
+        "source_id": "rss-estadao-economia",
+        "ok": true,
+        "items": 19,
+        "latency_ms": 651,
+        "error": null
+      },
+      {
+        "source_id": "rss-cnnbrasil-economia",
+        "ok": true,
+        "items": 60,
+        "latency_ms": 889,
+        "error": null
+      },
+      {
+        "source_id": "rss-marketwatch",
+        "ok": true,
+        "items": 10,
+        "latency_ms": 16,
+        "error": null
+      },
+      {
+        "source_id": "rss-g1-economia",
+        "ok": true,
+        "items": 36,
+        "latency_ms": 946,
+        "error": null
+      },
+      {
+        "source_id": "rss-nyt-business",
+        "ok": true,
+        "items": 19,
+        "latency_ms": 20,
+        "error": null
+      },
+      {
+        "source_id": "rss-ft-markets",
+        "ok": true,
+        "items": 25,
+        "latency_ms": 204,
+        "error": null
+      },
+      {
+        "source_id": "rss-exame",
+        "ok": true,
+        "items": 25,
+        "latency_ms": 212,
+        "error": null
+      },
+      {
+        "source_id": "rss-cnbc-markets",
+        "ok": true,
+        "items": 3,
+        "latency_ms": 94,
+        "error": null
+      },
+      {
+        "source_id": "rss-fed-press",
+        "ok": true,
+        "items": 2,
+        "latency_ms": 38,
+        "error": null
+      },
+      {
+        "source_id": "rss-valor",
+        "ok": true,
+        "items": 100,
+        "latency_ms": 1477,
+        "error": null
+      },
+      {
+        "source_id": "rss-bcb-notas",
+        "ok": true,
+        "items": 2,
+        "latency_ms": 935,
+        "error": null
+      },
+      {
+        "source_id": "rss-ecb-press",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 1257,
+        "error": null
+      },
+      {
+        "source_id": "brapi",
+        "ok": true,
+        "items": 1,
+        "latency_ms": 0,
+        "error": null
+      }
+    ],
+    "execution_metadata": {
+      "collector_host": "local",
+      "skipped_sources": [
+        "IBOV@twelvedata: TWELVEDATA_API_KEY ausente",
+        "IBOV@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "IBOV@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "SPX@fmp: FMP_API_KEY ausente",
+        "SPX@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "SPX@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "NASDAQ@fmp: FMP_API_KEY ausente",
+        "NASDAQ@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "NASDAQ@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "DJI@fmp: FMP_API_KEY ausente",
+        "DJI@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "DJI@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "DXY@fmp: FMP_API_KEY ausente",
+        "DXY@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "DXY@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "EUROSTOXX50@twelvedata: TWELVEDATA_API_KEY ausente",
+        "EUROSTOXX50@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "EUROSTOXX50@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "DAX@twelvedata: TWELVEDATA_API_KEY ausente",
+        "DAX@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "DAX@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "FTSE100@twelvedata: TWELVEDATA_API_KEY ausente",
+        "FTSE100@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "FTSE100@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "NIKKEI@twelvedata: TWELVEDATA_API_KEY ausente",
+        "NIKKEI@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "NIKKEI@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "HANGSENG@twelvedata: TWELVEDATA_API_KEY ausente",
+        "HANGSENG@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "HANGSENG@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "SHANGHAI@twelvedata: TWELVEDATA_API_KEY ausente",
+        "SHANGHAI@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "SHANGHAI@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "KOSPI@twelvedata: TWELVEDATA_API_KEY ausente",
+        "KOSPI@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "KOSPI@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "USDBRL@twelvedata: TWELVEDATA_API_KEY ausente",
+        "USDBRL@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "USDBRL@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "EURBRL@twelvedata: TWELVEDATA_API_KEY ausente",
+        "EURBRL@stooq: Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)",
+        "EURBRL@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)",
+        "BTCUSD@coingecko: COINGECKO_DEMO_KEY ausente (403 sem chave)",
+        "BTCUSD@twelvedata: TWELVEDATA_API_KEY ausente",
+        "BTCUSD@yahoo: Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)"
+      ],
+      "from_bundle": true,
+      "extra_observations": [
+        "brapi:IBOV"
+      ],
+      "clusters_top": 14,
+      "clusters_watchlist": 25,
+      "clusters_tail": 274,
+      "hard_overrides": 16,
+      "market_signals": [],
+      "coverage_uncovered": [],
+      "facts_by_status": {
+        "UNVERIFIED": 7,
+        "VERIFIED": 41,
+        "UNAVAILABLE": 7
+      },
+      "news_items": 338,
+      "event_clusters": 313,
+      "provider_calls": 79,
+      "http_calls": 0,
+      "retries": 0,
+      "http_failures": 0,
+      "elapsed_ms": 885,
+      "duration_ms": 885
+    }
+  },
+  {
+    "run_id": "run_0bdaf5ec0c3f49e4aab4",
+    "parent_run_id": "run_865a47fc93a64d6f87f3",
+    "agent": "social-strategist",
+    "job": "MORNING_INTELLIGENCE",
+    "brief_date": "2026-09-30",
+    "started_at": "2026-09-30T14:37:25.620Z",
+    "finished_at": "2026-09-30T14:37:25.623Z",
+    "status": "SUCCESS",
+    "items_collected": 38,
+    "items_verified": 22,
+    "items_rejected": 0,
+    "errors": [],
+    "sources": [
+      {
+        "source_id": "cal-official-seed",
+        "ok": true,
+        "items": 12,
+        "latency_ms": 0,
+        "error": null
+      }
+    ],
+    "execution_metadata": {
+      "events_upserted": 38,
+      "opportunities": 10,
+      "pre_event_review": [
+        "Payroll EUA (Employment Situation — setembro)"
+      ],
+      "duration_ms": 3
+    }
+  },
+  {
+    "run_id": "run_361bbdb762e546198822",
+    "parent_run_id": "run_865a47fc93a64d6f87f3",
+    "agent": "financial-intelligence",
+    "job": "MORNING_INTELLIGENCE",
+    "brief_date": "2026-09-30",
+    "started_at": "2026-09-30T14:37:25.625Z",
+    "finished_at": "2026-09-30T14:37:25.661Z",
+    "status": "AWAITING_ANALYSIS",
+    "items_collected": 69,
+    "items_verified": 32,
+    "items_rejected": 1,
+    "errors": [],
+    "sources": [],
+    "execution_metadata": {
+      "mode": "claude_code",
+      "citable_facts": 32,
+      "non_citable": 15,
+      "clusters_sent": 14,
+      "packet_chars": 23825,
+      "packet_estimated_tokens": 5957,
+      "facts_count": 32,
+      "clusters_count": 14,
+      "agenda_count": 8,
+      "packet_truncated": [
+        "fatos citáveis 40 → 32 (secundários removidos)"
+      ],
+      "watchlist_candidates": 25,
+      "coverage_uncovered": [],
+      "provider_calls": 0,
+      "retries": 0,
+      "elapsed_ms": 35,
+      "qc_passed": true,
+      "qc_corrections": 1,
+      "word_count": 369,
+      "reading_minutes": 2.5,
+      "duration_ms": 36
+    }
+  },
+  {
+    "run_id": "run_fa8d8896379c4ef9b444",
+    "parent_run_id": "run_865a47fc93a64d6f87f3",
+    "agent": "financial-intelligence",
+    "job": "MORNING_INTELLIGENCE",
+    "brief_date": "2026-09-30",
+    "started_at": "2026-09-30T14:37:42.335Z",
+    "finished_at": "2026-09-30T14:37:42.383Z",
+    "status": "SUCCESS",
+    "items_collected": 69,
+    "items_verified": 32,
+    "items_rejected": 7,
+    "errors": [],
+    "sources": [],
+    "execution_metadata": {
+      "mode": "claude_code",
+      "citable_facts": 32,
+      "non_citable": 15,
+      "clusters_sent": 14,
+      "packet_chars": 23597,
+      "packet_estimated_tokens": 5900,
+      "facts_count": 32,
+      "clusters_count": 14,
+      "agenda_count": 8,
+      "packet_truncated": [
+        "fatos citáveis 40 → 32 (secundários removidos)"
+      ],
+      "watchlist_candidates": 25,
+      "coverage_uncovered": [],
+      "provider_calls": 0,
+      "retries": 0,
+      "elapsed_ms": 47,
+      "qc_passed": true,
+      "qc_corrections": 7,
+      "word_count": 952,
+      "reading_minutes": 6.3,
+      "duration_ms": 48
+    }
+  }
+]

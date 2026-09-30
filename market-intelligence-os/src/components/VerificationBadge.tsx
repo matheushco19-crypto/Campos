@@ -25,6 +25,10 @@ export interface Provenance {
   session?: string | null
   /** Contract behind a curve vertex, e.g. "DI1V31 · venc. 2031-10-01 · 1252 du". */
   instrument?: string | null
+  /** Fact only: metric code, formatted value and the session's reference date. */
+  metric?: string | null
+  value?: string | null
+  referenceDate?: string | null
   /** What kind of item this is (changes which rows are relevant). */
   kind?: 'fact' | 'news' | 'event'
 }
@@ -122,7 +126,10 @@ export function VerificationBadge({ p, compact = false }: { p: Provenance; compa
             <dl className="grid grid-cols-[112px_1fr] gap-x-3 gap-y-1.5">
               {kind !== 'news' && <Row k="Fonte primária" v={p.primary ? <SourceLink s={p.primary} /> : '—'} />}
               {kind === 'fact' && <Row k="Fonte secundária" v={p.secondary ? <SourceLink s={p.secondary} /> : 'sem segunda fonte'} />}
-              {kind !== 'news' && <Row k={kind === 'event' ? 'Data do evento' : 'Data de referência'} v={<span className="tnum">{p.reference ?? '—'}</span>} />}
+              {kind === 'fact' && <Row k="Métrica" v={<span className="tnum">{p.metric ?? '—'}</span>} />}
+              {kind === 'fact' && <Row k="Valor" v={<span className="tnum font-semibold">{p.value ?? '—'}</span>} />}
+              {kind !== 'news' && <Row k={kind === 'event' ? 'Data do evento' : 'Período'} v={<span className="tnum">{p.reference ?? '—'}</span>} />}
+              {kind === 'fact' && <Row k="Data de referência" v={<span className="tnum">{p.referenceDate ?? '—'}</span>} />}
               {kind === 'fact' && <Row k="Válido em" v={<span className="tnum">{p.asOf ? fmtDateTimeBRT(p.asOf) : '—'}</span>} />}
               {kind === 'news' && <Row k="Publicado" v={<span className="tnum">{p.asOf ? fmtDateTimeBRT(p.asOf) : '—'}</span>} />}
               {kind === 'fact' && <Row k="Coletado em" v={<span className="tnum">{p.retrievedAt ? fmtDateTimeBRT(p.retrievedAt) : '—'}</span>} />}

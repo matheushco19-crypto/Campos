@@ -1,0 +1,14 @@
+{
+  "run_id": "run_865a47fc93a64d6f87f3",
+  "date": "2026-09-30",
+  "status": "AWAITING_ANALYSIS",
+  "stages": {
+    "agent1": "SUCCESS",
+    "agent3": "SUCCESS",
+    "agent2": "AWAITING_ANALYSIS",
+    "snapshot": "v1",
+    "research": "0 processed"
+  },
+  "snapshot": "snap_2026-09-30_v1",
+  "qc": []
+}

@@ -48,7 +48,7 @@ A linhagem vem de `lineage` em `config/sources.ts` (ou do mapeamento do ativo em
 | Treasury | `official_close` | Par yield curve publicada pelo Tesouro dos EUA |
 | Cripto | `continuous` | Sem fechamento; valor instantâneo em `observed_at` |
 
-Um valor intradiário nunca é exibido como fechamento (selo "INTRADIÁRIO" na tabela).
+Um valor intradiário nunca é exibido como fechamento (selo "INTRADIÁRIO" na tabela). O contrário também vale: um valor só é `intraday` se a data de referência for o pregão corrente da bolsa no momento da coleta. Uma série diária com a data de ontem, coletada com a bolsa aberta, é o fechamento de ontem: `regular_close`, com `market_status = OPEN`. Bundles importados têm a sessão e a classificação de notícias recalculadas pelas regras atuais, porque as duas são funções puras.
 
 ## Metric Alignment (`src/engines/metric-alignment.ts`)
 A métrica nomeada no texto precisa ser a métrica do fato. Aliases: IPCA-15 → `BR_IPCA15_MOM`, IPCA → `BR_IPCA_MOM`/`BR_IPCA_12M`, IGP-M → `BR_IGPM_MOM`, payroll/nonfarm → `US_PAYROLLS_CHANGE`, CPI → `US_CPI_YOY`, PCE → `US_PCE_YOY`, Selic → `BR_SELIC_TARGET`, Selic efetiva → `BR_SELIC_EFFECTIVE`, CDI → `BR_CDI`, DI futuro/DI1Xnn → `BR_DI1_*`, FOMC/Fed Funds → `US_FED_FUNDS_UPPER`, taxa de depósito do BCE → `EU_ECB_DEPOSIT_RATE`, Treasury → `US10Y`/`US_UST_*`. ADP não tem métrica integrada.

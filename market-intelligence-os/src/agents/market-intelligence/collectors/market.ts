@@ -313,7 +313,7 @@ export async function collectMarkets(now = new Date(), assets = ASSETS.filter((a
           previousValue: f.previous,
           changePct: f.changePct,
           marketStatus,
-          session: describeSession(asset, m.sourceId, f.referenceDate, f.asOf, marketStatus),
+          session: describeSession(asset, m.sourceId, f.referenceDate, f.asOf, marketStatus, now),
           instrument: f.instrument,
           notes: f.notes,
         }

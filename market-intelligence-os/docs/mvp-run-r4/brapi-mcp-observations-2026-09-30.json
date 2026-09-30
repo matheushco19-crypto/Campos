@@ -1,0 +1,18 @@
+[
+  {
+    "sourceId": "brapi",
+    "category": "MARKET",
+    "metric": "IBOV",
+    "value": 183827.6,
+    "unit": "pts",
+    "referencePeriod": "2026-09-29",
+    "asOf": "2026-09-29T20:00:00.000Z",
+    "retrievedAt": "2026-09-30T14:24:00.000Z",
+    "url": "https://brapi.dev/api/v2/stocks/quote?symbols=%5EBVSP",
+    "previousValue": 182991.12,
+    "changePct": 0.46,
+    "marketStatus": "CLOSED",
+    "session": { "observed_at": "2026-09-29T20:00:00.000Z", "reference_date": "2026-09-29", "session": "regular_close", "timezone": "America/Sao_Paulo", "source": "brapi", "is_close": true, "is_intraday": false, "session_of": "2026-09-29", "rule": "Fechamento do pregão regular da bolsa na data de referência." },
+    "notes": "via MCP BRAPI (get_stock_quote ^BVSP + get_stock_historical 5d). regularMarketTime 2026-09-30T14:23Z (11:23 BRT) é INTRADIÁRIO (B3 aberta, 185.442,02): descartado. O run matinal (05:00 BRT) usa o fechamento de 29/09 = regularMarketPreviousClose 183.827,6 (barra diária 29/09 close 183.828; 28/09 close 182.991)."
+  }
+]

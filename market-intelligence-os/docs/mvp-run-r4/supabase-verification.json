@@ -1,0 +1,23 @@
+{
+  "project": "hourclrikooygkrinjoc",
+  "checked_at": "2026-09-30T14:47:00Z",
+  "migrations": [
+    { "version": "20260930000052", "name": "market_intelligence_init" },
+    { "version": "20260930135656", "name": "mvp_round3", "note": "Aplicada nesta rodada (estava ausente no início). Conteúdo = supabase/migrations/20261001090000_mvp_round3.sql; a versão no banco é o carimbo do momento da aplicação. Nenhuma migration duplicada." }
+  ],
+  "round3_columns_present": "21/21 (lista em supabase-schema.json)",
+  "job_leases": { "exists": true, "constraints": ["PRIMARY KEY (lease_id)", "UNIQUE (job_name, run_key)", "CHECK status IN (RUNNING, COMPLETED, FAILED)"] },
+  "rls": { "tables": 13, "rls_enabled": 13, "policies": 0 },
+  "grants_note": "anon/authenticated mantêm os GRANTs padrão do Supabase (104). Com RLS ligado e sem policy, nenhuma linha é visível nem gravável por esses papéis (prova abaixo). O backend usa exclusivamente a service role (server-side).",
+  "rls_probe": {
+    "method": "Dentro de uma transação com ROLLBACK: INSERT de uma linha em job_leases como owner; leitura como owner, anon e authenticated; tentativa de INSERT como anon.",
+    "owner_visible": 1,
+    "anon_visible": 0,
+    "authenticated_visible": 0,
+    "anon_insert": "DENIED: new row violates row-level security policy for table \"job_leases\"",
+    "leftover_rows": 0
+  },
+  "security_advisors": { "level": "INFO only", "lint": "rls_enabled_no_policy", "count": 13, "decision": "Intencional: tabelas internas, acesso só via service role. Nenhuma policy pública criada para zerar o aviso." },
+  "write_test_real_rows": "Executado no início da rodada: INSERT/SELECT/DELETE em 7 tabelas com linhas no formato do código (inclusive snapshot com rates/coverage/watchlist e job_leases). Duplicata (job_name, run_key) rejeitada pela constraint. Linhas de teste removidas.",
+  "data_state": { "intelligence_snapshots": 0, "job_leases": 0, "verified_facts": 0, "agent_runs": 0, "note": "Banco de produção vazio: nenhum run de produção ainda (não há deployment)." }
+}

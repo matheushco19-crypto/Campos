@@ -63,7 +63,7 @@ export const HARD_OVERRIDES: { id: string; label: string; pattern: RegExp }[] = 
   { id: 'fiscal_tax', label: 'Fiscal / tributário', pattern: /\b(arcabouco|meta fiscal|resultado primario|deficit primario|contas publicas|divida (bruta|publica)|reforma tributaria|imposto de renda|irpf|itcmd|iof|orcamento|shutdown|debt ceiling|teto da divida)\b/ },
   { id: 'sovereign', label: 'Default / rating soberano', pattern: /\b(default soberano|sovereign default|rating soberano|rebaixa(mento)? (de )?rating|downgrade|moody.?s|fitch|s&p global ratings)\b/ },
   { id: 'banking_crisis', label: 'Crise bancária', pattern: /\b(crise bancaria|banking crisis|bank run|corrida bancaria|quebra de banco|bank collapse|liquidacao extrajudicial|resgate bancario|bailout)\b/ },
-  { id: 'geopolitics', label: 'Geopolítica / guerra / sanções', pattern: /\b(guerra|war|invasao|invasion|ataque (militar|a[eé]reo|com m[ií]sseis)|airstrikes?|missil|misseis|missiles?|sancoes|sanctions|cessar-fogo|ceasefire|otan|nato|alerta nuclear)\b/ },
+  { id: 'geopolitics', label: 'Geopolítica / guerra / sanções', pattern: /\b(guerra|war|invasao (militar|russa|terrestre|da ucrania|de taiwan|do territorio)|(military|ground) invasion|invasion of|ataque (militar|a[eé]reo|com m[ií]sseis)|airstrikes?|missil|misseis|missiles?|sancoes|sanctions|cessar-fogo|ceasefire|otan|nato|alerta nuclear)\b/ },
   { id: 'oil_shock', label: 'Choque de petróleo', pattern: /\b(petroleo (dispara|despenca|salta|sobe|cai)|oil (soars|plunges|spikes|jumps|tumbles)|opep|opec)\b/ },
   { id: 'systemic_corporate', label: 'Evento corporativo sistêmico', pattern: /\b(recuperacao judicial|chapter 11|falencia|bankruptcy|fraude contabil|accounting fraud|calote)\b/ },
 ]

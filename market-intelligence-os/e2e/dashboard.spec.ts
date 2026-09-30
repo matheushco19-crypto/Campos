@@ -44,7 +44,7 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
     await page.locator('#markets table').first().getByRole('button', { name: /VERIFIED/ }).first().click()
     const dialog = page.getByRole('dialog', { name: 'Proveniência do dado' })
     await expect(dialog).toBeVisible()
-    for (const k of ['Fonte primária', 'Fonte secundária', 'Data de referência', 'Coletado em', 'Confiança', 'Método', 'VERIFIED', 'Links']) await expect(dialog).toContainText(k)
+    for (const k of ['Métrica', 'Valor', 'Período', 'Fonte primária', 'Fonte secundária', 'Data de referência', 'Coletado em', 'Confiança', 'Método', 'VERIFIED', 'Links']) await expect(dialog).toContainText(k)
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
   })

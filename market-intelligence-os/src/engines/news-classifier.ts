@@ -32,20 +32,22 @@ const TOPIC_RULES: [NewsTopic, RegExp][] = [
   ['corporate', /\b(lucro|resultado trimestral|balanco|earnings|receita|guidance|dividendos|recompra|buyback|ceo)\b/],
   ['wealth', /\b(patrimonio|wealth|family office|sucessao|previdencia privada|holding|planejamento patrimonial|alta renda|private bank)\b/],
   ['markets', /\b(mercados?|markets?|stocks?|acoes|wall street|s&p|nasdaq|dow|dolar|cambio|dollar|currency)\b/],
-  ['economy', /\b(economia|economy|pib|gdp|inflacao|inflation|ipca|cpi|pce|desemprego|unemployment|payroll|emprego|jobs|varejo|retail|industria|pmi|recessao|recession)\b/],
+  ['economy', /\b(economia|economy|pib|gdp|inflacao|inflation|ipca|cpi|pce|desemprego|unemployment|payroll|emprego|jobs|varejo|retail|industria|pmi|recessao|recession|desaceleracao|slowdown|atividade economica|condicoes financeiras)\b/],
 ]
 
 const REGION_RULES: [Region, RegExp][] = [
   ['BR', /\b(brasil|brazil|copom|selic|ibovespa|b3|ipca|real brasileiro|lula|haddad|tesouro nacional|petrobras|vale|itau|bradesco|stf|camara|senado)\b/],
-  ['US', /\b(eua|estados unidos|u\.?s\.?|united states|fed|fomc|wall street|treasur|trump|nasdaq|s&p|dow|payroll|powell)\b/],
+  ['US', /\b(eua|estados unidos|u\.s\.?|us(?![$\w])|united states|fed|fomc|wall street|treasur|trump|nasdaq|s&p|dow|payroll|powell)\b/],
   ['CN', /\b(china|chines|chinese|pequim|beijing|pboc|yuan|shanghai|xi jinping)\b/],
-  ['EU', /\b(europa|europe|euro|zona do euro|eurozone|ecb|bce|lagarde|alemanha|germany|franca|france|uk|reino unido|britain|london)\b/],
+  ['EU', /\b(europa|europe|euro|zona do euro|eurozone|ecb|bce|lagarde|alemanha|germany|franca|france|uk|reino unido|britain|london|ucrania|ukraine|russia|kremlin|moscou|moscow)\b/],
   ['ASIA', /\b(japao|japan|boj|nikkei|coreia|korea|kospi|hong kong|india)\b/],
 ]
 
 const HIGH_IMPACT = /\b(copom|selic|fomc|fed|ecb|payroll|cpi|ipca|pce|pib|gdp|recessao|recession|tarifa|tariff|default|guerra|war|downgrade|rebaixa|rating|crise|crisis|colapso|shutdown|reforma tributaria|arcabouco|eleic)\b/
 const UHNW_TERMS = /\b(patrimonio|heranca|sucessao|itcmd|holding|offshore|fundos? exclusivos?|tributacao|dividendos|jcp|previdencia|family office|imovel|imoveis|cambio|dolar|juros|renda fixa|credito privado|isen|aliquota|trust|internacionaliza)\b/
 const SOCIAL_TERMS = /\b(juros|dolar|inflacao|imposto|salario|aposentadoria|previdencia|casa propria|financiamento|bitcoin|ia|inteligencia artificial|emprego|gasolina|combustivel|precos?)\b/
+
+const RELATED_LINKS = /\b(leia (tambem|mais)|veja (tambem|mais)|saiba mais|read more)\b.*$/
 
 export interface Classification {
   topic: NewsTopic
@@ -59,7 +61,8 @@ export interface Classification {
 const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)))
 
 export function classifyNews(headline: string, summary: string, opts: { officialSource?: boolean; defaultRegion?: Region } = {}): Classification {
-  const text = normalizeText(`${headline} ${summary}`)
+  // Feed summaries often end with related-story links ("Leia também: …") that are not about this story.
+  const text = normalizeText(`${headline} ${summary}`).replace(RELATED_LINKS, '')
   const head = normalizeText(headline)
   const topic = TOPIC_RULES.find(([, re]) => re.test(head))?.[0] ?? TOPIC_RULES.find(([, re]) => re.test(text))?.[0] ?? 'other'
   const region = REGION_RULES.find(([, re]) => re.test(head))?.[0] ?? REGION_RULES.find(([, re]) => re.test(text))?.[0] ?? opts.defaultRegion ?? 'GLOBAL'

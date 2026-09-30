@@ -57,6 +57,8 @@ export function describeSession(
   referenceDate: string,
   asOf: string,
   status: MarketStatus,
+  /** Collection time. A value is intraday only if its reference date is the exchange's session at this moment. */
+  now?: Date,
 ): SessionInfo {
   const base = { observed_at: asOf, reference_date: referenceDate, timezone: asset.exchange.timezone, source: sourceId, session_of: referenceDate }
   const mk = (session: SessionInfo['session'], is_close: boolean, is_intraday: boolean): SessionInfo => ({ ...base, session, is_close, is_intraday, rule: SESSION_RULES[session] })
@@ -64,6 +66,8 @@ export function describeSession(
   if (sourceId === 'b3-arquivos') return mk('settlement', true, false)
   if (sourceId === 'us-treasury' || (sourceId === 'fred' && asset.unit === '%')) return mk('official_close', true, false)
   if (asset.exchange.always) return mk('continuous', false, false)
-  if (status === 'OPEN') return mk('intraday', false, true)
+  // The exchange may be trading while our value is a previous day's close (e.g. FRED daily series
+  // collected during the NY session): that value is the close of its reference date, not intraday.
+  if (status === 'OPEN' && referenceDate === toLocalDate(now ?? asOf, asset.exchange.timezone)) return mk('intraday', false, true)
   return mk('regular_close', true, false)
 }

@@ -15,6 +15,7 @@ const Bps = ({ v }: { v: number | null }) =>
     })()
   )
 
+/** DI1 settlement rates are published by B3 with 3 decimals; Treasury par yields with 2. */
 function Table({ rows, factById, instrument = false, unit = '%' }: { rows: RateVertex[]; factById: Map<string, VerifiedFact>; instrument?: boolean; unit?: string }) {
   return (
     <div className="overflow-x-auto">
@@ -44,7 +45,7 @@ function Table({ rows, factById, instrument = false, unit = '%' }: { rows: RateV
                   )}
                 </td>
               )}
-              <td className="px-2 py-2 text-right font-semibold text-ink tnum">{r.value === null ? '—' : unit === 'bps' ? `${num(r.value, 0)} bps` : `${num(r.value)}%`}</td>
+              <td className="px-2 py-2 text-right font-semibold text-ink tnum">{r.value === null ? '—' : unit === 'bps' ? `${num(r.value, 0)} bps` : `${num(r.value, instrument ? 3 : 2)}%`}</td>
               <td className="px-2 py-2 text-right">
                 <Bps v={r.change_bps} />
               </td>

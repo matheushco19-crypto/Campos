@@ -1,0 +1,27 @@
+{
+  "description": "Controle negativo em cópia descartável do store (não entra no histórico auditado): duas substituições semânticas inseridas de propósito na análise, sobre os fatos reais do dia.",
+  "injected": [
+    "what_matters[0]: 'IPCA-15 ficou em -0,32%' citando BR_IPCA_MOM (IPCA de agosto)",
+    "insights[2]: 'O FOMC levou os juros para 5,26%' citando US10Y"
+  ],
+  "result": {
+    "snapshot": "snap_2026-09-30_v3",
+    "status": "PUBLISHED",
+    "qc_passed": true,
+    "corrections": [
+      "Fato da métrica citada associado como evidência principal: IPCA-15 (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Payroll (variação mensal, mil).",
+      "Fato da métrica citada associado como evidência principal: Fed Funds (teto da banda).",
+      "Fato da métrica citada associado como evidência principal: Focus: Selic esperada (fim do ano corrente).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Item de \"O que importa\" removido: \"-0,32%\" vem de IPCA (variação mensal) (BR_IPCA_MOM), mas a frase fala de IPCA-15.",
+      "Insight removido: \"5,26%\" vem de Treasury 10Y (US10Y), mas a frase fala de FOMC / Fed Funds.",
+      "Ponto UHNW removido: notícia de fonte única sem atribuição: \"liquidez Para famílias empresárias, a alta da dívida pública…\""
+    ],
+    "words": 827,
+    "minutes": 5.5
+  }
+}

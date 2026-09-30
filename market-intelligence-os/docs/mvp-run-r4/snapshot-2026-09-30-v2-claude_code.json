@@ -1,0 +1,3398 @@
+{
+  "date": "2026-09-30",
+  "generated_at": "2026-09-30T14:37:42.359Z",
+  "run_id": "run_865a47fc93a64d6f87f3",
+  "status": "PUBLISHED",
+  "analysis_mode": "claude_code",
+  "market_snapshot": [
+    {
+      "verification_method": "single_source",
+      "core": true,
+      "session": "regular_close",
+      "metric": "IBOV",
+      "label": "Ibovespa",
+      "region": "BR",
+      "value": 183827.6,
+      "unit": "pts",
+      "change_pct": 0.46,
+      "reference": "2026-09-29",
+      "market_status": "CLOSED",
+      "verification_status": "UNVERIFIED",
+      "fact_id": "fact_fdd07e19685c5cd3ddce",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "single_source",
+      "core": true,
+      "session": "regular_close",
+      "metric": "SPX",
+      "label": "S&P 500",
+      "region": "US",
+      "value": 7670.84,
+      "unit": "pts",
+      "change_pct": -0.17,
+      "reference": "2026-09-29",
+      "market_status": "OPEN",
+      "verification_status": "UNVERIFIED",
+      "fact_id": "fact_fc6d37abee0d4d87a033",
+      "is_stale": false,
+      "source_fallback": true
+    },
+    {
+      "verification_method": "single_source",
+      "core": true,
+      "session": "regular_close",
+      "metric": "NASDAQ",
+      "label": "Nasdaq Composite",
+      "region": "US",
+      "value": 26797.54,
+      "unit": "pts",
+      "change_pct": -0.09,
+      "reference": "2026-09-29",
+      "market_status": "OPEN",
+      "verification_status": "UNVERIFIED",
+      "fact_id": "fact_41fbe97adc7654be8226",
+      "is_stale": false,
+      "source_fallback": true
+    },
+    {
+      "verification_method": "single_source",
+      "core": true,
+      "session": "regular_close",
+      "metric": "DJI",
+      "label": "Dow Jones",
+      "region": "US",
+      "value": 51349.92,
+      "unit": "pts",
+      "change_pct": -0.26,
+      "reference": "2026-09-29",
+      "market_status": "OPEN",
+      "verification_status": "UNVERIFIED",
+      "fact_id": "fact_20687196bd8463e93a77",
+      "is_stale": false,
+      "source_fallback": true
+    },
+    {
+      "verification_method": "official_single",
+      "core": true,
+      "session": "official_close",
+      "metric": "US10Y",
+      "label": "Treasury 10Y",
+      "region": "US",
+      "value": 5.26,
+      "unit": "%",
+      "change_pct": null,
+      "reference": "2026-09-29",
+      "market_status": "OPEN",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_9e06e7115a42ba963c37",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "proxy",
+      "core": false,
+      "session": "fixing",
+      "metric": "DXY",
+      "label": "DXY (Índice Dólar)",
+      "region": "US",
+      "value": 101.235,
+      "unit": "idx",
+      "change_pct": -0.03,
+      "reference": "2026-09-30",
+      "market_status": "CLOSED",
+      "verification_status": "UNVERIFIED",
+      "fact_id": "fact_9f73551767f94ada4f06",
+      "is_stale": false,
+      "source_fallback": true
+    },
+    {
+      "verification_method": "unavailable",
+      "core": false,
+      "session": null,
+      "metric": "EUROSTOXX50",
+      "label": "Euro Stoxx 50",
+      "region": "EU",
+      "value": null,
+      "unit": "pts",
+      "change_pct": null,
+      "reference": null,
+      "market_status": "UNKNOWN",
+      "verification_status": "UNAVAILABLE",
+      "fact_id": "fact_285405a6bc17400423e9",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "unavailable",
+      "core": false,
+      "session": null,
+      "metric": "DAX",
+      "label": "DAX",
+      "region": "EU",
+      "value": null,
+      "unit": "pts",
+      "change_pct": null,
+      "reference": null,
+      "market_status": "UNKNOWN",
+      "verification_status": "UNAVAILABLE",
+      "fact_id": "fact_50f53df69ba734966b6d",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "unavailable",
+      "core": false,
+      "session": null,
+      "metric": "FTSE100",
+      "label": "FTSE 100",
+      "region": "EU",
+      "value": null,
+      "unit": "pts",
+      "change_pct": null,
+      "reference": null,
+      "market_status": "UNKNOWN",
+      "verification_status": "UNAVAILABLE",
+      "fact_id": "fact_050a6018245d262abfa4",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "single_source",
+      "core": false,
+      "session": "regular_close",
+      "metric": "NIKKEI",
+      "label": "Nikkei 225",
+      "region": "ASIA",
+      "value": 66753.72,
+      "unit": "pts",
+      "change_pct": 1.94,
+      "reference": "2026-09-30",
+      "market_status": "CLOSED",
+      "verification_status": "UNVERIFIED",
+      "fact_id": "fact_eaaf8b3fda4410a28c1d",
+      "is_stale": false,
+      "source_fallback": true
+    },
+    {
+      "verification_method": "unavailable",
+      "core": false,
+      "session": null,
+      "metric": "HANGSENG",
+      "label": "Hang Seng",
+      "region": "ASIA",
+      "value": null,
+      "unit": "pts",
+      "change_pct": null,
+      "reference": null,
+      "market_status": "UNKNOWN",
+      "verification_status": "UNAVAILABLE",
+      "fact_id": "fact_0fcaa0bf3f0b08e3d7af",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "unavailable",
+      "core": false,
+      "session": null,
+      "metric": "SHANGHAI",
+      "label": "Shanghai Composite",
+      "region": "CN",
+      "value": null,
+      "unit": "pts",
+      "change_pct": null,
+      "reference": null,
+      "market_status": "UNKNOWN",
+      "verification_status": "UNAVAILABLE",
+      "fact_id": "fact_d5c68704298728075b21",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "single_source",
+      "core": false,
+      "session": "regular_close",
+      "metric": "KOSPI",
+      "label": "Kospi",
+      "region": "ASIA",
+      "value": 6870.81,
+      "unit": "pts",
+      "change_pct": -0.27,
+      "reference": "2026-09-29",
+      "market_status": "CLOSED",
+      "verification_status": "UNVERIFIED",
+      "fact_id": "fact_90dd41c4246d327251de",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "official_single",
+      "core": true,
+      "session": "fixing",
+      "metric": "USDBRL",
+      "label": "USD/BRL",
+      "region": "BR",
+      "value": 5.2204,
+      "unit": "BRL",
+      "change_pct": 0.14,
+      "reference": "2026-09-29",
+      "market_status": "CLOSED",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_b0bf1ad9862c6f15eff3",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "independent_crosscheck",
+      "core": true,
+      "session": "fixing",
+      "metric": "EURBRL",
+      "label": "EUR/BRL",
+      "region": "BR",
+      "value": 5.9178,
+      "unit": "BRL",
+      "change_pct": -0.13,
+      "reference": "2026-09-29",
+      "market_status": "CLOSED",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_51e1485a7dad3dd27faa",
+      "is_stale": false,
+      "source_fallback": false
+    },
+    {
+      "verification_method": "independent_crosscheck",
+      "core": true,
+      "session": "continuous",
+      "metric": "BTCUSD",
+      "label": "BTC/USD",
+      "region": "GLOBAL",
+      "value": 84210.075,
+      "unit": "USD",
+      "change_pct": null,
+      "reference": "2026-09-30",
+      "market_status": "OPEN",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_29f6179f52070a0ba2d6",
+      "is_stale": false,
+      "source_fallback": false
+    }
+  ],
+  "macro_snapshot": [
+    {
+      "metric": "BR_SELIC_TARGET",
+      "label": "Selic meta",
+      "region": "BR",
+      "value": 13.75,
+      "unit": "% a.a.",
+      "reference": "2026-09-30",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_4ec7b659ee4a10d3409a",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_SELIC_EFFECTIVE",
+      "label": "Selic efetiva (over, anualizada)",
+      "region": "BR",
+      "value": 13.65,
+      "unit": "% a.a.",
+      "reference": "2026-09-29",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_4c76ae154cda569dd76e",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_CDI",
+      "label": "CDI (anualizado)",
+      "region": "BR",
+      "value": 13.65,
+      "unit": "% a.a.",
+      "reference": "2026-09-29",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_8a70d60f15bf7d29e64b",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_IPCA15_MOM",
+      "label": "IPCA-15 (variação mensal)",
+      "region": "BR",
+      "value": 0.7,
+      "unit": "%",
+      "reference": "2026-09",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_587bf9fa08135b6931a7",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_IPCA_MOM",
+      "label": "IPCA (variação mensal)",
+      "region": "BR",
+      "value": -0.32,
+      "unit": "%",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_f351eddf67874d2642af",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_IPCA_12M",
+      "label": "IPCA (12 meses)",
+      "region": "BR",
+      "value": 4.22,
+      "unit": "%",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_02e2f8e6c74d5838304b",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_IGPM_MOM",
+      "label": "IGP-M (variação mensal)",
+      "region": "BR",
+      "value": 1.57,
+      "unit": "%",
+      "reference": "2026-09",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_7af1bcbd46077b7dbd3a",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_UNEMPLOYMENT",
+      "label": "Desemprego (PNAD Contínua)",
+      "region": "BR",
+      "value": 5.3,
+      "unit": "%",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_2bf827b38622e82ace95",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_IBCBR",
+      "label": "IBC-Br (índice dessazonalizado)",
+      "region": "BR",
+      "value": 109.91611,
+      "unit": "idx",
+      "reference": "2026-07",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_3010aa413d24ad381bcd",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_GROSS_DEBT_GDP",
+      "label": "Dívida bruta do governo geral (% PIB)",
+      "region": "BR",
+      "value": 82.86,
+      "unit": "% PIB",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_558e937b1b1f2bcdacb6",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_FOCUS_IPCA_CY",
+      "label": "Focus: IPCA esperado (ano corrente)",
+      "region": "BR",
+      "value": 4.9915,
+      "unit": "%",
+      "reference": "2026-09-25",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_a35c1dbd5430cde62d9b",
+      "is_stale": false
+    },
+    {
+      "metric": "BR_FOCUS_SELIC_CY",
+      "label": "Focus: Selic esperada (fim do ano corrente)",
+      "region": "BR",
+      "value": 13.5,
+      "unit": "% a.a.",
+      "reference": "2026-09-25",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_25fb8bc7d88a29f5324c",
+      "is_stale": false
+    },
+    {
+      "metric": "US_FED_FUNDS_UPPER",
+      "label": "Fed Funds (teto da banda)",
+      "region": "US",
+      "value": 4,
+      "unit": "%",
+      "reference": "2026-09-30",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_183094a439f259ab993e",
+      "is_stale": false
+    },
+    {
+      "metric": "US_CPI_YOY",
+      "label": "CPI (12 meses)",
+      "region": "US",
+      "value": 3.4,
+      "unit": "%",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_dc721373fa010672ab82",
+      "is_stale": false
+    },
+    {
+      "metric": "US_UNEMPLOYMENT",
+      "label": "Desemprego EUA",
+      "region": "US",
+      "value": 4.1,
+      "unit": "%",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_f8fb969c9f574f5abae8",
+      "is_stale": false
+    },
+    {
+      "metric": "US_PAYROLLS_CHANGE",
+      "label": "Payroll (variação mensal, mil)",
+      "region": "US",
+      "value": 162,
+      "unit": "mil",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_8bbcd8333215f0665560",
+      "is_stale": false
+    },
+    {
+      "metric": "US_PCE_YOY",
+      "label": "PCE (12 meses)",
+      "region": "US",
+      "value": 3.42,
+      "unit": "%",
+      "reference": "2026-08",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_3e73053db18970e14384",
+      "is_stale": false
+    },
+    {
+      "metric": "US_GDP_QOQ_SAAR",
+      "label": "PIB EUA (tri/tri anualizado)",
+      "region": "US",
+      "value": 2.2,
+      "unit": "%",
+      "reference": "2026-Q2",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_0696d6501e297af8f0a0",
+      "is_stale": false
+    },
+    {
+      "metric": "EU_ECB_DEPOSIT_RATE",
+      "label": "ECB — taxa de depósito",
+      "region": "EU",
+      "value": 2.5,
+      "unit": "%",
+      "reference": "2026-09-16",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_c1788607531574a0dece",
+      "is_stale": false
+    },
+    {
+      "metric": "EU_HICP_YOY",
+      "label": "HICP zona do euro (12 meses)",
+      "region": "EU",
+      "value": 1.9,
+      "unit": "%",
+      "reference": "2025-12",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_bce0efcc2622e12ea211",
+      "is_stale": true
+    },
+    {
+      "metric": "EU_UNEMPLOYMENT",
+      "label": "Desemprego zona do euro",
+      "region": "EU",
+      "value": 6.4,
+      "unit": "%",
+      "reference": "2026-07",
+      "verification_status": "VERIFIED",
+      "fact_id": "fact_fe15b586708f4d53704e",
+      "is_stale": false
+    },
+    {
+      "metric": "CN_CPI_YOY",
+      "label": "CPI China (12 meses)",
+      "region": "CN",
+      "value": null,
+      "unit": "%",
+      "reference": null,
+      "verification_status": "UNAVAILABLE",
+      "fact_id": "fact_53e74d1c9550b451a7c4",
+      "is_stale": false
+    },
+    {
+      "metric": "CN_LPR_1Y",
+      "label": "LPR 1 ano (PBoC)",
+      "region": "CN",
+      "value": null,
+      "unit": "%",
+      "reference": null,
+      "verification_status": "UNAVAILABLE",
+      "fact_id": "fact_d9504720c68ee17f0f2a",
+      "is_stale": false
+    }
+  ],
+  "news_snapshot": [
+    {
+      "id": "evt_f2bad112c285d1ad621e",
+      "title": "PCE: inflação dos EUA sobe 0,3% em agosto, em linha com as projeções",
+      "topic": "economy",
+      "region": "US",
+      "first_published_at": "2026-09-30T09:46:17.000Z",
+      "last_published_at": "2026-09-30T13:35:32.000Z",
+      "item_ids": [
+        "news_7fa04e6696e17be3a6f7",
+        "news_23e460afa8f66f668a21",
+        "news_0439ee83bd4563ba4072"
+      ],
+      "sources": [
+        {
+          "source": "Exame",
+          "url": "https://exame.com/mundo/pce-inflacao-dos-eua-sobe-03-em-agosto-em-linha-com-as-projecoes/",
+          "headline": "PCE: inflação dos EUA sobe 0,3% em agosto, em linha com as projeções"
+        },
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/inflacao-nos-eua-sobe-menos-do-que-o-esperado-em-agosto/",
+          "headline": "Inflação nos EUA sobe menos do que o esperado em agosto"
+        },
+        {
+          "source": "InfoMoney",
+          "url": "https://www.infomoney.com.br/mercados/ibovespa-hoje-bolsa-de-valores-ao-vivo-30092026/",
+          "headline": "Ibovespa Hoje Ao Vivo: Bolsa sobe após dados de inflação dos EUA abaixo do esperado"
+        }
+      ],
+      "importance": 77,
+      "market_relevance": 86,
+      "uhnw_relevance": 61,
+      "social_relevance": 96,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 83,
+      "relevance_components": {
+        "materiality": 23,
+        "sources": 15.4,
+        "market_impact": 17.2,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 6.1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Inflação",
+      "geography": "US",
+      "domain": "macro",
+      "metric_target": "US_PCE_YOY",
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_b4934c53b268093ecefd",
+      "title": "Setor público consolidado tem déficit primário de R$ 10,012 bi em agosto",
+      "topic": "fiscal",
+      "region": "BR",
+      "first_published_at": "2026-09-30T11:47:02.000Z",
+      "last_published_at": "2026-09-30T12:13:40.000Z",
+      "item_ids": [
+        "news_8c40fad3b5791604a4ce",
+        "news_d24455c40b533bafdd29"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/brasil/noticia/2026/09/30/setor-publico-consolidado-tem-deficit-primario-de-r-10012-bi-em-agosto.ghtml",
+          "headline": "Setor público consolidado tem déficit primário de R$ 10,012 bi em agosto"
+        },
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/bc-deficit-do-setor-publico-soma-r-10-bilhoes-em-agosto/",
+          "headline": "BC: Déficit do setor público soma R$ 10 bilhões em agosto"
+        }
+      ],
+      "importance": 46,
+      "market_relevance": 53,
+      "uhnw_relevance": 83,
+      "social_relevance": 48,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 74,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 10.8,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 8.3
+      },
+      "hard_override": true,
+      "hard_override_reason": "Fiscal / tributário",
+      "geography": "BR",
+      "domain": "fiscal",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_9ca6e24dca1b012c0065",
+      "title": "IPCA-15 surpreende e expõe fim da trégua dos alimentos",
+      "topic": "economy",
+      "region": "BR",
+      "first_published_at": "2026-09-29T23:04:30.000Z",
+      "last_published_at": "2026-09-29T23:04:30.000Z",
+      "item_ids": [
+        "news_b15fafd210bef715b834"
+      ],
+      "sources": [
+        {
+          "source": "Estadão — Economia",
+          "url": "https://www.estadao.com.br/economia/fernando-dantas/ipca-15-surpreende-e-expoe-fim-da-tregua-dos-alimentos/",
+          "headline": "IPCA-15 surpreende e expõe fim da trégua dos alimentos"
+        }
+      ],
+      "importance": 61,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 50,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 72,
+      "relevance_components": {
+        "materiality": 25,
+        "sources": 5,
+        "market_impact": 20,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Divulgação oficial: IPCA-15 (variação mensal)",
+      "geography": "BR",
+      "domain": "macro",
+      "metric_target": "BR_IPCA15_MOM",
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_71bebaececdda5f37d4a",
+      "title": "Contas públicas têm déficit de R$ 10 bilhões em agosto; dívida sobe para 82,9% do PIB, maior nível desde 2021",
+      "topic": "fiscal",
+      "region": "BR",
+      "first_published_at": "2026-09-30T11:35:31.000Z",
+      "last_published_at": "2026-09-30T11:35:31.000Z",
+      "item_ids": [
+        "news_52b1538ca84ad3691276"
+      ],
+      "sources": [
+        {
+          "source": "g1 Economia",
+          "url": "https://g1.globo.com/economia/noticia/2026/09/30/contas-publicas-tem-deficit-de-r-10-bilhoes-em-agosto-divida-sobe-para-829percent-do-pib.ghtml",
+          "headline": "Contas públicas têm déficit de R$ 10 bilhões em agosto; dívida sobe para 82,9% do PIB, maior nível desde 2021"
+        }
+      ],
+      "importance": 63,
+      "market_relevance": 70,
+      "uhnw_relevance": 75,
+      "social_relevance": 65,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 67,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 7.5
+      },
+      "hard_override": true,
+      "hard_override_reason": "Fiscal / tributário",
+      "geography": "BR",
+      "domain": "fiscal",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_2ec7d1de9d1b143a06b3",
+      "title": "Ibovespa tem forte alta e dólar e juros caem com dados fracos de inflação nos EUA e euforia pré-eleição no Brasil",
+      "topic": "capital_markets",
+      "region": "BR",
+      "first_published_at": "2026-09-30T12:31:40.000Z",
+      "last_published_at": "2026-09-30T13:57:14.000Z",
+      "item_ids": [
+        "news_b21eadd42ac1bae8b4d1",
+        "news_f7404f0411cfa86fa0e6",
+        "news_bbdabf2892ccfba7f913"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/financas/ao-vivo/2023/06/16/dolar-avanca-e-ibovespa-recua-em-dia-de-correcao-siga-os-mercados.ghtml",
+          "headline": "Ibovespa tem forte alta e dólar e juros caem com dados fracos de inflação nos EUA e euforia pré-eleição no Brasil"
+        },
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/mercado/mercado-financeiro-ibovespa-dolar-30-setembro-2026/",
+          "headline": "Ibovespa sobe forte em meio a dados de inflação nos EUA; dólar cai"
+        },
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/financas/noticia/2026/09/30/ibovespa-sobe-1percent-com-otimismo-eleitoral-e-dados-fracos-de-inflacao-nos-eua.ghtml",
+          "headline": "Ibovespa sobe 1% com otimismo eleitoral e dados fracos de inflação nos EUA"
+        }
+      ],
+      "importance": 59,
+      "market_relevance": 78,
+      "uhnw_relevance": 53,
+      "social_relevance": 73,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 66,
+      "relevance_components": {
+        "materiality": 14.8,
+        "sources": 9.5,
+        "market_impact": 15.6,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 5.3
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "markets",
+      "metric_target": "IBOV",
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_8dbfac69afb33ba99045",
+      "title": "Ucrânia enfrenta dificuldade para cobrir déficit de US$ 27 bi da guerra",
+      "topic": "fiscal",
+      "region": "EU",
+      "first_published_at": "2026-09-30T12:43:47.000Z",
+      "last_published_at": "2026-09-30T12:43:47.000Z",
+      "item_ids": [
+        "news_1b7cddb65803f57c00fe"
+      ],
+      "sources": [
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/ucrania-enfrenta-dificuldade-para-cobrir-deficit-de-us-27-bi-da-guerra/",
+          "headline": "Ucrânia enfrenta dificuldade para cobrir déficit de US$ 27 bi da guerra"
+        }
+      ],
+      "importance": 58,
+      "market_relevance": 70,
+      "uhnw_relevance": 40,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 64,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4
+      },
+      "hard_override": true,
+      "hard_override_reason": "Geopolítica / guerra / sanções",
+      "geography": "EU",
+      "domain": "fiscal",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_6830163fb49a0dd1a386",
+      "title": "Dólar abre em queda, com inflação dos EUA e contas públicas no foco",
+      "topic": "markets",
+      "region": "US",
+      "first_published_at": "2026-09-30T12:00:13.000Z",
+      "last_published_at": "2026-09-30T12:00:13.000Z",
+      "item_ids": [
+        "news_4bbb7e288761a13635bd"
+      ],
+      "sources": [
+        {
+          "source": "g1 Economia",
+          "url": "https://g1.globo.com/economia/noticia/2026/09/30/dolar-ibovespa.ghtml",
+          "headline": "Dólar abre em queda, com inflação dos EUA e contas públicas no foco"
+        }
+      ],
+      "importance": 55,
+      "market_relevance": 70,
+      "uhnw_relevance": 45,
+      "social_relevance": 65,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 64,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4.5
+      },
+      "hard_override": true,
+      "hard_override_reason": "Fiscal / tributário",
+      "geography": "US",
+      "domain": "markets",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_ccc87d0013a34e7c4d22",
+      "title": "Dívida bruta do governo chega a 82,9% do PIB em agosto, aponta Banco Central",
+      "topic": "monetary_policy",
+      "region": "BR",
+      "first_published_at": "2026-09-30T12:43:35.000Z",
+      "last_published_at": "2026-09-30T12:43:35.000Z",
+      "item_ids": [
+        "news_a1476a81e824d9d098eb"
+      ],
+      "sources": [
+        {
+          "source": "Estadão — Economia",
+          "url": "https://www.estadao.com.br/economia/divida-bruta-governo-pib-agosto-2026-banco-central/",
+          "headline": "Dívida bruta do governo chega a 82,9% do PIB em agosto, aponta Banco Central"
+        }
+      ],
+      "importance": 68,
+      "market_relevance": 70,
+      "uhnw_relevance": 25,
+      "social_relevance": 50,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 63,
+      "relevance_components": {
+        "materiality": 20.8,
+        "sources": 4.6,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 2.5
+      },
+      "hard_override": true,
+      "hard_override_reason": "Fiscal / tributário",
+      "geography": "BR",
+      "domain": "monetary",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_7889c941faf88333eb6d",
+      "title": "AI debt surge raises risk of sharp market correction, warns Bank of England",
+      "topic": "ai",
+      "region": "GLOBAL",
+      "first_published_at": "2026-09-30T14:02:33.000Z",
+      "last_published_at": "2026-09-30T14:02:33.000Z",
+      "item_ids": [
+        "news_3419e3dd765c7178a2a5"
+      ],
+      "sources": [
+        {
+          "source": "Financial Times — Markets",
+          "url": "https://www.ft.com/content/5c1ccafc-c3e6-49c1-8cdc-b9ed73627749?syn-25a6b1a6=1",
+          "headline": "AI debt surge raises risk of sharp market correction, warns Bank of England"
+        }
+      ],
+      "importance": 19,
+      "market_relevance": 10,
+      "uhnw_relevance": 10,
+      "social_relevance": 25,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 61,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Decisão de banco central",
+      "geography": "GLOBAL",
+      "domain": "technology",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_2a7be3ccbb3965437291",
+      "title": "Rússia emite alerta nuclear à Otan em meio à crescente tensão no Báltico",
+      "topic": "geopolitics",
+      "region": "EU",
+      "first_published_at": "2026-09-30T09:58:59.000Z",
+      "last_published_at": "2026-09-30T09:58:59.000Z",
+      "item_ids": [
+        "news_7395034ba67c71aca0e4"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/mundo/noticia/2026/09/30/russia-emite-alerta-nuclear-a-otan-em-meio-a-crescente-tensao-no-baltico.ghtml",
+          "headline": "Rússia emite alerta nuclear à Otan em meio à crescente tensão no Báltico"
+        }
+      ],
+      "importance": 28,
+      "market_relevance": 45,
+      "uhnw_relevance": 10,
+      "social_relevance": 10,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 61,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Geopolítica / guerra / sanções",
+      "geography": "EU",
+      "domain": "geopolitics",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_e63e1a7e13cbaf5b1c59",
+      "title": "Brasil cria 165,8 mil empregos com carteira assinada em agosto, aponta Caged",
+      "topic": "economy",
+      "region": "BR",
+      "first_published_at": "2026-09-29T17:33:16.000Z",
+      "last_published_at": "2026-09-29T17:33:16.000Z",
+      "item_ids": [
+        "news_11f38ce84edd220206f0"
+      ],
+      "sources": [
+        {
+          "source": "g1 Economia",
+          "url": "https://g1.globo.com/economia/noticia/2026/09/29/brasil-cria-1658-mil-empregos-com-carteira-assinada-em-agosto-aponta-caged.ghtml",
+          "headline": "Brasil cria 165,8 mil empregos com carteira assinada em agosto, aponta Caged"
+        }
+      ],
+      "importance": 36,
+      "market_relevance": 45,
+      "uhnw_relevance": 10,
+      "social_relevance": 55,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 56,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 10.5,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Emprego",
+      "geography": "BR",
+      "domain": "macro",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_41885182ad7767d0da2d",
+      "title": "BC divulga Estatísticas Monetárias e de Crédito à imprensa",
+      "topic": "banking_credit",
+      "region": "BR",
+      "first_published_at": "2026-09-29T11:31:49.000Z",
+      "last_published_at": "2026-09-30T11:33:42.000Z",
+      "item_ids": [
+        "news_bf3a41f3371fd780e3da",
+        "news_823f0e5224d12fa4e92b"
+      ],
+      "sources": [
+        {
+          "source": "Banco Central do Brasil — Notas à imprensa",
+          "url": "https://www.bcb.gov.br/detalhenoticia/21275/nota",
+          "headline": "BC divulga Estatísticas Monetárias e de Crédito à imprensa"
+        },
+        {
+          "source": "Banco Central do Brasil — Notas à imprensa",
+          "url": "https://www.bcb.gov.br/detalhenoticia/21277/nota",
+          "headline": "BC divulga Estatísticas Fiscais à imprensa"
+        }
+      ],
+      "importance": 43,
+      "market_relevance": 60,
+      "uhnw_relevance": 10,
+      "social_relevance": 10,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 52,
+      "relevance_components": {
+        "materiality": 10.8,
+        "sources": 3.6,
+        "market_impact": 12,
+        "novelty": 15,
+        "authority": 10,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "corporate",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_6531d9e71ce0f4e7d239",
+      "title": "Japão reabre mercado para carne bovina argentina após 20 anos",
+      "topic": "markets",
+      "region": "ASIA",
+      "first_published_at": "2026-09-30T11:52:44.000Z",
+      "last_published_at": "2026-09-30T12:15:30.000Z",
+      "item_ids": [
+        "news_7a853808a51b6d93a56c",
+        "news_0ca5d152fbaaccc9427e"
+      ],
+      "sources": [
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/agro/japao-reabre-mercado-para-carne-bovina-argentina-apos-20-anos/",
+          "headline": "Japão reabre mercado para carne bovina argentina após 20 anos"
+        },
+        {
+          "source": "g1 Economia",
+          "url": "https://g1.globo.com/economia/agronegocios/noticia/2026/09/30/japao-abre-mercado-para-carne-bovina-argentina-apos-20-anos-diz-ministro.ghtml",
+          "headline": "Japão abre mercado para carne bovina argentina após 20 anos, diz ministro"
+        }
+      ],
+      "importance": 33,
+      "market_relevance": 53,
+      "uhnw_relevance": 18,
+      "social_relevance": 18,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 50,
+      "relevance_components": {
+        "materiality": 8.3,
+        "sources": 8,
+        "market_impact": 10.6,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1.8
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "ASIA",
+      "domain": "markets",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    },
+    {
+      "id": "evt_c13749ffe8d5ae1c7c17",
+      "title": "Manhã no mercado: Investidores monitoram petróleo e inflação americana, de olho nas eleições no Brasil",
+      "topic": "commodities",
+      "region": "BR",
+      "first_published_at": "2026-09-30T11:33:02.000Z",
+      "last_published_at": "2026-09-30T11:33:02.000Z",
+      "item_ids": [
+        "news_6d0c823dfc28604c20ce"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/financas/noticia/2026/09/30/manha-no-mercado-investidores-monitoram-petroleo-e-inflacao-americana-de-olho-nas-eleicoes-no-brasil.ghtml",
+          "headline": "Manhã no mercado: Investidores monitoram petróleo e inflação americana, de olho nas eleições no Brasil"
+        }
+      ],
+      "importance": 28,
+      "market_relevance": 45,
+      "uhnw_relevance": 45,
+      "social_relevance": 40,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 42,
+      "relevance_components": {
+        "materiality": 4.2,
+        "sources": 3.2,
+        "market_impact": 9,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "commodities",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "top"
+    }
+  ],
+  "rates": {
+    "treasury": [
+      {
+        "metric": "US_UST_3M",
+        "label": "Treasury 3M",
+        "tenor": "3M",
+        "value": 4.25,
+        "unit": "%",
+        "change_bps": -3,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_7ce8e448ad9b2e59a369",
+        "instrument": null,
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "US_UST_6M",
+        "label": "Treasury 6M",
+        "tenor": "6M",
+        "value": 4.36,
+        "unit": "%",
+        "change_bps": -5,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_b8186ae551a6f5e15245",
+        "instrument": null,
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "US_UST_1Y",
+        "label": "Treasury 1Y",
+        "tenor": "1Y",
+        "value": 4.58,
+        "unit": "%",
+        "change_bps": -1,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_d80d68dbea7d075b2f2b",
+        "instrument": null,
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "US_UST_2Y",
+        "label": "Treasury 2Y",
+        "tenor": "2Y",
+        "value": 4.89,
+        "unit": "%",
+        "change_bps": -3,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_f85be28e18aa635fcf23",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      },
+      {
+        "metric": "US_UST_5Y",
+        "label": "Treasury 5Y",
+        "tenor": "5Y",
+        "value": 5.06,
+        "unit": "%",
+        "change_bps": 0,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_c323305612644e96d52b",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      },
+      {
+        "metric": "US10Y",
+        "label": "Treasury 10Y",
+        "tenor": "10Y",
+        "value": 5.26,
+        "unit": "%",
+        "change_bps": 2,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_9e06e7115a42ba963c37",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      },
+      {
+        "metric": "US_UST_20Y",
+        "label": "Treasury 20Y",
+        "tenor": "20Y",
+        "value": 5.64,
+        "unit": "%",
+        "change_bps": 4,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_2ee0461161681ea62c6b",
+        "instrument": null,
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "US_UST_30Y",
+        "label": "Treasury 30Y",
+        "tenor": "30Y",
+        "value": 5.59,
+        "unit": "%",
+        "change_bps": 3,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_e081e43c9cc8d165bf30",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      }
+    ],
+    "spreads": [
+      {
+        "metric": "US_SPREAD_2S10S",
+        "label": "Spread 2s10s",
+        "tenor": "2s10s",
+        "value": 37,
+        "unit": "bps",
+        "change_bps": 5,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "derived",
+        "fact_id": "fact_c4325498461e88f70b0a",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      },
+      {
+        "metric": "US_SPREAD_5S30S",
+        "label": "Spread 5s30s",
+        "tenor": "5s30s",
+        "value": 53,
+        "unit": "bps",
+        "change_bps": 3,
+        "reference": "2026-09-29",
+        "source": "U.S. Department of the Treasury",
+        "verification_status": "VERIFIED",
+        "verification_method": "derived",
+        "fact_id": "fact_06b9a7818bc8b2a3b6e5",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      }
+    ],
+    "di": [
+      {
+        "metric": "BR_DI1_1M",
+        "label": "DI1 1M",
+        "tenor": "1M",
+        "value": 13.656,
+        "unit": "% a.a.",
+        "change_bps": 0.1,
+        "reference": "2026-09-29",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_05a21604086a314b0bf3",
+        "instrument": {
+          "code": "DI1X26",
+          "maturity": "2026-11-03",
+          "calendar_days": 35,
+          "business_days": 23,
+          "bucket": "1M"
+        },
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "BR_DI1_3M",
+        "label": "DI1 3M",
+        "tenor": "3M",
+        "value": 13.55,
+        "unit": "% a.a.",
+        "change_bps": -1,
+        "reference": "2026-09-29",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_08cff9db9d19d769c240",
+        "instrument": {
+          "code": "DI1F27",
+          "maturity": "2027-01-04",
+          "calendar_days": 97,
+          "business_days": 64,
+          "bucket": "3M"
+        },
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "BR_DI1_6M",
+        "label": "DI1 6M",
+        "tenor": "6M",
+        "value": 13.529,
+        "unit": "% a.a.",
+        "change_bps": -3.1,
+        "reference": "2026-09-29",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_59f566ad5b32f78cf262",
+        "instrument": {
+          "code": "DI1J27",
+          "maturity": "2027-04-01",
+          "calendar_days": 184,
+          "business_days": 124,
+          "bucket": "6M"
+        },
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "BR_DI1_12M",
+        "label": "DI1 12M",
+        "tenor": "12M",
+        "value": 13.559,
+        "unit": "% a.a.",
+        "change_bps": -7.1,
+        "reference": "2026-09-29",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_af5175d94e379019e646",
+        "instrument": {
+          "code": "DI1V27",
+          "maturity": "2027-10-01",
+          "calendar_days": 367,
+          "business_days": 252,
+          "bucket": "12M"
+        },
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "BR_DI1_24M",
+        "label": "DI1 24M",
+        "tenor": "24M",
+        "value": 13.747,
+        "unit": "% a.a.",
+        "change_bps": -10.4,
+        "reference": "2026-09-29",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_a92f04efed12b019caad",
+        "instrument": {
+          "code": "DI1V28",
+          "maturity": "2028-10-02",
+          "calendar_days": 734,
+          "business_days": 503,
+          "bucket": "24M"
+        },
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "BR_DI1_36M",
+        "label": "DI1 36M",
+        "tenor": "36M",
+        "value": 13.908,
+        "unit": "% a.a.",
+        "change_bps": -7.8,
+        "reference": "2026-09-29",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_f778461e0bac342d4855",
+        "instrument": {
+          "code": "DI1V29",
+          "maturity": "2029-10-01",
+          "calendar_days": 1098,
+          "business_days": 751,
+          "bucket": "36M"
+        },
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "BR_DI1_60M",
+        "label": "DI1 60M",
+        "tenor": "60M",
+        "value": 13.997,
+        "unit": "% a.a.",
+        "change_bps": -6.2,
+        "reference": "2026-09-29",
+        "source": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_cbf2000f2e93ac4e84d2",
+        "instrument": {
+          "code": "DI1V31",
+          "maturity": "2031-10-01",
+          "calendar_days": 1828,
+          "business_days": 1252,
+          "bucket": "60M"
+        },
+        "highlight": false,
+        "note": null
+      }
+    ],
+    "policy": [
+      {
+        "metric": "BR_SELIC_TARGET",
+        "label": "Selic meta",
+        "tenor": "—",
+        "value": 13.75,
+        "unit": "% a.a.",
+        "change_bps": 0,
+        "reference": "2026-09-30",
+        "source": "Banco Central do Brasil — SGS",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_4ec7b659ee4a10d3409a",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      },
+      {
+        "metric": "BR_SELIC_EFFECTIVE",
+        "label": "Selic efetiva (over, anualizada)",
+        "tenor": "—",
+        "value": 13.65,
+        "unit": "% a.a.",
+        "change_bps": 0,
+        "reference": "2026-09-29",
+        "source": "Banco Central do Brasil — SGS",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_4c76ae154cda569dd76e",
+        "instrument": null,
+        "highlight": true,
+        "note": null
+      },
+      {
+        "metric": "BR_CDI",
+        "label": "CDI (anualizado)",
+        "tenor": "—",
+        "value": 13.65,
+        "unit": "% a.a.",
+        "change_bps": 0,
+        "reference": "2026-09-29",
+        "source": "Banco Central do Brasil — SGS",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_8a70d60f15bf7d29e64b",
+        "instrument": null,
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "US_FED_FUNDS_UPPER",
+        "label": "Fed Funds (teto da banda)",
+        "tenor": "—",
+        "value": 4,
+        "unit": "%",
+        "change_bps": 0,
+        "reference": "2026-09-30",
+        "source": "FRED — Federal Reserve Bank of St. Louis",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_183094a439f259ab993e",
+        "instrument": null,
+        "highlight": false,
+        "note": null
+      },
+      {
+        "metric": "EU_ECB_DEPOSIT_RATE",
+        "label": "ECB — taxa de depósito",
+        "tenor": "—",
+        "value": 2.5,
+        "unit": "%",
+        "change_bps": 25,
+        "reference": "2026-09-16",
+        "source": "European Central Bank — Data Portal",
+        "verification_status": "VERIFIED",
+        "verification_method": "official_single",
+        "fact_id": "fact_c1788607531574a0dece",
+        "instrument": null,
+        "highlight": false,
+        "note": null
+      }
+    ]
+  },
+  "watchlist_candidates": [
+    {
+      "id": "evt_299f1dbee27cb58d4dbe",
+      "title": "U.S. inflation rises, keeping pressure on Fed",
+      "topic": "monetary_policy",
+      "region": "US",
+      "first_published_at": "2026-09-30T13:11:00.000Z",
+      "last_published_at": "2026-09-30T13:11:00.000Z",
+      "item_ids": [
+        "news_12126a302e3c1e4a4a38"
+      ],
+      "sources": [
+        {
+          "source": "MarketWatch — Top Stories",
+          "url": "https://www.marketwatch.com/story/inflation-rises-again-and-keeps-pressure-on-fed-f64d2ced?mod=mw_rss_topstories",
+          "headline": "U.S. inflation rises, keeping pressure on Fed"
+        }
+      ],
+      "importance": 68,
+      "market_relevance": 70,
+      "uhnw_relevance": 25,
+      "social_relevance": 50,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 63,
+      "relevance_components": {
+        "materiality": 20.8,
+        "sources": 4.6,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 2.5
+      },
+      "hard_override": true,
+      "hard_override_reason": "Inflação",
+      "geography": "US",
+      "domain": "monetary",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_91d438454141963be021",
+      "title": "Irã recebe resposta dos EUA sobre plano para reabrir Ormuz e encerrar guerra",
+      "topic": "geopolitics",
+      "region": "US",
+      "first_published_at": "2026-09-30T12:01:39.000Z",
+      "last_published_at": "2026-09-30T12:01:39.000Z",
+      "item_ids": [
+        "news_f36f10c90b8e617c84a1"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/mundo/noticia/2026/09/30/ir-recebe-resposta-dos-eua-sobre-plano-para-reabrir-ormuz-e-encerrar-guerra.ghtml",
+          "headline": "Irã recebe resposta dos EUA sobre plano para reabrir Ormuz e encerrar guerra"
+        }
+      ],
+      "importance": 58,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 61,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Geopolítica / guerra / sanções",
+      "geography": "US",
+      "domain": "geopolitics",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_b93e1419a1971a3ebfc1",
+      "title": "Governo central tem déficit primário de R$ 13,58 bi em agosto",
+      "topic": "fiscal",
+      "region": "BR",
+      "first_published_at": "2026-09-29T14:51:08.000Z",
+      "last_published_at": "2026-09-29T14:51:08.000Z",
+      "item_ids": [
+        "news_eba29dede68984b20329"
+      ],
+      "sources": [
+        {
+          "source": "Estadão — Economia",
+          "url": "https://www.estadao.com.br/economia/governo-central-deficit-primario-agosto-2026/",
+          "headline": "Governo central tem déficit primário de R$ 13,58 bi em agosto"
+        }
+      ],
+      "importance": 38,
+      "market_relevance": 45,
+      "uhnw_relevance": 40,
+      "social_relevance": 10,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 59,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 10.5,
+        "authority": 6,
+        "wealth": 4
+      },
+      "hard_override": true,
+      "hard_override_reason": "Fiscal / tributário",
+      "geography": "BR",
+      "domain": "fiscal",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_4f7db9675a7055031ecb",
+      "title": "US ban on Canadian alcohol and dairy takes effect as trade war drags on",
+      "topic": "geopolitics",
+      "region": "US",
+      "first_published_at": "2026-09-29T13:38:06.000Z",
+      "last_published_at": "2026-09-29T13:38:06.000Z",
+      "item_ids": [
+        "news_28a90340fc39d2aed067"
+      ],
+      "sources": [
+        {
+          "source": "BBC News — Business",
+          "url": "https://www.bbc.co.uk/news/articles/cm1j43y146d2o?at_medium=RSS&amp;at_campaign=rss",
+          "headline": "US ban on Canadian alcohol and dairy takes effect as trade war drags on"
+        }
+      ],
+      "importance": 58,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 56,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 10.5,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Geopolítica / guerra / sanções",
+      "geography": "US",
+      "domain": "geopolitics",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_943144a590fbdc89ea4f",
+      "title": "Middle Eastern oil exports rise to highest level since Iran war began",
+      "topic": "geopolitics",
+      "region": "GLOBAL",
+      "first_published_at": "2026-09-29T16:46:57.000Z",
+      "last_published_at": "2026-09-29T16:46:57.000Z",
+      "item_ids": [
+        "news_ffc9b2d96534b54a9a31"
+      ],
+      "sources": [
+        {
+          "source": "Financial Times — Markets",
+          "url": "https://www.ft.com/content/26c54c8c-931c-4d84-9cf3-fd3e9b5e215d?syn-25a6b1a6=1",
+          "headline": "Middle Eastern oil exports rise to highest level since Iran war began"
+        }
+      ],
+      "importance": 53,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 56,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 10.5,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Geopolítica / guerra / sanções",
+      "geography": "GLOBAL",
+      "domain": "geopolitics",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_fa9a2e836267ab43e03e",
+      "title": "Desemprego fica em 5,3% em agosto e Brasil bate recorde de 103,5 milhões de ocupados",
+      "topic": "economy",
+      "region": "BR",
+      "first_published_at": "2026-09-29T12:00:33.000Z",
+      "last_published_at": "2026-09-29T12:00:33.000Z",
+      "item_ids": [
+        "news_89014c17e05ceef0f65c"
+      ],
+      "sources": [
+        {
+          "source": "g1 Economia",
+          "url": "https://g1.globo.com/economia/noticia/2026/09/29/desemprego-pnad-agosto.ghtml",
+          "headline": "Desemprego fica em 5,3% em agosto e Brasil bate recorde de 103,5 milhões de ocupados"
+        }
+      ],
+      "importance": 36,
+      "market_relevance": 45,
+      "uhnw_relevance": 10,
+      "social_relevance": 25,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 56,
+      "relevance_components": {
+        "materiality": 20,
+        "sources": 4.5,
+        "market_impact": 14,
+        "novelty": 10.5,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": true,
+      "hard_override_reason": "Emprego",
+      "geography": "BR",
+      "domain": "macro",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_130bfb0543d35a51a22e",
+      "title": "Juros futuros têm forte queda com euforia eleitoral e inflação americana abaixo do esperado",
+      "topic": "economy",
+      "region": "BR",
+      "first_published_at": "2026-09-30T12:59:35.000Z",
+      "last_published_at": "2026-09-30T12:59:35.000Z",
+      "item_ids": [
+        "news_3d5b8040d14f8af4146c"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/financas/noticia/2026/09/30/juros-futuros-tem-forte-queda-com-euforia-eleitoral-e-inflacao-americana-abaixo-do-esperado.ghtml",
+          "headline": "Juros futuros têm forte queda com euforia eleitoral e inflação americana abaixo do esperado"
+        }
+      ],
+      "importance": 61,
+      "market_relevance": 70,
+      "uhnw_relevance": 45,
+      "social_relevance": 80,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 59,
+      "relevance_components": {
+        "materiality": 15.3,
+        "sources": 4,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "macro",
+      "metric_target": "BR_DI1_*",
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_1cde786253c20801ad64",
+      "title": "Teve nota fiscal rejeitada? Saiba o que fazer para corrigir o problema junto ao Fisco",
+      "topic": "fiscal",
+      "region": "BR",
+      "first_published_at": "2026-09-30T14:00:00.000Z",
+      "last_published_at": "2026-09-30T14:00:00.000Z",
+      "item_ids": [
+        "news_7841df3841b937cff53b"
+      ],
+      "sources": [
+        {
+          "source": "InfoMoney",
+          "url": "https://www.infomoney.com.br/business/receita-federal-recusou-nota-fiscal/",
+          "headline": "Teve nota fiscal rejeitada? Saiba o que fazer para corrigir o problema junto ao Fisco"
+        }
+      ],
+      "importance": 63,
+      "market_relevance": 70,
+      "uhnw_relevance": 40,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 59,
+      "relevance_components": {
+        "materiality": 15.8,
+        "sources": 4.1,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "fiscal",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_be2bdb75de62fe0c2c49",
+      "title": "Bitcoin sobe após dado de inflação nos EUA e caminha para melhor setembro desde 2013",
+      "topic": "economy",
+      "region": "US",
+      "first_published_at": "2026-09-30T13:35:08.000Z",
+      "last_published_at": "2026-09-30T13:35:08.000Z",
+      "item_ids": [
+        "news_f6c059b360a144d600ae"
+      ],
+      "sources": [
+        {
+          "source": "InfoMoney",
+          "url": "https://www.infomoney.com.br/onde-investir/bitcoin-criptos-cotacao-30092026/",
+          "headline": "Bitcoin sobe após dado de inflação nos EUA e caminha para melhor setembro desde 2013"
+        }
+      ],
+      "importance": 61,
+      "market_relevance": 70,
+      "uhnw_relevance": 45,
+      "social_relevance": 80,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 59,
+      "relevance_components": {
+        "materiality": 15.3,
+        "sources": 4,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "macro",
+      "metric_target": "BTCUSD",
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_bf225e6141084296c520",
+      "title": "Fed’s Preferred Inflation Gauge Points to Continued Price Pressures",
+      "topic": "monetary_policy",
+      "region": "US",
+      "first_published_at": "2026-09-30T13:32:23.000Z",
+      "last_published_at": "2026-09-30T13:32:23.000Z",
+      "item_ids": [
+        "news_09415dfbdecea8c24c6c"
+      ],
+      "sources": [
+        {
+          "source": "The New York Times — Business",
+          "url": "https://www.nytimes.com/2026/09/30/business/pce-inflation-fed-interest-rates.html",
+          "headline": "Fed’s Preferred Inflation Gauge Points to Continued Price Pressures"
+        }
+      ],
+      "importance": 68,
+      "market_relevance": 70,
+      "uhnw_relevance": 25,
+      "social_relevance": 50,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 59,
+      "relevance_components": {
+        "materiality": 17,
+        "sources": 4.2,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 2.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "monetary",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_b1d2af5cf9abe4f925cd",
+      "title": "Federal Reserve Board finalizes changes to enhance the transparency and public accountability of its stress test and reduce volatility in its stress test-related capital requirements",
+      "topic": "monetary_policy",
+      "region": "US",
+      "first_published_at": "2026-09-30T13:00:00.000Z",
+      "last_published_at": "2026-09-30T13:00:00.000Z",
+      "item_ids": [
+        "news_2d126dcc2a0a42d34ad9"
+      ],
+      "sources": [
+        {
+          "source": "Federal Reserve — Press Releases",
+          "url": "https://www.federalreserve.gov/newsevents/pressreleases/bcreg20260930a.htm",
+          "headline": "Federal Reserve Board finalizes changes to enhance the transparency and public accountability of its stress test and reduce volatility in its stress test-related capital requirements"
+        }
+      ],
+      "importance": 58,
+      "market_relevance": 60,
+      "uhnw_relevance": 25,
+      "social_relevance": 25,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 58,
+      "relevance_components": {
+        "materiality": 14.5,
+        "sources": 4,
+        "market_impact": 12,
+        "novelty": 15,
+        "authority": 10,
+        "wealth": 2.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "monetary",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_b12e5522401aa140c1ad",
+      "title": "Dólar à vista tem forte queda e real se destaca com otimismo pré-eleição e dado de inflação americana abaixo do esperado",
+      "topic": "markets",
+      "region": "BR",
+      "first_published_at": "2026-09-30T12:48:25.000Z",
+      "last_published_at": "2026-09-30T12:48:25.000Z",
+      "item_ids": [
+        "news_6824a3638c28d7f450cd"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/financas/noticia/2026/09/30/dolar-a-vista-tem-forte-queda-e-real-se-destaca-com-otimismo-pre-eleicao-e-dado-de-inflacao-americana-abaixo-do-esperado.ghtml",
+          "headline": "Dólar à vista tem forte queda e real se destaca com otimismo pré-eleição e dado de inflação americana abaixo do esperado"
+        }
+      ],
+      "importance": 55,
+      "market_relevance": 70,
+      "uhnw_relevance": 45,
+      "social_relevance": 65,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 57,
+      "relevance_components": {
+        "materiality": 13.8,
+        "sources": 3.9,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "markets",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_32f82cf746e814f10a90",
+      "title": "Por que a tarifa da China não deve deixar a carne mais barata no Brasil",
+      "topic": "geopolitics",
+      "region": "BR",
+      "first_published_at": "2026-09-30T10:48:39.000Z",
+      "last_published_at": "2026-09-30T10:48:39.000Z",
+      "item_ids": [
+        "news_930b40f4953edf6ffdd6"
+      ],
+      "sources": [
+        {
+          "source": "Exame",
+          "url": "https://exame.com/agro/por-que-a-tarifa-da-china-nao-deve-deixar-a-carne-mais-barata-no-brasil/",
+          "headline": "Por que a tarifa da China não deve deixar a carne mais barata no Brasil"
+        }
+      ],
+      "importance": 58,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 55,
+      "relevance_components": {
+        "materiality": 14.5,
+        "sources": 4,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "geopolitics",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_37f570126c02158f1521",
+      "title": "EUA: PIB no 2º tri é revisado para cima com gastos fortes do consumidor",
+      "topic": "economy",
+      "region": "US",
+      "first_published_at": "2026-09-30T13:41:14.000Z",
+      "last_published_at": "2026-09-30T13:41:14.000Z",
+      "item_ids": [
+        "news_b0ff5ec3822f21cb0a3a"
+      ],
+      "sources": [
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/eua-pib-no-2o-tri-e-revisado-para-cima-com-gastos-fortes-do-consumidor/",
+          "headline": "EUA: PIB no 2º tri é revisado para cima com gastos fortes do consumidor"
+        }
+      ],
+      "importance": 61,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 50,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 55,
+      "relevance_components": {
+        "materiality": 15.3,
+        "sources": 4,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "macro",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_3ca0406270f401c1b17a",
+      "title": "Bolsas em NY sobem com apoio de inflação mais fraca nos EUA",
+      "topic": "economy",
+      "region": "US",
+      "first_published_at": "2026-09-30T13:56:31.000Z",
+      "last_published_at": "2026-09-30T13:56:31.000Z",
+      "item_ids": [
+        "news_b3482c7012d2d10648f5"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/financas/noticia/2026/09/30/bolsas-em-ny-sobem-com-apoio-de-inflacao-mais-fraca-nos-eua.ghtml",
+          "headline": "Bolsas em NY sobem com apoio de inflação mais fraca nos EUA"
+        }
+      ],
+      "importance": 61,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 80,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 55,
+      "relevance_components": {
+        "materiality": 15.3,
+        "sources": 4,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "macro",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_b03119debe9636006c45",
+      "title": "Trump’s New Tariffs Face a Familiar Court Challenge",
+      "topic": "geopolitics",
+      "region": "US",
+      "first_published_at": "2026-09-30T09:03:50.000Z",
+      "last_published_at": "2026-09-30T09:03:50.000Z",
+      "item_ids": [
+        "news_fc7846b75b38411d6288"
+      ],
+      "sources": [
+        {
+          "source": "The New York Times — Business",
+          "url": "https://www.nytimes.com/2026/09/30/business/trump-tariffs-court-challenge.html",
+          "headline": "Trump’s New Tariffs Face a Familiar Court Challenge"
+        }
+      ],
+      "importance": 58,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 55,
+      "relevance_components": {
+        "materiality": 14.5,
+        "sources": 4,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "geopolitics",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_e9e464efefe81c2bdbde",
+      "title": "Bitcoin vira para alta após dados positivos da economia dos EUA",
+      "topic": "economy",
+      "region": "US",
+      "first_published_at": "2026-09-30T10:51:45.000Z",
+      "last_published_at": "2026-09-30T10:51:45.000Z",
+      "item_ids": [
+        "news_2a3edac36301b3d4a803"
+      ],
+      "sources": [
+        {
+          "source": "Exame",
+          "url": "https://exame.com/future-of-money/bitcoin-hoje-30-09-2026/",
+          "headline": "Bitcoin vira para alta após dados positivos da economia dos EUA"
+        }
+      ],
+      "importance": 61,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 80,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 55,
+      "relevance_components": {
+        "materiality": 15.3,
+        "sources": 4,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "macro",
+      "metric_target": "BTCUSD",
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_b6741c063e3279c28408",
+      "title": "Após chegarem ao fundo do poço, eólicas sinalizam retomada da expansão",
+      "topic": "markets",
+      "region": "BR",
+      "first_published_at": "2026-09-30T09:00:00.000Z",
+      "last_published_at": "2026-09-30T09:00:00.000Z",
+      "item_ids": [
+        "news_d0d7b9a8522bcd6c96b1"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/publicacoes/especiais/energia/noticia/2026/09/30/apos-chegarem-ao-fundo-do-poco-eolicas-sinalizam-retomada-da-expansao.ghtml",
+          "headline": "Após chegarem ao fundo do poço, eólicas sinalizam retomada da expansão"
+        }
+      ],
+      "importance": 55,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 54,
+      "relevance_components": {
+        "materiality": 13.8,
+        "sources": 3.9,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "markets",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_49aa39bc78750a1aedf4",
+      "title": "EUA criam 90 mil vagas em setembro no setor privado, diz ADP",
+      "topic": "economy",
+      "region": "US",
+      "first_published_at": "2026-09-30T12:29:48.000Z",
+      "last_published_at": "2026-09-30T13:30:30.000Z",
+      "item_ids": [
+        "news_fc2a992112b5d8f764de",
+        "news_d682d8ac1a4aa7272c90"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/mundo/noticia/2026/09/30/eua-criam-90-mil-vagas-em-setembro-no-setor-privado-diz-adp.ghtml",
+          "headline": "EUA criam 90 mil vagas em setembro no setor privado, diz ADP"
+        },
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/criacao-de-vagas-no-setor-privado-dos-eua-acelera-em-setembro-diz-adp/",
+          "headline": "Criação de vagas no setor privado dos EUA acelera em setembro, diz ADP"
+        }
+      ],
+      "importance": 44,
+      "market_relevance": 53,
+      "uhnw_relevance": 18,
+      "social_relevance": 33,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 53,
+      "relevance_components": {
+        "materiality": 11,
+        "sources": 8.6,
+        "market_impact": 10.6,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1.8
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "macro",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_12d6296a3807305e6907",
+      "title": "Israel investiga possível ataque terrorista em voo desviado para Arábia Saudita",
+      "topic": "geopolitics",
+      "region": "BR",
+      "first_published_at": "2026-09-30T10:01:46.000Z",
+      "last_published_at": "2026-09-30T12:09:26.000Z",
+      "item_ids": [
+        "news_96f8f8f628f0687ce4c9",
+        "news_d95a87d43d1a9a8f3d95"
+      ],
+      "sources": [
+        {
+          "source": "Exame",
+          "url": "https://exame.com/mundo/israel-investiga-possivel-ataque-terrorista-em-voo-desviado-para-arabia-saudita/",
+          "headline": "Israel investiga possível ataque terrorista em voo desviado para Arábia Saudita"
+        },
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/mundo/noticia/2026/09/30/voo-para-israel-desvia-aps-briga-entre-pilotos-e-pousa-na-arbia-saudita.ghtml",
+          "headline": "Voo para Israel é desviado após ‘incidente’ entre pilotos e pousa na Arábia Saudita"
+        }
+      ],
+      "importance": 41,
+      "market_relevance": 53,
+      "uhnw_relevance": 18,
+      "social_relevance": 18,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 52,
+      "relevance_components": {
+        "materiality": 10.3,
+        "sources": 8.5,
+        "market_impact": 10.6,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1.8
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "geopolitics",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_4a838f8d2abab7e8b37d",
+      "title": "Índice de preços de gastos com consumo nos EUA sobe 0,3% em agosto",
+      "topic": "monetary_policy",
+      "region": "US",
+      "first_published_at": "2026-09-30T10:54:25.000Z",
+      "last_published_at": "2026-09-30T13:03:59.000Z",
+      "item_ids": [
+        "news_06eec9316a0cd9750aea",
+        "news_1e08b6e29d4c1f82f854"
+      ],
+      "sources": [
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/mundo/noticia/2026/09/30/indice-de-precos-de-gastos-com-consumo-nos-eua-sobe-03percent-em-agosto.ghtml",
+          "headline": "Índice de preços de gastos com consumo nos EUA sobe 0,3% em agosto"
+        },
+        {
+          "source": "Valor Econômico",
+          "url": "https://valor.globo.com/financas/noticia/2026/09/30/agenda-do-dia-indice-de-precos-de-gastos-com-consumo-dos-eua-e-destaque.ghtml",
+          "headline": "Agenda do dia: Índice de preços de gastos com consumo dos EUA é destaque"
+        }
+      ],
+      "importance": 68,
+      "market_relevance": 70,
+      "uhnw_relevance": 25,
+      "social_relevance": 80,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 52,
+      "relevance_components": {
+        "materiality": 10.2,
+        "sources": 4.2,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 2.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "US",
+      "domain": "monetary",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_f9056336196a8261cb2d",
+      "title": "Vanguard warns France is ‘degrading credit’ as borrowing costs surge",
+      "topic": "banking_credit",
+      "region": "EU",
+      "first_published_at": "2026-09-30T08:42:21.000Z",
+      "last_published_at": "2026-09-30T08:42:21.000Z",
+      "item_ids": [
+        "news_86830c52be569bc9910a"
+      ],
+      "sources": [
+        {
+          "source": "Financial Times — Markets",
+          "url": "https://www.ft.com/content/7820a84f-338e-4b91-a9b6-241a9bf81539?syn-25a6b1a6=1",
+          "headline": "Vanguard warns France is ‘degrading credit’ as borrowing costs surge"
+        }
+      ],
+      "importance": 48,
+      "market_relevance": 70,
+      "uhnw_relevance": 10,
+      "social_relevance": 35,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 52,
+      "relevance_components": {
+        "materiality": 12,
+        "sources": 3.7,
+        "market_impact": 14,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "EU",
+      "domain": "corporate",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_e1bcee85dee882770f45",
+      "title": "Greve da Caixa chega ao fim após decisão do TST; agências reabrem nesta quarta",
+      "topic": "banking_credit",
+      "region": "BR",
+      "first_published_at": "2026-09-29T19:38:01.000Z",
+      "last_published_at": "2026-09-30T13:42:15.000Z",
+      "item_ids": [
+        "news_4a1728a28389d9c3eaa2",
+        "news_6abc7e578e787f94bb5b"
+      ],
+      "sources": [
+        {
+          "source": "g1 Economia",
+          "url": "https://g1.globo.com/trabalho-e-carreira/noticia/2026/09/29/tst-determina-fim-da-greve-da-caixa.ghtml",
+          "headline": "Greve da Caixa chega ao fim após decisão do TST; agências reabrem nesta quarta"
+        },
+        {
+          "source": "Estadão — Economia",
+          "url": "https://www.estadao.com.br/economia/caixa-retoma-atendimento-nesta-quarta-feira-apos-tst-determinar-fim-da-greve-npr/",
+          "headline": "Caixa retoma atendimento nesta quarta-feira após fim da greve"
+        }
+      ],
+      "importance": 36,
+      "market_relevance": 53,
+      "uhnw_relevance": 18,
+      "social_relevance": 18,
+      "verification_status": "VERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 51,
+      "relevance_components": {
+        "materiality": 9,
+        "sources": 8.2,
+        "market_impact": 10.6,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 1.8
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "corporate",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_4630adb1bb389093804a",
+      "title": "Prazo para opção pelo Simples Nacional e escolha sobre IBS e CBS muda; entenda novas regras",
+      "topic": "tax",
+      "region": "BR",
+      "first_published_at": "2026-09-29T14:53:05.000Z",
+      "last_published_at": "2026-09-29T14:53:05.000Z",
+      "item_ids": [
+        "news_3dbf056ee39609fe96fa"
+      ],
+      "sources": [
+        {
+          "source": "g1 Economia",
+          "url": "https://g1.globo.com/empreendedorismo/noticia/2026/09/29/prazo-simples-nacional-e-escolha-sobre-ibs-e-cbs-muda.ghtml",
+          "headline": "Prazo para opção pelo Simples Nacional e escolha sobre IBS e CBS muda; entenda novas regras"
+        }
+      ],
+      "importance": 63,
+      "market_relevance": 35,
+      "uhnw_relevance": 75,
+      "social_relevance": 80,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 51,
+      "relevance_components": {
+        "materiality": 15.8,
+        "sources": 4.1,
+        "market_impact": 7,
+        "novelty": 10.5,
+        "authority": 6,
+        "wealth": 7.5
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "fiscal",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    },
+    {
+      "id": "evt_a0dcdad73254909673d9",
+      "title": "BC: Estatais têm superávit de R$ 2 bi em agosto, maior em 20 anos",
+      "topic": "fiscal",
+      "region": "BR",
+      "first_published_at": "2026-09-30T12:11:22.000Z",
+      "last_published_at": "2026-09-30T12:23:08.000Z",
+      "item_ids": [
+        "news_cbbeaff7e39d08c161e9",
+        "news_19d1055ba71b4bb02308"
+      ],
+      "sources": [
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/bc-estatais-tem-superavit-de-r-2-bi-em-agosto-maior-em-20-anos/",
+          "headline": "BC: Estatais têm superávit de R$ 2 bi em agosto, maior em 20 anos"
+        },
+        {
+          "source": "CNN Brasil",
+          "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/estatais-federais-tem-superavit-de-r-18-bi-em-agosto-maior-da-historia/",
+          "headline": "Estatais federais têm superávit de R$ 1,8 bi em agosto, maior da história"
+        }
+      ],
+      "importance": 38,
+      "market_relevance": 45,
+      "uhnw_relevance": 40,
+      "social_relevance": 10,
+      "verification_status": "UNVERIFIED",
+      "brief_date": "2026-09-30",
+      "relevance_score": 47,
+      "relevance_components": {
+        "materiality": 9.5,
+        "sources": 3.5,
+        "market_impact": 9,
+        "novelty": 15,
+        "authority": 6,
+        "wealth": 4
+      },
+      "hard_override": false,
+      "hard_override_reason": null,
+      "geography": "BR",
+      "domain": "fiscal",
+      "metric_target": null,
+      "market_signals": [],
+      "rank_bucket": "watchlist"
+    }
+  ],
+  "coverage_matrix": [
+    {
+      "scope": "BR",
+      "id": "br_macro",
+      "label": "Brasil · macro",
+      "covered": true,
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065",
+        "evt_e63e1a7e13cbaf5b1c59"
+      ],
+      "note": null
+    },
+    {
+      "scope": "BR",
+      "id": "br_policy",
+      "label": "Brasil · fiscal/monetário",
+      "covered": true,
+      "cluster_ids": [
+        "evt_b4934c53b268093ecefd",
+        "evt_71bebaececdda5f37d4a",
+        "evt_ccc87d0013a34e7c4d22"
+      ],
+      "note": null
+    },
+    {
+      "scope": "BR",
+      "id": "br_markets",
+      "label": "Brasil · mercados",
+      "covered": true,
+      "cluster_ids": [
+        "evt_2ec7d1de9d1b143a06b3"
+      ],
+      "note": null
+    },
+    {
+      "scope": "BR",
+      "id": "br_real",
+      "label": "Brasil · regulação/economia real",
+      "covered": true,
+      "cluster_ids": [
+        "evt_41885182ad7767d0da2d"
+      ],
+      "note": null
+    },
+    {
+      "scope": "WORLD",
+      "id": "us",
+      "label": "EUA",
+      "covered": true,
+      "cluster_ids": [
+        "evt_f2bad112c285d1ad621e",
+        "evt_6830163fb49a0dd1a386"
+      ],
+      "note": null
+    },
+    {
+      "scope": "WORLD",
+      "id": "europe",
+      "label": "Europa",
+      "covered": true,
+      "cluster_ids": [
+        "evt_8dbfac69afb33ba99045",
+        "evt_2a7be3ccbb3965437291"
+      ],
+      "note": null
+    },
+    {
+      "scope": "WORLD",
+      "id": "asia",
+      "label": "China/Ásia",
+      "covered": true,
+      "cluster_ids": [
+        "evt_6531d9e71ce0f4e7d239"
+      ],
+      "note": null
+    },
+    {
+      "scope": "WORLD",
+      "id": "geopolitics",
+      "label": "Geopolítica",
+      "covered": true,
+      "cluster_ids": [
+        "evt_2a7be3ccbb3965437291"
+      ],
+      "note": null
+    },
+    {
+      "scope": "WORLD",
+      "id": "commodities",
+      "label": "Commodities",
+      "covered": true,
+      "cluster_ids": [
+        "evt_c13749ffe8d5ae1c7c17"
+      ],
+      "note": null
+    },
+    {
+      "scope": "WORLD",
+      "id": "global_markets",
+      "label": "Mercados globais",
+      "covered": true,
+      "cluster_ids": [
+        "evt_6830163fb49a0dd1a386",
+        "evt_6531d9e71ce0f4e7d239"
+      ],
+      "note": null
+    }
+  ],
+  "analysis_hash": "946b79c3ee80bb49972c8d481a6dfc69",
+  "lede": {
+    "text": "O IPCA-15 de setembro subiu 0,70%, depois de -0,40% em agosto, e encerrou a trégua dos preços; no mesmo dia, o Banco Central mostrou a dívida bruta em 82,86% do PIB.",
+    "fact_ids": [
+      "fact_587bf9fa08135b6931a7",
+      "fact_558e937b1b1f2bcdacb6"
+    ],
+    "cluster_ids": [
+      "evt_9ca6e24dca1b012c0065",
+      "evt_71bebaececdda5f37d4a"
+    ]
+  },
+  "what_matters": [
+    {
+      "headline": "IPCA-15 volta a subir em setembro",
+      "why_it_matters": "A prévia da inflação avançou 0,70%, contra -0,40% em agosto, segundo o IBGE. Com a Selic em 13,75%, uma inflação corrente mais alta reduz o juro real e o espaço para cortes.",
+      "fact_ids": [
+        "fact_587bf9fa08135b6931a7",
+        "fact_4ec7b659ee4a10d3409a"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    {
+      "headline": "Dívida bruta sobe para 82,86% do PIB",
+      "why_it_matters": "Segundo o Banco Central, o setor público voltou a ter déficit primário em agosto e a dívida bruta subiu de 82,56% para 82,86% do PIB. É esse número que o mercado usa para cobrar prêmio nos vencimentos longos.",
+      "fact_ids": [
+        "fact_558e937b1b1f2bcdacb6"
+      ],
+      "cluster_ids": [
+        "evt_71bebaececdda5f37d4a"
+      ]
+    },
+    {
+      "headline": "Curva de DI recua nos vencimentos longos",
+      "why_it_matters": "O DI1V31, que representa o prazo de cinco anos, fechou em 13,997%, 6 bps abaixo do dia anterior, e o DI1V27 ficou em 13,559%. A parte longa segue acima da Selic efetiva de 13,65%, sinal de prêmio fiscal ainda no preço.",
+      "fact_ids": [
+        "fact_cbf2000f2e93ac4e84d2",
+        "fact_af5175d94e379019e646",
+        "fact_4c76ae154cda569dd76e"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "headline": "Treasury de 10 anos em 5,26% e curva mais inclinada",
+      "why_it_matters": "O Treasury de 10 anos subiu para 5,26% e o spread 2s10s dos Treasuries abriu para 37 bps. O Fed Funds segue em 4%, então a alta vem do prêmio de prazo, e juro longo americano mais alto encarece o capital para emergentes.",
+      "fact_ids": [
+        "fact_9e06e7115a42ba963c37",
+        "fact_c4325498461e88f70b0a",
+        "fact_183094a439f259ab993e"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "headline": "Emprego formal forte no Caged de agosto",
+      "why_it_matters": "Segundo o Ministério do Trabalho, o saldo de vagas com carteira foi positivo e acima do mês anterior. O desemprego da PNAD está em 5,3%, o que mantém a renda e o consumo firmes.",
+      "fact_ids": [
+        "fact_2bf827b38622e82ace95"
+      ],
+      "cluster_ids": [
+        "evt_e63e1a7e13cbaf5b1c59"
+      ]
+    },
+    {
+      "headline": "PCE dos EUA sobe para 3,42%",
+      "why_it_matters": "O PCE, a medida de inflação que o Fed acompanha, foi a 3,42% em 12 meses em agosto, contra 3,36% no mês anterior. Com o Fed Funds em 4%, o dado reforça a cautela do Fed antes da próxima reunião.",
+      "fact_ids": [
+        "fact_3e73053db18970e14384",
+        "fact_183094a439f259ab993e"
+      ],
+      "cluster_ids": [
+        "evt_f2bad112c285d1ad621e"
+      ]
+    }
+  ],
+  "macro_watch": {
+    "BR": [
+      {
+        "text": "IPCA de agosto em -0,32% e 4,22% em 12 meses (IBGE); a prévia de setembro já aponta alta.",
+        "fact_ids": [
+          "fact_f351eddf67874d2642af",
+          "fact_02e2f8e6c74d5838304b"
+        ],
+        "cluster_ids": []
+      },
+      {
+        "text": "Focus projeta IPCA de 4,99% e Selic de 13,5% no fim do ano.",
+        "fact_ids": [
+          "fact_f351eddf67874d2642af",
+          "fact_4ec7b659ee4a10d3409a",
+          "fact_a35c1dbd5430cde62d9b",
+          "fact_25fb8bc7d88a29f5324c"
+        ],
+        "cluster_ids": []
+      }
+    ],
+    "US": [
+      {
+        "text": "CPI em 3,4% em 12 meses e payroll de 162 mil vagas em agosto; o dado de setembro sai na sexta.",
+        "fact_ids": [
+          "fact_dc721373fa010672ab82",
+          "fact_8bbcd8333215f0665560"
+        ],
+        "cluster_ids": []
+      }
+    ],
+    "CN": [],
+    "EU": [
+      {
+        "text": "A taxa de depósito do BCE está em 2,50%, acima dos 2,25% anteriores.",
+        "fact_ids": [
+          "fact_c1788607531574a0dece"
+        ],
+        "cluster_ids": []
+      }
+    ]
+  },
+  "insights": [
+    {
+      "title": "A trégua dos preços acabou antes do Copom",
+      "what_happened": "O IPCA-15 de setembro subiu 0,70%, depois de uma queda de 0,40% em agosto, segundo o IBGE.",
+      "why_it_happened": "A prévia mede o período até meados do mês, quando o efeito de alimentos e itens voláteis que derrubou agosto começou a se desfazer.",
+      "what_it_changes": "Minha leitura é que a alta reduz o espaço para o Copom cortar a Selic de 13,75% no ritmo que o Focus projeta, e os vencimentos curtos de DI ficam mais sensíveis ao IPCA cheio de setembro.",
+      "lenses": [
+        "inflação",
+        "juros"
+      ],
+      "fact_ids": [
+        "fact_f351eddf67874d2642af",
+        "fact_587bf9fa08135b6931a7",
+        "fact_4ec7b659ee4a10d3409a",
+        "fact_25fb8bc7d88a29f5324c"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ]
+    },
+    {
+      "title": "O prêmio da curva longa é fiscal, não monetário",
+      "what_happened": "A dívida bruta subiu para 82,86% do PIB, e o DI de cinco anos ficou em 13,997%, acima da Selic efetiva de 13,65%.",
+      "why_it_happened": "Quando a dívida cresce sem sinal de estabilização, o investidor exige mais juro para emprestar ao governo por prazos longos, mesmo com a política monetária parada.",
+      "what_it_changes": "O principal risco que eu monitoraria é a inclinação da curva: títulos prefixados longos pagam esse prêmio, mas carregam duration alta e reagem mal a qualquer piora fiscal.",
+      "lenses": [
+        "duration",
+        "risco",
+        "juros"
+      ],
+      "fact_ids": [
+        "fact_558e937b1b1f2bcdacb6",
+        "fact_cbf2000f2e93ac4e84d2",
+        "fact_4c76ae154cda569dd76e"
+      ],
+      "cluster_ids": [
+        "evt_71bebaececdda5f37d4a"
+      ]
+    },
+    {
+      "title": "Juro longo americano ainda dita o custo de capital",
+      "what_happened": "O Treasury de 10 anos está em 5,26%, com o spread 2s10s dos Treasuries em 37 bps. O Fed Funds segue em 4%.",
+      "why_it_happened": "A curva inclina quando o mercado exige mais prêmio para prazos longos, por inflação persistente ou por oferta de títulos, e não por expectativa de alta do Fed.",
+      "what_it_changes": "Minha leitura é que, com juro longo americano nesse nível, o diferencial para o Brasil fica menos confortável e o câmbio responde mais ao payroll de sexta.",
+      "lenses": [
+        "juros",
+        "câmbio",
+        "valuation"
+      ],
+      "fact_ids": [
+        "fact_8bbcd8333215f0665560",
+        "fact_9e06e7115a42ba963c37",
+        "fact_c4325498461e88f70b0a",
+        "fact_183094a439f259ab993e"
+      ],
+      "cluster_ids": []
+    }
+  ],
+  "uhnw_lens": [
+    {
+      "theme": "alocação",
+      "text": "Com CDI em 13,65% e inflação voltando a subir, vale revisar quanto da carteira está em pós-fixado e quanto em prefixado longo: o segundo paga prêmio fiscal, mas oscila mais.",
+      "fact_ids": [
+        "fact_8a70d60f15bf7d29e64b"
+      ],
+      "cluster_ids": []
+    },
+    {
+      "theme": "exposição internacional",
+      "text": "Com o Treasury de 10 anos em 5,26%, a pergunta útil é se a parcela dolarizada está capturando esse juro ou parada em caixa sem remuneração.",
+      "fact_ids": [
+        "fact_9e06e7115a42ba963c37"
+      ],
+      "cluster_ids": []
+    }
+  ],
+  "content_lab": {
+    "story": {
+      "title": "A prévia virou",
+      "angle": "O IPCA-15 saiu de queda para alta em um mês, e isso muda a conversa sobre cortes de juros.",
+      "main_idea": "Um mês de inflação baixa não é tendência; a prévia de setembro mostrou o preço voltando.",
+      "fact_ids": [
+        "fact_587bf9fa08135b6931a7"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ],
+      "hook": null
+    },
+    "carousel": {
+      "title": "IPCA, IPCA-15 e Focus: o que cada um mede",
+      "angle": "No mesmo dia temos o IPCA de agosto em queda e o IPCA-15 de setembro em alta: dá para explicar a diferença sem confundir os dois.",
+      "main_idea": "O IPCA-15 é uma prévia com período de coleta diferente; comparar os dois exige olhar o mês de referência de cada um.",
+      "fact_ids": [
+        "fact_25fb8bc7d88a29f5324c",
+        "fact_587bf9fa08135b6931a7",
+        "fact_f351eddf67874d2642af"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ],
+      "hook": null
+    },
+    "take": {
+      "title": "Inflação corrente e juro real",
+      "angle": "Com a Selic parada e a inflação corrente voltando a subir, o juro real cai sem ninguém mexer na taxa.",
+      "main_idea": "O juro real muda com a inflação, não só com o Copom; é ele que decide o retorno de verdade.",
+      "fact_ids": [
+        "fact_4ec7b659ee4a10d3409a",
+        "fact_587bf9fa08135b6931a7"
+      ],
+      "cluster_ids": [
+        "evt_9ca6e24dca1b012c0065"
+      ],
+      "hook": null
+    },
+    "reel": {
+      "title": "Por que a dívida pública mexe no seu prefixado",
+      "angle": "A dívida bruta subiu e o DI longo segue acima da Selic efetiva: o prêmio fiscal aparece no preço do título.",
+      "main_idea": "Juro longo alto não é só Banco Central; é o preço que o mercado cobra para financiar o governo por mais tempo.",
+      "fact_ids": [
+        "fact_4ec7b659ee4a10d3409a",
+        "fact_558e937b1b1f2bcdacb6",
+        "fact_cbf2000f2e93ac4e84d2",
+        "fact_4c76ae154cda569dd76e"
+      ],
+      "cluster_ids": [
+        "evt_71bebaececdda5f37d4a"
+      ],
+      "hook": "Por que o seu título prefixado de cinco anos paga mais do que a Selic?",
+      "development": "A dívida bruta subiu para 82,86% do PIB. Quanto maior a dívida sem sinal de estabilização, mais o investidor pede para emprestar ao governo por prazos longos. Por isso o DI de cinco anos está acima da Selic efetiva.",
+      "closing": "O prêmio existe porque o risco existe: prazo longo paga mais e também oscila mais.",
+      "cta": "Salve para rever quando sair o próximo dado fiscal."
+    }
+  },
+  "agenda": [
+    {
+      "event_id": "cal_09e6a663eca7a60d7fee",
+      "name": "ISM Manufacturing PMI (EUA)",
+      "date": "2026-10-01",
+      "time": "10:00",
+      "timezone": "America/New_York",
+      "category": "MACRO",
+      "region": "US",
+      "importance": "MEDIUM",
+      "source": "Institute for Supply Management — Report On Business calendar",
+      "source_url": "https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/",
+      "verification_status": "UNVERIFIED",
+      "bucket": "tomorrow",
+      "content_opportunity": "Explicar o mecanismo: como o dado ou a decisão chega a juros, câmbio, valuation e patrimônio."
+    },
+    {
+      "event_id": "cal_d5fca2a1bd4cc24d5a91",
+      "name": "PMI industrial (S&P Global) — Brasil e mundo",
+      "date": "2026-10-01",
+      "time": null,
+      "timezone": "America/Sao_Paulo",
+      "category": "MACRO",
+      "region": "GLOBAL",
+      "importance": "MEDIUM",
+      "source": "S&P Global — PMI release calendar",
+      "source_url": "https://www.pmi.spglobal.com/Public/Release/ReleaseDates",
+      "verification_status": "UNVERIFIED",
+      "bucket": "tomorrow",
+      "content_opportunity": "Usar o PMI como termômetro antecedente: o que a indústria diz sobre crescimento antes do PIB, e o que isso significa para lucro das empresas."
+    },
+    {
+      "event_id": "cal_ac35d340694a7c21ad3e",
+      "name": "Payroll EUA (Employment Situation — setembro)",
+      "date": "2026-10-02",
+      "time": "08:30",
+      "timezone": "America/New_York",
+      "category": "MACRO",
+      "region": "US",
+      "importance": "HIGH",
+      "source": "BLS — Employment Situation schedule",
+      "source_url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "verification_status": "UNVERIFIED",
+      "bucket": "week",
+      "content_opportunity": "Mercado de trabalho americano como variável-chave para a trajetória do Fed e, por tabela, para o dólar."
+    },
+    {
+      "event_id": "cal_25d6f8f46039e6cee1cc",
+      "name": "Eleições gerais — 1º turno",
+      "date": "2026-10-04",
+      "time": null,
+      "timezone": "America/Sao_Paulo",
+      "category": "POLICY",
+      "region": "BR",
+      "importance": "HIGH",
+      "source": "Constituição Federal, art. 77 (primeiro domingo de outubro) / TSE",
+      "source_url": "https://www.tse.jus.br/eleicoes/eleicoes-2026",
+      "verification_status": "VERIFIED",
+      "bucket": "week",
+      "content_opportunity": "Explicar, sem viés político, como a incerteza eleitoral aparece nos preços (prêmio de risco, curva de juros, câmbio) e por que a alocação não deveria ser uma aposta em resultado."
+    }
+  ],
+  "source_references": [
+    {
+      "name": "brapi.dev (B3)",
+      "url": "https://brapi.dev/api/v2/stocks/quote",
+      "used_for": "Ibovespa"
+    },
+    {
+      "name": "FRED — Federal Reserve Bank of St. Louis",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv",
+      "used_for": "S&P 500, Nasdaq Composite, Dow Jones, Nikkei 225, Fed Funds (teto da banda), Desemprego EUA (validação), Payroll (variação mensal, mil) (validação), PCE (12 meses), PIB EUA (tri/tri anualizado)"
+    },
+    {
+      "name": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all",
+      "used_for": "Treasury 10Y, Treasury 3M, Treasury 6M, Treasury 1Y, Treasury 2Y, Treasury 5Y, Treasury 20Y, Treasury 30Y, Spread 2s10s, Spread 5s30s"
+    },
+    {
+      "name": "European Central Bank — taxas de referência",
+      "url": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD+JPY+GBP+CAD+SEK+CHF.EUR.SP00.A",
+      "used_for": "DXY (Índice Dólar), EUR/BRL (validação)"
+    },
+    {
+      "name": "Bank of Korea — ECOS",
+      "url": "https://ecos.bok.or.kr/api/StatisticSearch/KEY/json/en/1/10/802Y001/D/20260916/20260930/0001000",
+      "used_for": "Kospi"
+    },
+    {
+      "name": "Banco Central do Brasil — PTAX (SGS)",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados/ultimos/5",
+      "used_for": "USD/BRL, EUR/BRL"
+    },
+    {
+      "name": "Coinbase",
+      "url": "https://api.coinbase.com/v2/prices/BTC-USD/spot",
+      "used_for": "BTC/USD"
+    },
+    {
+      "name": "Kraken",
+      "url": "https://api.kraken.com/0/public/Ticker",
+      "used_for": "BTC/USD (validação)"
+    },
+    {
+      "name": "B3 — Arquivos Públicos (TradeInformationConsolidated)",
+      "url": "https://arquivos.b3.com.br/tabelas/TradeInformationConsolidated/2026-09-29",
+      "used_for": "DI1 1M, DI1 3M, DI1 6M, DI1 12M, DI1 24M, DI1 36M, DI1 60M"
+    },
+    {
+      "name": "Banco Central do Brasil — SGS",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados",
+      "used_for": "Selic meta, Selic efetiva (over, anualizada), CDI (anualizado), IPCA-15 (variação mensal) (validação), IPCA (variação mensal) (validação), IPCA (12 meses) (validação), IGP-M (variação mensal), Desemprego (PNAD Contínua) (validação), IBC-Br (índice dessazonalizado), Dívida bruta do governo geral (% PIB)"
+    },
+    {
+      "name": "IBGE — SIDRA",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/7062/periodos/-6/variaveis/355",
+      "used_for": "IPCA-15 (variação mensal), IPCA (variação mensal), IPCA (12 meses), Desemprego (PNAD Contínua)"
+    },
+    {
+      "name": "Banco Central do Brasil — Focus (Expectativas)",
+      "url": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais",
+      "used_for": "Focus: IPCA esperado (ano corrente), Focus: Selic esperada (fim do ano corrente)"
+    },
+    {
+      "name": "U.S. Bureau of Labor Statistics",
+      "url": "https://api.bls.gov/publicAPI/v1/timeseries/data/CUUR0000SA0",
+      "used_for": "CPI (12 meses), Desemprego EUA, Payroll (variação mensal, mil)"
+    },
+    {
+      "name": "European Central Bank — Data Portal",
+      "url": "https://data-api.ecb.europa.eu/service/data/FM/B.U2.EUR.4F.KR.DFR.LEV",
+      "used_for": "ECB — taxa de depósito, HICP zona do euro (12 meses), Desemprego zona do euro"
+    },
+    {
+      "name": "Exame",
+      "url": "https://exame.com/mundo/pce-inflacao-dos-eua-sobe-03-em-agosto-em-linha-com-as-projecoes/",
+      "used_for": "Notícia"
+    },
+    {
+      "name": "CNN Brasil",
+      "url": "https://www.cnnbrasil.com.br/economia/money/macroeconomia/inflacao-nos-eua-sobe-menos-do-que-o-esperado-em-agosto/",
+      "used_for": "Notícia"
+    },
+    {
+      "name": "InfoMoney",
+      "url": "https://www.infomoney.com.br/mercados/ibovespa-hoje-bolsa-de-valores-ao-vivo-30092026/",
+      "used_for": "Notícia"
+    },
+    {
+      "name": "Estadão — Economia",
+      "url": "https://www.estadao.com.br/economia/fernando-dantas/ipca-15-surpreende-e-expoe-fim-da-tregua-dos-alimentos/",
+      "used_for": "Notícia"
+    },
+    {
+      "name": "g1 Economia",
+      "url": "https://g1.globo.com/economia/noticia/2026/09/30/contas-publicas-tem-deficit-de-r-10-bilhoes-em-agosto-divida-sobe-para-829percent-do-pib.ghtml",
+      "used_for": "Notícia"
+    },
+    {
+      "name": "g1 Economia",
+      "url": "https://g1.globo.com/economia/noticia/2026/09/29/brasil-cria-1658-mil-empregos-com-carteira-assinada-em-agosto-aponta-caged.ghtml",
+      "used_for": "Notícia"
+    },
+    {
+      "name": "Institute for Supply Management — Report On Business calendar",
+      "url": "https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/",
+      "used_for": "Agenda: ISM Manufacturing PMI (EUA)"
+    },
+    {
+      "name": "S&P Global — PMI release calendar",
+      "url": "https://www.pmi.spglobal.com/Public/Release/ReleaseDates",
+      "used_for": "Agenda: PMI industrial (S&P Global) — Brasil e mundo"
+    },
+    {
+      "name": "BLS — Employment Situation schedule",
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "used_for": "Agenda: Payroll EUA (Employment Situation — setembro)"
+    },
+    {
+      "name": "Constituição Federal, art. 77 (primeiro domingo de outubro) / TSE",
+      "url": "https://www.tse.jus.br/eleicoes/eleicoes-2026",
+      "used_for": "Agenda: Eleições gerais — 1º turno"
+    }
+  ],
+  "qc": {
+    "passed": true,
+    "checks": [
+      {
+        "id": "numbers_have_source",
+        "label": "Todos os números têm fonte",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "material_facts_verified",
+        "label": "Fatos materiais verificados",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "no_duplicate_news",
+        "label": "Nenhuma notícia duplicada",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "no_market_wrongly_closed",
+        "label": "Nenhum mercado fechado erroneamente",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "no_stale_as_current",
+        "label": "Nenhum dado antigo como atual",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "insights_separated",
+        "label": "Insights separados dos fatos",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "portuguese",
+        "label": "Texto em português",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "reading_time",
+        "label": "Leitura em até 10 minutos",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "content_lab_short",
+        "label": "Content Lab curto",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "agenda_has_source",
+        "label": "Agenda com fonte",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "no_ai_language",
+        "label": "Sem linguagem genérica de IA",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "no_invented_experience",
+        "label": "Nenhuma experiência pessoal inventada",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "event_count",
+        "label": "5 a 7 acontecimentos",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "event_brevity",
+        "label": "Cada acontecimento em 1–2 frases",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "single_source_attributed",
+        "label": "Notícia de fonte única atribuída",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "no_personal_recommendation",
+        "label": "Sem recomendação individualizada",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "metric_alignment",
+        "label": "Métrica citada = métrica do fato (sem substituição)",
+        "passed": true,
+        "detail": null,
+        "severity": "block"
+      },
+      {
+        "id": "brief_target",
+        "label": "Extensão na meta (900–1.200 palavras)",
+        "passed": true,
+        "detail": null,
+        "severity": "warn"
+      }
+    ],
+    "word_count": 952,
+    "reading_minutes": 6.3,
+    "corrections": [
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Payroll (variação mensal, mil).",
+      "Fato da métrica citada associado como evidência principal: Focus: Selic esperada (fim do ano corrente).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Ponto UHNW removido: notícia de fonte única sem atribuição: \"liquidez Para famílias empresárias, a alta da dívida pública…\""
+    ]
+  },
+  "limitations": [],
+  "content_opportunities": [
+    {
+      "id": "opp_8d6789d77d8d9e5c038c",
+      "event_id": "cal_d5fca2a1bd4cc24d5a91",
+      "cluster_id": null,
+      "title": "Antes de PMI industrial (S&P Global) — Brasil e mundo: o que está em jogo",
+      "angle": "Usar o PMI como termômetro antecedente: o que a indústria diz sobre crescimento antes do PIB, e o que isso significa para lucro das empresas.",
+      "format": "story",
+      "target_date": "2026-09-30",
+      "priority": "MEDIUM",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_bbb2b75813645df742c7",
+      "event_id": "cal_d5fca2a1bd4cc24d5a91",
+      "cluster_id": null,
+      "title": "PMI industrial (S&P Global) — Brasil e mundo: a leitura do dia seguinte",
+      "angle": "Usar o PMI como termômetro antecedente: o que a indústria diz sobre crescimento antes do PIB, e o que isso significa para lucro das empresas. Publicar só depois do dado verificado pelo Agent 1.",
+      "format": "take",
+      "target_date": "2026-10-01",
+      "priority": "MEDIUM",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_2361fe6224c1448bdc65",
+      "event_id": "cal_09e6a663eca7a60d7fee",
+      "cluster_id": null,
+      "title": "Antes de ISM Manufacturing PMI (EUA): o que está em jogo",
+      "angle": "Explicar o mecanismo: como o dado ou a decisão chega a juros, câmbio, valuation e patrimônio.",
+      "format": "story",
+      "target_date": "2026-09-30",
+      "priority": "MEDIUM",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_0c046aed5b1539c91908",
+      "event_id": "cal_09e6a663eca7a60d7fee",
+      "cluster_id": null,
+      "title": "ISM Manufacturing PMI (EUA): a leitura do dia seguinte",
+      "angle": "Explicar o mecanismo: como o dado ou a decisão chega a juros, câmbio, valuation e patrimônio. Publicar só depois do dado verificado pelo Agent 1.",
+      "format": "take",
+      "target_date": "2026-10-01",
+      "priority": "MEDIUM",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_dd5ed93b522a5a6f0086",
+      "event_id": "cal_ac35d340694a7c21ad3e",
+      "cluster_id": null,
+      "title": "Antes de Payroll EUA (Employment Situation — setembro): o que está em jogo",
+      "angle": "Mercado de trabalho americano como variável-chave para a trajetória do Fed e, por tabela, para o dólar.",
+      "format": "carousel",
+      "target_date": "2026-10-01",
+      "priority": "HIGH",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_f65f4908be61845be2da",
+      "event_id": "cal_ac35d340694a7c21ad3e",
+      "cluster_id": null,
+      "title": "Payroll EUA (Employment Situation — setembro): a leitura do dia seguinte",
+      "angle": "Mercado de trabalho americano como variável-chave para a trajetória do Fed e, por tabela, para o dólar. Publicar só depois do dado verificado pelo Agent 1.",
+      "format": "reel",
+      "target_date": "2026-10-02",
+      "priority": "HIGH",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_c9e085e8392186d32fe4",
+      "event_id": "cal_25d6f8f46039e6cee1cc",
+      "cluster_id": null,
+      "title": "Antes de Eleições gerais — 1º turno: o que está em jogo",
+      "angle": "Explicar, sem viés político, como a incerteza eleitoral aparece nos preços (prêmio de risco, curva de juros, câmbio) e por que a alocação não deveria ser uma aposta em resultado.",
+      "format": "carousel",
+      "target_date": "2026-10-03",
+      "priority": "HIGH",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_3a2d54779c63b83c0937",
+      "event_id": "cal_25d6f8f46039e6cee1cc",
+      "cluster_id": null,
+      "title": "Eleições gerais — 1º turno: a leitura do dia seguinte",
+      "angle": "Explicar, sem viés político, como a incerteza eleitoral aparece nos preços (prêmio de risco, curva de juros, câmbio) e por que a alocação não deveria ser uma aposta em resultado. Publicar só depois do dado verificado pelo Agent 1.",
+      "format": "reel",
+      "target_date": "2026-10-04",
+      "priority": "HIGH",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_074cf88472c8e203a848",
+      "event_id": null,
+      "cluster_id": "evt_f2bad112c285d1ad621e",
+      "title": "PCE: inflação dos EUA sobe 0,3% em agosto, em linha com as projeções",
+      "angle": "Contexto + tensão + insight: explicar o mecanismo por trás do fato, não repetir a manchete.",
+      "format": "story",
+      "target_date": "2026-09-30",
+      "priority": "HIGH",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    },
+    {
+      "id": "opp_8368b8fa358369a2c20a",
+      "event_id": null,
+      "cluster_id": "evt_2ec7d1de9d1b143a06b3",
+      "title": "Ibovespa tem forte alta e dólar e juros caem com dados fracos de inflação nos EUA e euforia pré-eleição no Brasil",
+      "angle": "Contexto + tensão + insight: explicar o mecanismo por trás do fato, não repetir a manchete.",
+      "format": "story",
+      "target_date": "2026-09-30",
+      "priority": "MEDIUM",
+      "status": "IDEA",
+      "created_by": "social-strategist",
+      "created_at": "2026-09-30T14:37:25.623Z"
+    }
+  ],
+  "version": 2,
+  "id": "snap_2026-09-30_v2"
+}

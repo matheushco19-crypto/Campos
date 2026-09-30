@@ -60,7 +60,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <Panel className={cn('mt-2 p-5', dg.tone === 'crit' && 'border-crit/40', dg.tone === 'warn' && 'border-warn/40', dg.tone === 'ok' && 'border-ok/40')}>
             <div className="flex flex-wrap items-start gap-3">
               <DgIcon className={cn('mt-0.5 size-5 shrink-0', dg.tone === 'ok' ? 'text-ok' : dg.tone === 'warn' ? 'text-warn' : dg.tone === 'crit' ? 'text-crit' : 'text-ink-3')} aria-hidden />
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 basis-60">
                 <h1 id="dg-title" className="text-[17px] font-extrabold text-ink">
                   {dg.headline}
                 </h1>
@@ -239,18 +239,18 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </section>
 
         <section className="grid gap-4 lg:grid-cols-2">
-          <div>
+          <div className="min-w-0">
             <Kicker className="mb-2">Research Broker</Kicker>
             <ResearchPanel requests={a.research} />
           </div>
-          <div>
+          <div className="min-w-0">
             <Kicker className="mb-2">Atividade recente (todas as datas)</Kicker>
             <Panel className="divide-y divide-line">
               {a.recentRuns.slice(0, 12).map((r) => (
                 <div key={r.run_id} className="flex items-center gap-2 px-4 py-2 text-[12px]">
-                  <span className="w-20 text-ink-3 tnum">{r.brief_date ?? '—'}</span>
+                  <span className="w-20 shrink-0 text-ink-3 tnum">{r.brief_date ?? '—'}</span>
                   <span className="min-w-0 flex-1 truncate font-semibold text-ink">{r.agent}</span>
-                  <span className="text-ink-3 tnum">{fmtTimeBRT(r.started_at)}</span>
+                  <span className="shrink-0 text-ink-3 tnum">{fmtTimeBRT(r.started_at)}</span>
                   <Pill tone={RUN_TONE[r.status] ?? 'neutral'}>{RUN_PT[r.status] ?? r.status}</Pill>
                 </div>
               ))}

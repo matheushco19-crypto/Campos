@@ -41,6 +41,14 @@ describe('duplicate news & event clustering', () => {
     expect(c.region).toBe('BR')
     expect(c.importance).toBeGreaterThan(50)
   })
+  it('"US$" is a currency, not the United States; headline topic beats a summary keyword (real 30/09 cases)', () => {
+    expect(classifyNews('Ucrânia enfrenta dificuldade para cobrir déficit de US$ 27 bi da guerra', 'Primeiro-ministro planeja cobrir US$ 7 bi adiando despesas').region).not.toBe('US')
+    expect(classifyNews('U.S. inflation rises, keeping pressure on Fed', '').region).toBe('US')
+    expect(classifyNews('Tariffs hit the US economy', '').region).toBe('US')
+    expect(classifyNews('Condições financeiras tendem a acentuar desaceleração', 'O preço do petróleo e os juros externos estão altos').topic).toBe('economy')
+    expect(classifyNews('Voo para Israel é desviado após incidente entre pilotos', 'Um voo da Flydubai pousou em Tabuk. Leia também: Irã recebe resposta dos EUA sobre plano', { defaultRegion: 'BR' }).region).not.toBe('US')
+    expect(classifyNews('Ucrânia enfrenta dificuldade para cobrir déficit da guerra', '', { defaultRegion: 'BR' }).region).toBe('EU')
+  })
 })
 
 describe('RSS/Atom parsing treats external content as untrusted text', () => {

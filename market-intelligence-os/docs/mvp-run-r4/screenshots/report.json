@@ -1,0 +1,45 @@
+[
+ {
+  "page": "/",
+  "viewport": "desktop",
+  "horizontal_overflow_px": 0
+ },
+ {
+  "provenance": "di60",
+  "viewport": "desktop",
+  "text": "PROVENIÊNCIA DI1 60M VERIFIED Confirmado por duas fontes independentes ou pela fonte oficial. Fonte primária B3 — Arquivos Públicos (TradeInformationConsolidated) Fonte secundária sem segunda fonte Métrica BR_DI1_60M Valor 13,997 % a.a. Período 2026-09-29 Data de referência 2026-09-29 Válido em 29/09/2026 18:00 BRT Coletado em 30/09/2026 11:16 BRT Confiança Média Método Fonte oficial única (publicador do dado) Sessão Ajuste B3 Instrumento DI1V31 · venc. 2031-10-01 · 1252 du LINKS (1) B3 — Arquivos Públicos (TradeInformationConsolidated) Contrato DI1V31 (vencimento 2031-10-01, 1252 dias úteis). Taxa de ajuste B3. Variação: -6 bps. Taxa de ajuste (AdjstdQtTax) do contrato DI1 mais próximo do prazo, arquivo consolidado de negociação da B3. Não é a Selic nem o CDI. Fonte oficial do instrumento (publicador do dado), sem segunda fonte na mesma data."
+ },
+ {
+  "provenance": "ibov",
+  "viewport": "desktop",
+  "text": "PROVENIÊNCIA Ibovespa UNVERIFIED Uma única fonte respondeu. Mostrado, mas nunca citado como fato no texto. Fonte primária brapi.dev (B3) Fonte secundária sem segunda fonte Métrica IBOV Valor 183.827,6 pts Período 2026-09-29 Data de referência 2026-09-29 Válido em 29/09/2026 17:00 BRT Coletado em 30/09/2026 11:24 BRT Confiança Baixa Método Fonte única, sem validação cruzada Sessão Fechamento do pregão LINKS (1) brapi.dev (B3) via MCP BRAPI (get_stock_quote ^BVSP + get_stock_historical 5d). regularMarketTime 2026-09-30T14:23Z (11:23 BRT) é INTRADIÁRIO (B3 aberta, 185.442,02): descartado. O run matinal (05:00 BRT) usa o fechamento de 29/09 = regularMarketPreviousClose 183.827,6 (barra diária 29/09 close 183.828; 28/09 close 182.991). BRAPI (dados da B3) é a fonte primária. Sem segunda fonte gratuita e permitida para o índice no plano atual: a série SGS 7 do BCB foi descontinuada em 2019, e "
+ },
+ {
+  "page": "/admin",
+  "viewport": "desktop",
+  "horizontal_overflow_px": 0
+ },
+ {
+  "admin_text": "POR QUE O BRIEFING DE HOJE (NÃO) APARECEU? Briefing publicado (v2). Rodar Morning Intelligence agora SYSTEM HEALTH SYSTEM HEALTH: DEGRADED DEGRADED Core Markets Verified: 4/8 Publicação: disponível Core Markets Verified: 4/8 (publicação continua disponível). ÚLTIMO MORNING RUN COM SUCESSO 30/09/2026 11:37 BRT ÚLTIMO ENRIQUECIMENTO (AGENT 2) 30/09/2026 11:37 BRT ÚLTIMO SNAPSHOT DETERMINÍSTICO 30/09/2026 11:37 BRT ÚLTIMO AGENT 1 COM SUCESSO 30/09/2026 11:37 BRT ÚLTIMA COLETA DE MERCADO 30/09/2026 11:37 BRT ÚLTIMA COLETA MACRO 30/09/2026 11:37 BRT ÚLTIMA COLETA DE NOTÍCIAS 30/09/2026 11:37 BRT ÚLTIMO AGENT 3 30/09/2026 11:37 BRT ÚLTIMO AGENT 2 30/09/2026 11:37 BRT ÚLTIMO SNAPSHOT PUBLICADO 2026-09-30 v2 (claude_code) IDADE DO SNAPSHOT 0 h FATOS 41 VERIFIED · 7 UNVERIFIED · 7 UNAVAILABLE · 0 CONFLICT PACOTE DO AGENT 2 23.597 caracteres ≈ 5.900 tokens (SUBMITTED) PROVEDOR DE MERCADO (FATOS) us-treasury 10 · b3-arquivos 7 · fred 4 · bcb-ptax 2 · brapi 1 · ecb-fx 1 · bok-ecos 1 · coinbase 1 CORE NÃO VERIFICADOS IBOV (UNVERIFIED, single_source) · SPX (UNVERIFIED, single_source) · NASDAQ (UNVERIFIED, single_source) · DJI (UNVERIFIED, single_source) PROVEDORES NA ÚLTIMA COLETA (UM PROVEDOR SECUNDÁRIO FORA NÃO DERRUBA O SISTEMA) bcb-focus 2/2 bcb-sgs 10/10 bls 3/3 ecb 3/3 ibge-sidra 4/4 b3-arquivos 7/7 bcb-ptax 2/2 bitstamp 1/1 bok-ecos 1/1 brapi 1/1 coinbase 1/1 ecb-fx 3/3 fred 17/17 gemini 1/1 kraken 1/1 us-treasury 8/8 rss-bbc-business 1/1 rss-bcb-notas 1/1 rss-cnbc-markets 1/1 rss-cnnbrasil-economia 1/1 rss-ecb-press 1/1 rss-estadao-economia 1/1 rss-exame 1/1 rss-fed-press 1/1 rss-ft-markets 1/1 rss-g1-economia 1/1 rss-infomoney 1/1 rss-marketwatch 1/1 rss-nyt-business 1/1 rss-valor 1/1 Agent 1 Coleta e verificação Sucesso Última execução 30/09/2026 11:37 BRT Briefing de 30 SE"
+ },
+ {
+  "page": "/",
+  "viewport": "mobile",
+  "horizontal_overflow_px": 0
+ },
+ {
+  "provenance": "di60",
+  "viewport": "mobile",
+  "text": "PROVENIÊNCIA DI1 60M VERIFIED Confirmado por duas fontes independentes ou pela fonte oficial. Fonte primária B3 — Arquivos Públicos (TradeInformationConsolidated) Fonte secundária sem segunda fonte Métrica BR_DI1_60M Valor 13,997 % a.a. Período 2026-09-29 Data de referência 2026-09-29 Válido em 29/09/2026 18:00 BRT Coletado em 30/09/2026 11:16 BRT Confiança Média Método Fonte oficial única (publicador do dado) Sessão Ajuste B3 Instrumento DI1V31 · venc. 2031-10-01 · 1252 du LINKS (1) B3 — Arquivos Públicos (TradeInformationConsolidated) Contrato DI1V31 (vencimento 2031-10-01, 1252 dias úteis). Taxa de ajuste B3. Variação: -6 bps. Taxa de ajuste (AdjstdQtTax) do contrato DI1 mais próximo do prazo, arquivo consolidado de negociação da B3. Não é a Selic nem o CDI. Fonte oficial do instrumento (publicador do dado), sem segunda fonte na mesma data."
+ },
+ {
+  "provenance": "ibov",
+  "viewport": "mobile",
+  "text": "PROVENIÊNCIA Ibovespa UNVERIFIED Uma única fonte respondeu. Mostrado, mas nunca citado como fato no texto. Fonte primária brapi.dev (B3) Fonte secundária sem segunda fonte Métrica IBOV Valor 183.827,6 pts Período 2026-09-29 Data de referência 2026-09-29 Válido em 29/09/2026 17:00 BRT Coletado em 30/09/2026 11:24 BRT Confiança Baixa Método Fonte única, sem validação cruzada Sessão Fechamento do pregão LINKS (1) brapi.dev (B3) via MCP BRAPI (get_stock_quote ^BVSP + get_stock_historical 5d). regularMarketTime 2026-09-30T14:23Z (11:23 BRT) é INTRADIÁRIO (B3 aberta, 185.442,02): descartado. O run matinal (05:00 BRT) usa o fechamento de 29/09 = regularMarketPreviousClose 183.827,6 (barra diária 29/09 close 183.828; 28/09 close 182.991). BRAPI (dados da B3) é a fonte primária. Sem segunda fonte gratuita e permitida para o índice no plano atual: a série SGS 7 do BCB foi descontinuada em 2019, e "
+ },
+ {
+  "page": "/admin",
+  "viewport": "mobile",
+  "horizontal_overflow_px": 0
+ }
+]

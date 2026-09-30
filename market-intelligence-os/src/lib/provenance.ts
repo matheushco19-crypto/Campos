@@ -30,6 +30,9 @@ export function factProvenance(f: VerifiedFact | undefined, fallbackStatus: Prov
     method: f.verification_method,
     session: f.session ? SESSION_LABEL[f.session.session] ?? f.session.session : null,
     instrument: f.instrument ? `${f.instrument.code} · venc. ${f.instrument.maturity} · ${f.instrument.business_days} du` : null,
+    metric: f.metric,
+    value: f.value === null ? 'indisponível' : `${f.value.toLocaleString('pt-BR', { maximumFractionDigits: 6 })} ${f.unit}`,
+    referenceDate: f.session?.reference_date ?? (f.as_of ? f.as_of.slice(0, 10) : null),
   }
 }
 

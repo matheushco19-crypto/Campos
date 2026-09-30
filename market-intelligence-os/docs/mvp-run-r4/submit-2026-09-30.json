@@ -1,0 +1,34 @@
+{
+  "first": {
+    "snapshot": "snap_2026-09-30_v2",
+    "status": "PUBLISHED",
+    "qc_passed": true,
+    "corrections": [
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Payroll (variação mensal, mil).",
+      "Fato da métrica citada associado como evidência principal: Focus: Selic esperada (fim do ano corrente).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Ponto UHNW removido: notícia de fonte única sem atribuição: \"liquidez Para famílias empresárias, a alta da dívida pública…\""
+    ],
+    "words": 952,
+    "minutes": 6.3
+  },
+  "resubmit_identical": {
+    "snapshot": "snap_2026-09-30_v2",
+    "status": "PUBLISHED",
+    "qc_passed": true,
+    "corrections": [
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Fato da métrica citada associado como evidência principal: IPCA (variação mensal).",
+      "Fato da métrica citada associado como evidência principal: Payroll (variação mensal, mil).",
+      "Fato da métrica citada associado como evidência principal: Focus: Selic esperada (fim do ano corrente).",
+      "Fato da métrica citada associado como evidência principal: Selic meta.",
+      "Ponto UHNW removido: notícia de fonte única sem atribuição: \"liquidez Para famílias empresárias, a alta da dívida pública…\""
+    ],
+    "words": 952,
+    "minutes": 6.3
+  }
+}

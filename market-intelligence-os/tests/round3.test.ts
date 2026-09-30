@@ -3,7 +3,7 @@ import { assetByMetric, DERIVED_SPREADS } from '../config/assets'
 import { buildRates } from '../src/agents/financial-intelligence/brief'
 import { buildAnalysisPacket } from '../src/agents/financial-intelligence/packet'
 import { parseSidraReleases } from '../src/agents/market-intelligence/collectors/macro'
-import { describeSession } from '../src/agents/market-intelligence/collectors/market-status'
+import { describeSession, observationStatus } from '../src/agents/market-intelligence/collectors/market-status'
 import { completedBars, sessionOf } from '../src/agents/market-intelligence/collectors/market'
 import { businessDaysBetween, diMaturity, selectDiBucket } from '../src/agents/market-intelligence/collectors/di-curve'
 import { parseB3DiFile, parseYahooChart } from '../src/agents/market-intelligence/collectors/parsers'
@@ -224,6 +224,8 @@ describe('relevance, overrides, coverage and watchlist', () => {
     expect(hardOverride('IPCA-15 surpreende em setembro')?.id).toBe('inflation')
     expect(hardOverride('EUA anunciam novas sanções à Rússia')?.id).toBe('geopolitics')
     expect(hardOverride('Empresa de varejo abre loja nova')).toBeNull()
+    expect(hardOverride('Dona do ChatGPT pede desculpas por invasão de IA em site do governo australiano')).toBeNull()
+    expect(hardOverride('Invasão militar da Ucrânia completa mais um ano')?.id).toBe('geopolitics')
   })
 
   it('an override is never lost even when its score is low; it is not forced to be the headline', () => {
@@ -246,6 +248,47 @@ describe('relevance, overrides, coverage and watchlist', () => {
     expect(cell('asia').note).toMatch(/Não preenchido artificialmente/)
     expect(sel.coverage.filter((c) => c.scope === 'BR')).toHaveLength(4)
     expect(sel.coverage.filter((c) => c.scope === 'WORLD')).toHaveLength(6)
+  })
+
+  it('coverage floor displaces the lowest score-filled cluster when the top is full (real 30/09 case: Ásia and commodities)', () => {
+    const reasons = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+    const overrides = reasons.map((r, i) => cluster({ id: `o${i}`, title: `Override ${r}`, topic: 'economy', region: i === 9 ? 'US' : 'BR', relevance_score: 80 - i, hard_override: true, hard_override_reason: r }))
+    const fillers = Array.from({ length: 6 }, (_, i) => cluster({ id: `f${i}`, title: `EUA ${i}`, topic: 'corporate', region: 'US', relevance_score: 68 - i }))
+    const others = [
+      cluster({ id: 'br_mkt', title: 'Ibovespa', topic: 'markets', region: 'BR', relevance_score: 60 }),
+      cluster({ id: 'br_reg', title: 'CVM', topic: 'regulation', region: 'BR', relevance_score: 52 }),
+      cluster({ id: 'eu', title: 'França', topic: 'economy', region: 'EU', relevance_score: 52 }),
+      cluster({ id: 'geo', title: 'Guerra', topic: 'geopolitics', region: 'GLOBAL', relevance_score: 55 }),
+      cluster({ id: 'asia', title: 'Japão', topic: 'markets', region: 'ASIA', relevance_score: 50 }),
+      cluster({ id: 'oil', title: 'Petróleo', topic: 'commodities', region: 'GLOBAL', relevance_score: 45 }),
+    ]
+    const sel = selectClusters([...overrides, ...fillers, ...others])
+    const cell = (id: string) => sel.coverage.find((c) => c.id === id)!
+    expect(sel.top.length).toBe(14)
+    // Before the fix Ásia was flagged "nenhum evento coletado" despite a 50-score cluster.
+    for (const id of ['asia', 'europe', 'br_real', 'br_markets', 'us']) expect(cell(id).covered).toBe(true)
+    for (const o of overrides) expect(sel.top.map((c) => c.id)).toContain(o.id)
+    // A cell left out while an eligible cluster exists says so, and that cluster is in the watchlist.
+    for (const c of sel.coverage.filter((x) => !x.covered)) {
+      const eligible = others.find((o) => o.id === ({ commodities: 'oil', geopolitics: 'geo', global_markets: 'geo' } as Record<string, string>)[c.id])
+      if (eligible) {
+        expect(c.note).toMatch(/Evento elegível/)
+        expect(sel.watchlist.map((w) => w.id)).toContain(eligible.id)
+      }
+    }
+    // Every cell's cluster_ids point to clusters actually in the top.
+    for (const c of sel.coverage) for (const id of c.cluster_ids) expect(sel.top.map((t) => t.id)).toContain(id)
+  })
+
+  it('coverage note is truthful when an eligible event exists but no slot can be freed', () => {
+    const overrides = Array.from({ length: 14 }, (_, i) => cluster({ id: `o${i}`, title: `Override ${i}`, topic: 'economy', region: 'BR', relevance_score: 90 - i, hard_override: true, hard_override_reason: `r${i}` }))
+    const asia = cluster({ id: 'asia', title: 'Japão', topic: 'markets', region: 'ASIA', relevance_score: 50 })
+    const sel = selectClusters([...overrides, asia])
+    const cell = sel.coverage.find((c) => c.id === 'asia')!
+    expect(cell.covered).toBe(false)
+    expect(cell.note).toMatch(/Evento elegível \(relevância 50\) não coube no top/)
+    expect(sel.watchlist[0].id).toBe('asia')
+    expect(sel.coverage.find((c) => c.id === 'commodities')!.note).toMatch(/Nenhum evento coletado/)
   })
 
   it('watchlist: the next 15–25 clusters are kept (persisted, no tokens); the rest is tail', () => {
@@ -542,6 +585,12 @@ describe('round 4: morning snapshot sessions (05:00 BRT = 08:00 UTC, Tue 29/09/2
     expect(info).toMatchObject({ session, is_close: isClose, reference_date: ref, session_of: ref })
     expect(info.observed_at).toBe(s.asOf)
     if (info.is_close) expect(info.is_intraday).toBe(false)
+  })
+  it('NY trading while the value is the previous close (real 30/09 case: FRED SP500 of 29/09 collected at 10:16 ET) → regular_close, not intraday', () => {
+    const now = new Date('2026-09-30T14:16:00Z')
+    expect(observationStatus(asset('SPX').exchange, '2026-09-29', now)).toBe('OPEN')
+    expect(describeSession(asset('SPX'), 'fred', '2026-09-29', '2026-09-29T20:00:00Z', 'OPEN', now)).toMatchObject({ session: 'regular_close', is_close: true, is_intraday: false })
+    expect(describeSession(asset('SPX'), 'fmp', '2026-09-30', '2026-09-30T14:15:00Z', 'OPEN', now)).toMatchObject({ session: 'intraday', is_close: false, is_intraday: true })
   })
   it('Europe still trading: today’s bar is dropped, the previous close is used and nothing intraday is labelled close', () => {
     const bars = [{ period: '2026-09-28', value: 25300 }, { period: '2026-09-29', value: 25343 }]

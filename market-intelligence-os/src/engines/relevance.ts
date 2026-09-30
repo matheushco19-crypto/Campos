@@ -196,40 +196,63 @@ export function selectClusters(scored: EventCluster[], limits: { topMax?: number
   }
   // 2. Fill by score, with topic diversity. Reserve room for the coverage floor.
   const reserve = SELECTION.coverageReserve
+  const filled = new Set<EventCluster>()
   for (const c of sorted) {
     if (top.length >= topMax - reserve) break
     if (inTop(c) || c.relevance_score < SELECTION.topMinScore) continue
     if ((perTopic.get(c.topic) ?? 0) >= SELECTION.maxPerTopic) continue
     add(c)
+    filled.add(c)
   }
-  // 3. Coverage floor: promote the best eligible cluster for each uncovered cell.
-  const coverage: CoverageCell[] = COVERAGE.map((cell) => {
-    let hits = top.filter((c) => matches(cell, c))
-    if (!hits.length) {
-      const cand = sorted.find((c) => !inTop(c) && matches(cell, c) && c.relevance_score >= COVERAGE_MIN_SCORE)
-      if (cand && top.length < topMax) {
-        add(cand)
-        hits = [cand]
+  // 3. Coverage floor: promote the best eligible cluster for each uncovered cell. When the
+  // top is full, it displaces the lowest-scoring score-filled cluster (never an override,
+  // never the last cluster covering another cell).
+  const covers = (cell: (typeof COVERAGE)[number], list: EventCluster[]) => list.some((c) => matches(cell, c))
+  const unplaced = new Map<string, EventCluster>()
+  for (const cell of COVERAGE) {
+    if (covers(cell, top)) continue
+    const cand = sorted.find((c) => !inTop(c) && matches(cell, c) && c.relevance_score >= COVERAGE_MIN_SCORE)
+    if (!cand) continue
+    if (top.length >= topMax) {
+      const victim = [...filled]
+        .sort((a, b) => a.relevance_score - b.relevance_score)
+        .find((v) => COVERAGE.every((o) => !covers(o, top) || covers(o, top.filter((c) => c !== v))))
+      if (!victim) {
+        unplaced.set(cell.id, cand)
+        continue
       }
+      top.splice(top.indexOf(victim), 1)
+      filled.delete(victim)
+      perTopic.set(victim.topic, (perTopic.get(victim.topic) ?? 1) - 1)
     }
-    return {
-      scope: cell.scope,
-      id: cell.id,
-      label: cell.label,
-      covered: hits.length > 0,
-      cluster_ids: hits.map((c) => c.id),
-      note: hits.length ? null : `Nenhum evento coletado com relevância suficiente (≥ ${COVERAGE_MIN_SCORE}). Não preenchido artificialmente.`,
-    }
-  })
+    add(cand)
+  }
   // 4. Fill any remaining slots by score.
   for (const c of sorted) {
     if (top.length >= topMax) break
     if (!inTop(c) && c.relevance_score >= SELECTION.topMinScore) add(c)
   }
   top.sort((a, b) => b.relevance_score - a.relevance_score)
+  const coverage: CoverageCell[] = COVERAGE.map((cell) => {
+    const hits = top.filter((c) => matches(cell, c))
+    const cand = unplaced.get(cell.id)
+    return {
+      scope: cell.scope,
+      id: cell.id,
+      label: cell.label,
+      covered: hits.length > 0,
+      cluster_ids: hits.map((c) => c.id),
+      note: hits.length
+        ? null
+        : cand
+          ? `Evento elegível (relevância ${cand.relevance_score}) não coube no top: as vagas estão ocupadas por overrides e pela cobertura de outras categorias. Segue na watchlist.`
+          : `Nenhum evento coletado com relevância suficiente (≥ ${COVERAGE_MIN_SCORE}). Não preenchido artificialmente.`,
+    }
+  })
   const rest = sorted.filter((c) => !inTop(c))
-  // Overrides that did not fit the top lead the watchlist.
-  const watchlist = [...rest.filter((c) => c.hard_override), ...rest.filter((c) => !c.hard_override)].slice(0, watchMax)
+  // Overrides that did not fit the top lead the watchlist, then coverage candidates left out.
+  const pending = new Set(unplaced.values())
+  const watchlist = [...rest.filter((c) => c.hard_override), ...rest.filter((c) => !c.hard_override && pending.has(c)), ...rest.filter((c) => !c.hard_override && !pending.has(c))].slice(0, watchMax)
   const tail = rest.filter((c) => !watchlist.includes(c))
   const bucket = new Map<string, EventCluster['rank_bucket']>([...top.map((c) => [c.id, 'top'] as const), ...watchlist.map((c) => [c.id, 'watchlist'] as const)])
   const all = sorted.map((c) => ({ ...c, rank_bucket: bucket.get(c.id) ?? 'tail' }))
