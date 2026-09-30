@@ -4,7 +4,8 @@ import type { AgendaItem, IntelligenceSnapshot, MarketRow } from '@/core/schemas
 import { agendaTimeBRT } from '@/lib/agenda'
 import { fmtDate, fmtShortDate, fmtTimeBRT, fmtValue } from '@/lib/format'
 import { clusterProvenance, eventProvenance, factProvenance } from '@/lib/provenance'
-import { Change, LiveQuoteLine } from '../MarketsTable'
+import { Change } from '../MarketsTable'
+import { QuoteLabel, quoteView } from '../quote'
 import { NewsList } from '../NewsList'
 import { cn, Kicker, Panel, Pill } from '../ui'
 import { VerificationBadge } from '../VerificationBadge'
@@ -33,7 +34,7 @@ export function Overview(props: {
     <section id="overview" className="scroll-mt-28" aria-labelledby="overview-title">
       {/* 1. Que dia é hoje? */}
       <div className="rise flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11.5px] font-semibold text-ink-3">
-        <span className="eyebrow text-accent">Morning Intelligence</span>
+        <span className="eyebrow text-accent"><span className="tnum">01</span> Overview · Morning Intelligence</span>
         <Pill tone={status.tone}>{status.label}</Pill>
         <span className="tnum">
           v{s.version} · {MODE_LABEL[s.analysis_mode]} · atualizado {fmtTimeBRT(s.generated_at)}
@@ -150,16 +151,17 @@ export function Overview(props: {
             <ul className="divide-y divide-line">
               {pulse.map((r) => {
                 const f = factById.get(r.fact_id)
-                const bps = r.unit === '%' && f?.previous_value != null && r.value != null ? (r.value - f.previous_value) * 100 : null
+                const v = quoteView(r, f)
                 return (
                   <li key={r.metric} className="flex items-center gap-2 px-4 py-2">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[12.5px] font-bold text-ink">{r.label}</span>
-                      <span className="block text-[10.5px] text-ink-3 tnum">{!r.reference ? 'fontes indisponíveis nesta execução' : r.session === 'continuous' ? `24h · ${fmtShortDate(r.reference)}` : r.session === 'fixing' ? `fixing ${fmtShortDate(r.reference)}` : `fech. ${fmtShortDate(r.reference)}${r.market_status === 'OPEN' ? ' · pregão aberto' : ''}`}</span>
-                      <LiveQuoteLine row={r} />
+                      <QuoteLabel v={v} />
                     </span>
-                    <span className={cn('text-[13.5px] font-extrabold tnum', r.value === null ? 'text-ink-3' : 'text-ink')}>{fmtValue(r.value, r.unit)}</span>
-                    <span className="w-[70px] text-right text-[12px]">{bps !== null ? <Change v={bps} unit="bps" /> : <Change v={r.change_pct} />}</span>
+                    <span className={cn('text-[13.5px] font-extrabold tnum', v.value === null ? 'text-ink-3' : 'text-ink')}>{fmtValue(v.value, r.unit)}</span>
+                    <span className="w-[62px] text-right text-[12px]">
+                      <Change v={v.change} />
+                    </span>
                     <VerificationBadge p={factProvenance(f, r.verification_status)} compact />
                   </li>
                 )
@@ -203,7 +205,7 @@ export function Overview(props: {
                     ['Story', Film, s.content_lab.story.title],
                     ['Carrossel', GalleryHorizontalEnd, s.content_lab.carousel.title],
                     ['Reel', Clapperboard, s.content_lab.reel.title],
-                    ['Take', MessageSquareQuote, s.content_lab.take.title],
+                    ['Post', MessageSquareQuote, s.content_lab.take.title],
                   ] as const
                 ).map(([k, Icon, title]) => (
                   <li key={k} className="flex items-start gap-2.5 text-[13px]">

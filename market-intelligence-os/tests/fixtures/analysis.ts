@@ -32,16 +32,17 @@ export function goodAnalysis(): AnalysisOutput {
     ],
     uhnw_lens: [{ theme: 'liquidez', text: 'Com juro real alto, a conversa sobre liquidez e custo de oportunidade de ativos ilíquidos fica mais fácil.', fact_ids: [], cluster_ids: [] }],
     content_lab: {
-      story: idea('O preço do tempo'),
-      carousel: idea('Juro real e patrimônio'),
+      story: { ...idea('O preço do tempo'), frames: ['Por que o juro de hoje mexe no preço do futuro?', 'Selic em 15% ao ano.', 'Juro alto encarece o que só paga lá na frente.', 'Você revisa sua carteira quando o juro muda?'] },
+      carousel: { ...idea('Juro real e patrimônio'), slides: ['Juro real alto muda o jogo do patrimônio.', 'O Copom manteve a Selic.', 'Selic em 15% ao ano.', 'Juro real alto favorece pós-fixado e pesa em ativos longos.', 'Revise prazos antes de mudar a alocação.'] },
       reel: {
         ...idea('A taxa de desconto em 60 segundos'),
         hook: 'Por que o juro de hoje muda o preço do que você só recebe daqui a dez anos?',
         development: 'Todo ativo é uma promessa de fluxo de caixa no futuro. Para trazer esse fluxo a valor presente, o mercado usa o juro como desconto.',
+        on_screen: 'Gráfico da Selic nos últimos 12 meses.',
         closing: 'Juro alto por mais tempo pesa mais em quem promete lucro distante.',
         cta: 'Salve para rever quando o Copom decidir.',
       },
-      take: idea('Paciência também é posição'),
+      take: { ...idea('Paciência também é posição'), post_text: 'Com a Selic parada em 15% ao ano, esperar também é uma decisão: o custo de oportunidade de sair do pós-fixado ficou mais alto.' },
     },
   }
 }

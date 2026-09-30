@@ -21,7 +21,7 @@ const EnvSchema = z.object({
   TWELVEDATA_API_KEY: z.string().optional(),
   FMP_API_KEY: z.string().optional(),
   /** Yahoo chart endpoint: unofficial, display fallback only, never counts toward VERIFIED. Off by default. */
-  MI_ENABLE_YAHOO_FALLBACK: z.enum(['true', 'false']).default('false'),
+  MI_ENABLE_YAHOO_FALLBACK: z.enum(['true', 'false']).default('true'),
   BOK_ECOS_KEY: z.string().optional(),
   /** Stooq answers 403 to datacenter IPs (Vercel). Enable only where it responds (e.g. a home machine). */
   MI_ENABLE_STOOQ: z.enum(['true', 'false']).default('false'),

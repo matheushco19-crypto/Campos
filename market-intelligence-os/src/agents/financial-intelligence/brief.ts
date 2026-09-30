@@ -237,10 +237,10 @@ export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventClus
       .map((f) => ({ text: `${f.label}: ${fmt(f.value as number, f.unit)} (referência ${f.reference_period}, ${sourceName(f.primary_source)}).`, fact_ids: [f.id], cluster_ids: [] }))
   const idea = (title: string) => ({ title, angle: 'Indisponível nesta versão: depende da etapa de interpretação do analista.', main_idea: 'Nenhuma ideia foi gerada de forma automática nesta execução.', fact_ids: [], cluster_ids: [] })
   const content_lab: ContentLabInput = {
-    story: idea('Story'),
-    carousel: idea('Carrossel'),
-    reel: { ...idea('Reel'), hook: 'Indisponível nesta versão.', development: 'Indisponível nesta execução, sem a etapa de interpretação do analista.', closing: 'Indisponível nesta versão.', cta: 'Indisponível nesta versão.' },
-    take: idea('Opinião'),
+    story: { ...idea('Story'), frames: ['Indisponível nesta versão.', 'Depende da interpretação.', 'Sem roteiro automático.'] },
+    carousel: { ...idea('Carrossel'), slides: ['Indisponível nesta versão.', 'Depende da interpretação.', 'Sem slides automáticos.', 'Os fatos do dia', 'estão acima.'] },
+    reel: { ...idea('Reel'), hook: 'Indisponível nesta versão.', development: 'Indisponível nesta execução, sem a etapa de interpretação do analista.', on_screen: 'Indisponível nesta versão.', closing: 'Indisponível nesta versão.', cta: 'Indisponível nesta versão.' },
+    take: { ...idea('Post'), post_text: 'Indisponível nesta versão: o texto-base depende da etapa de interpretação do analista.' },
   }
   const lede = top.length
     ? { text: `Briefing apenas com fatos: ${top.length} eventos do noticiário e os dados verificados abaixo, sem interpretação nesta versão.`, fact_ids: [], cluster_ids: [] }
@@ -306,6 +306,11 @@ export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventClus
 
 /** Agent 2's content (strict) → stored Content Lab shape. */
 export function toStoredContentLab(c: ContentLabInput): ContentLab {
-  const idea = (x: ContentLabInput['story']) => ({ ...x, hook: null })
-  return { story: idea(c.story), carousel: idea(c.carousel), take: idea(c.take), reel: { ...c.reel } }
+  const base = { hook: null, frames: [] as string[], slides: [] as string[], post_text: null }
+  return {
+    story: { ...c.story, ...base, frames: c.story.frames },
+    carousel: { ...c.carousel, ...base, slides: c.carousel.slides },
+    take: { ...c.take, ...base, post_text: c.take.post_text },
+    reel: { ...c.reel, frames: [], slides: [], post_text: null },
+  }
 }

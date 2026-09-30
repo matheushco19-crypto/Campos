@@ -288,7 +288,8 @@ export function skipReason(m: SourceMapping, options: { liveQuote?: boolean } = 
   if (m.sourceId === 'brapi' && !env.BRAPI_TOKEN) return 'BRAPI_TOKEN ausente'
   if (m.sourceId === 'twelvedata' && !env.TWELVEDATA_API_KEY) return 'TWELVEDATA_API_KEY ausente'
   if (m.sourceId === 'fmp' && !env.FMP_API_KEY) return 'FMP_API_KEY ausente'
-  if (m.sourceId === 'yahoo' && env.MI_ENABLE_YAHOO_FALLBACK !== 'true' && !options.liveQuote) return 'Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)'
+  // Yahoo is display-only (never counts for VERIFIED). On by default; MI_ENABLE_YAHOO_FALLBACK=false turns it off except for manual live runs.
+  if (m.sourceId === 'yahoo' && env.MI_ENABLE_YAHOO_FALLBACK === 'false' && !options.liveQuote) return 'Yahoo (não oficial) desligado (MI_ENABLE_YAHOO_FALLBACK=false)'
   if (m.sourceId === 'coingecko' && !env.COINGECKO_DEMO_KEY) return 'COINGECKO_DEMO_KEY ausente (403 sem chave)'
   if (m.sourceId === 'stooq' && env.MI_ENABLE_STOOQ !== 'true') return 'Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)'
   return null

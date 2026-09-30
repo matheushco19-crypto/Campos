@@ -193,7 +193,7 @@ export async function runMarketCloseRefresh(repo: Repository, now = new Date(), 
       ...rest,
       generated_at: now.toISOString(),
       run_id: orch.id,
-      market_snapshot: buildMarketRows(facts),
+      market_snapshot: attachLiveQuotes(buildMarketRows(facts), a1.liveQuotes),
       source_references: buildSourceReferences(facts, latest.news_snapshot, latest.agenda),
       limitations: [...latest.limitations.filter((l) => !l.startsWith('Mercados atualizados')), `Mercados atualizados no fechamento (${now.toISOString()}). Análise mantida da versão anterior.`],
     })

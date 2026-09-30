@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from './ui'
 
+/** Same order as the brief (01 Overview … 05 Agenda), then the standalone pages. */
 export const SECTIONS = [
   ['overview', 'Overview'],
-  ['markets', 'Mercados'],
   ['intelligence', 'Intelligence'],
+  ['uhnw', 'UHNW'],
   ['content', 'Conteúdo'],
   ['calendar', 'Agenda'],
+  ['markets', 'Mercados'],
   ['history', 'Histórico'],
 ] as const
 

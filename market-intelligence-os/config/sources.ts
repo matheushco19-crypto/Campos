@@ -251,7 +251,7 @@ export const SOURCES: SourceDefinition[] = [
     regions: ['GLOBAL'],
     limitation:
       'Prova de conceito técnica (bakeoff de 30/09/2026: 15/15 ativos). Endpoint não documentado oficialmente e com termos de uso restritivos: nunca é fonte primária institucional nem conta para VERIFIED (verification_method = unofficial_vendor). ' +
-      'Desligado por padrão; só roda com MI_ENABLE_YAHOO_FALLBACK=true, como último fallback de exibição. Decisão humana pendente.',
+      'Fonte de exibição (nunca conta para VERIFIED): fechamento mais recente no modo automático e cotação corrente no manual. Ligado por padrão; MI_ENABLE_YAHOO_FALLBACK=false desliga fora do modo manual.',
   },
   {
     id: 'bcb-sgs',

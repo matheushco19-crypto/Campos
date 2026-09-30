@@ -31,11 +31,35 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
     await expect(intel).toContainText('duration')
     await expect(page.locator('#uhnw')).toContainText('não é recomendação individualizada', { ignoreCase: true })
     const content = page.locator('#content')
-    for (const k of ['Story', 'Carrossel', 'Take', 'Reel · roteiro', 'Hook', 'Desenvolvimento', 'Fechamento', 'CTA']) await expect(content.getByText(k, { exact: true }).first()).toBeVisible()
+    for (const k of ['Story', 'Carrossel', 'Post', 'Reel · roteiro', 'Fechamento', 'CTA']) await expect(content.getByText(k, { exact: true }).first()).toBeVisible()
+    await expect(content.getByText(/^Hook/).first()).toBeVisible()
     await expect(content).toContainText('O preço do tempo')
-    await expect(content).toContainText('Dados de performance ainda não importados.')
+    // Social Strategy and Performance are hidden from the UI (backend kept).
+    await expect(content).not.toContainText('Social Strategy')
+    await expect(content).not.toContainText('Performance')
+    await expect(content).not.toContainText('Dados de performance ainda não importados.')
+    // Agenda: one horizontal week, 7 columns, Sunday → Saturday.
     const cal = page.locator('#calendar')
-    for (const k of ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']) await expect(cal.getByText(k, { exact: true })).toBeVisible()
+    await expect(cal.getByTestId('agenda-day')).toHaveCount(7)
+    const days = await cal.getByTestId('agenda-day').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().top))
+    expect(new Set(days.map(Math.round)).size).toBe(1)
+    for (const k of ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']) await expect(cal.getByText(k, { exact: true })).toBeVisible()
+  })
+
+  test('section hierarchy 01–05, UHNW as its own section and sources collapsed', async ({ page }) => {
+    await page.goto('/?date=2026-09-29')
+    const expected: [string, string][] = [['#overview', '01'], ['#intelligence', '02'], ['#uhnw', '03'], ['#content', '04'], ['#calendar', '05']]
+    for (const [id, n] of expected) await expect(page.locator(id)).toContainText(n)
+    const tops = await Promise.all(expected.map(([id]) => page.locator(id).evaluate((e) => e.getBoundingClientRect().top)))
+    expect([...tops].sort((a, b) => a - b)).toEqual(tops)
+    const sources = page.getByTestId('sources')
+    await expect(sources).not.toHaveAttribute('open', /.*/)
+    await expect(sources.locator('summary')).toContainText(/Fontes e metodologia · \d+/)
+    const box = await sources.boundingBox()
+    expect(box!.height).toBeLessThan(60)
+    await sources.locator('summary').click()
+    await expect(sources).toHaveAttribute('open', '')
+    await expect(sources.getByRole('link').first()).toBeVisible()
   })
 
   test('/mercados: full table with Treasury, core count and rate curves', async ({ page }) => {

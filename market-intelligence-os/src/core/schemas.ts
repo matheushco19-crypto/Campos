@@ -426,6 +426,10 @@ export const ContentIdea = z.object({
   angle: ideaAngle.or(z.string().min(10).max(500)),
   main_idea: z.string().nullable().default(null),
   hook: z.string().nullable().default(null),
+  /** Format structure (newer versions): Story screens, carousel slides, static-post text. */
+  frames: z.array(z.string()).default([]),
+  slides: z.array(z.string()).default([]),
+  post_text: z.string().nullable().default(null),
   ...Cited,
 })
 export type ContentIdea = z.infer<typeof ContentIdea>
@@ -434,6 +438,7 @@ export const ReelIdea = ContentIdea.extend({
   development: z.string().nullable().default(null),
   closing: z.string().nullable().default(null),
   cta: z.string().nullable().default(null),
+  on_screen: z.string().nullable().default(null),
 })
 export type ReelIdea = z.infer<typeof ReelIdea>
 
@@ -441,13 +446,21 @@ export const ContentLab = z.object({ story: ContentIdea, carousel: ContentIdea, 
 export type ContentLab = z.infer<typeof ContentLab>
 
 export const ContentIdeaInput = z.object({ title: ideaTitle, angle: ideaAngle, main_idea: ideaMain, ...Cited })
+/** Story: 3–4 short screens (hook → dado → leitura → pergunta/CTA), not a caption. */
+export const StoryIdeaInput = ContentIdeaInput.extend({ frames: z.array(z.string().min(3).max(120)).min(3).max(4) })
+/** Carousel: exactly 5 slides (hook, contexto, dado, interpretação, conclusão). */
+export const CarouselIdeaInput = ContentIdeaInput.extend({ slides: z.array(z.string().min(3).max(160)).length(5) })
+/** Reel: video script, including what is shown on screen. */
 export const ReelIdeaInput = ContentIdeaInput.extend({
   hook: z.string().min(5).max(200),
   development: z.string().min(20).max(500),
+  on_screen: z.string().min(5).max(200),
   closing: z.string().min(10).max(300),
   cta: z.string().min(5).max(160),
 })
-export const ContentLabInput = z.object({ story: ContentIdeaInput, carousel: ContentIdeaInput, reel: ReelIdeaInput, take: ContentIdeaInput })
+/** Static post (stored under `take` for compatibility): concept + base text for the publication. */
+export const PostIdeaInput = ContentIdeaInput.extend({ post_text: z.string().min(40).max(500) })
+export const ContentLabInput = z.object({ story: StoryIdeaInput, carousel: CarouselIdeaInput, reel: ReelIdeaInput, take: PostIdeaInput })
 export type ContentLabInput = z.infer<typeof ContentLabInput>
 
 export const MacroWatch = z.object({

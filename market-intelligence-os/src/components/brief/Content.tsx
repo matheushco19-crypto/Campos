@@ -5,7 +5,10 @@ import { fmtDate, fmtShortDate, fmtWeekday } from '@/lib/format'
 import type { StrategyReport } from '@/storage/repository'
 import { cn, Empty, Kicker, Panel, Pill, Section } from '../ui'
 
-const FORMAT_PT: Record<string, string> = { story: 'Story', carousel: 'Carrossel', reel: 'Reel', take: 'Take', post: 'Post' }
+/** Social Strategy and Performance are hidden for now (backend and data kept); flip to re-enable. */
+const SHOW_STRATEGY_AND_PERFORMANCE = false
+
+const FORMAT_PT: Record<string, string> = { story: 'Story', carousel: 'Carrossel', reel: 'Reel', take: 'Post', post: 'Post' }
 const STATUS_PT: Record<string, { label: string; tone: 'neutral' | 'accent' | 'ok' }> = { IDEA: { label: 'Ideia', tone: 'neutral' }, PLANNED: { label: 'Planejado', tone: 'accent' }, PUBLISHED: { label: 'Publicado', tone: 'ok' } }
 
 export function Content(props: {
@@ -17,18 +20,19 @@ export function Content(props: {
 }) {
   const cl = props.s.content_lab
   return (
-    <Section id="content" index="04" eyebrow="Content Lab" title="O que publicar" lead="Quatro peças do dia, nascidas dos fatos verificados e dos eventos de hoje. Nada é publicado automaticamente.">
+    <Section id="content" index="04" eyebrow="Content Lab" title="O que publicar" lead="Quatro peças do dia, cada uma na estrutura do seu formato. Nada é publicado automaticamente.">
       {cl ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <IdeaCard kind="Story" Icon={Film} idea={cl.story} />
-          <IdeaCard kind="Carrossel" Icon={GalleryHorizontalEnd} idea={cl.carousel} />
-          <IdeaCard kind="Take" Icon={MessageSquareQuote} idea={cl.take} />
+          <IdeaCard kind="Story" Icon={Film} idea={cl.story} steps={cl.story.frames?.length ? cl.story.frames.map((t, i) => [`Tela ${i + 1}`, t] as [string, string]) : null} />
+          <IdeaCard kind="Carrossel" Icon={GalleryHorizontalEnd} idea={cl.carousel} steps={cl.carousel.slides?.length ? cl.carousel.slides.map((t, i) => [SLIDE_LABELS[i] ?? `Slide ${i + 1}`, t] as [string, string]) : null} />
+          <IdeaCard kind="Post" Icon={MessageSquareQuote} idea={cl.take} body={cl.take.post_text} />
           <ReelCard idea={cl.reel} />
         </div>
       ) : (
         <Empty>Content Lab disponível depois da etapa de interpretação.</Empty>
       )}
 
+      {SHOW_STRATEGY_AND_PERFORMANCE && (
       <div className="mt-10 grid gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <div className="mb-3">
@@ -78,11 +82,20 @@ export function Content(props: {
           {props.strategy && <StrategyNote report={props.strategy} />}
         </div>
       </div>
+      )}
     </Section>
   )
 }
 
-function IdeaCard({ kind, Icon, idea }: { kind: string; Icon: typeof Film; idea: ContentIdea }) {
+const SLIDE_LABELS = ['Hook', 'Contexto', 'Dado', 'Interpretação', 'Conclusão']
+
+/**
+ * Format-shaped card: Story screens, carousel slides or the post text lead; angle and main idea
+ * move into a collapsed details block so the card keeps its size. Older versions (no structure)
+ * fall back to angle + main idea.
+ */
+function IdeaCard({ kind, Icon, idea, steps = null, body = null }: { kind: string; Icon: typeof Film; idea: ContentIdea; steps?: [string, string][] | null; body?: string | null }) {
+  const structured = !!steps?.length || !!body
   return (
     <Panel as="article" className="card-lift flex flex-col p-5">
       <div className="flex items-center gap-2 text-ink-3">
@@ -90,26 +103,47 @@ function IdeaCard({ kind, Icon, idea }: { kind: string; Icon: typeof Film; idea:
         <span className="text-[10.5px] font-extrabold tracking-[0.16em] uppercase">{kind}</span>
       </div>
       <h4 className="mt-2 text-[16px] leading-snug font-extrabold tracking-tight text-ink">{idea.title}</h4>
-      <dl className="mt-3 space-y-2.5 text-[13px] leading-relaxed">
-        <div>
-          <dt className="text-[10px] font-extrabold tracking-[0.16em] text-ink-3 uppercase">Ângulo</dt>
-          <dd className="mt-0.5 text-ink-2">{idea.angle}</dd>
-        </div>
-        {(idea.main_idea ?? idea.hook) && (
+      {steps?.length ? (
+        <ol className="mt-3 space-y-1.5 text-[12.5px] leading-snug">
+          {steps.map(([label, text], i) => (
+            <li key={i} className="flex gap-2" title={text}>
+              <span className="w-[90px] shrink-0 pt-px text-[9.5px] font-extrabold tracking-[0.1em] text-ink-3 uppercase">{label}</span>
+              <span className={cn('min-w-0 flex-1 line-clamp-2', i === 0 ? 'font-bold text-ink' : 'text-ink-2')}>{text}</span>
+            </li>
+          ))}
+        </ol>
+      ) : body ? (
+        <p className="mt-3 line-clamp-5 text-[13px] leading-relaxed text-ink-2">{body}</p>
+      ) : null}
+      {structured ? (
+        <details className="group mt-3 text-[12.5px]">
+          <summary className="cursor-pointer list-none text-[11px] font-bold text-accent hover:underline">Ângulo e ideia principal</summary>
+          <p className="mt-1.5 leading-relaxed text-ink-2">{idea.angle}</p>
+          {idea.main_idea && <p className="mt-1 leading-relaxed font-semibold text-ink">{idea.main_idea}</p>}
+        </details>
+      ) : (
+        <dl className="mt-3 space-y-2.5 text-[13px] leading-relaxed">
           <div>
-            <dt className="text-[10px] font-extrabold tracking-[0.16em] text-ink-3 uppercase">{idea.main_idea ? 'Ideia principal' : 'Gancho'}</dt>
-            <dd className="mt-0.5 font-semibold text-ink">{idea.main_idea ?? idea.hook}</dd>
+            <dt className="text-[10px] font-extrabold tracking-[0.16em] text-ink-3 uppercase">Ângulo</dt>
+            <dd className="mt-0.5 text-ink-2">{idea.angle}</dd>
           </div>
-        )}
-      </dl>
+          {(idea.main_idea ?? idea.hook) && (
+            <div>
+              <dt className="text-[10px] font-extrabold tracking-[0.16em] text-ink-3 uppercase">{idea.main_idea ? 'Ideia principal' : 'Gancho'}</dt>
+              <dd className="mt-0.5 font-semibold text-ink">{idea.main_idea ?? idea.hook}</dd>
+            </div>
+          )}
+        </dl>
+      )}
     </Panel>
   )
 }
 
 function ReelCard({ idea }: { idea: ReelIdea }) {
   const script = [
-    ['Hook', idea.hook],
-    ['Desenvolvimento', idea.development],
+    ['Hook · fala', idea.hook],
+    ['Desenvolvimento · fala', idea.development],
+    ['Na tela', idea.on_screen],
     ['Fechamento', idea.closing],
     ['CTA', idea.cta],
   ].filter((x): x is [string, string] => !!x[1])
@@ -134,14 +168,14 @@ function ReelCard({ idea }: { idea: ReelIdea }) {
           )}
         </div>
         {script.length ? (
-          <ol className="grid gap-3 sm:grid-cols-2">
+          <ol className={cn('grid gap-3 sm:grid-cols-2', script.length > 4 && 'lg:grid-cols-3')}>
             {script.map(([k, v], i) => (
               <li key={k} className={cn('rounded-lg border border-line p-3', i === 0 && 'border-accent/40 bg-accent-soft/50')}>
                 <div className="flex items-center gap-2">
                   <span className="grid size-5 place-items-center rounded-full bg-ink text-[10px] font-extrabold text-surface tnum">{i + 1}</span>
                   <span className="text-[10.5px] font-extrabold tracking-[0.14em] text-ink-3 uppercase">{k}</span>
                 </div>
-                <p className={cn('mt-1.5 text-[13px] leading-relaxed', i === 0 ? 'font-bold text-ink' : 'text-ink-2')}>{v}</p>
+                <p className={cn('mt-1.5 line-clamp-4 text-[13px] leading-relaxed', i === 0 ? 'font-bold text-ink' : 'text-ink-2')} title={v}>{v}</p>
               </li>
             ))}
           </ol>

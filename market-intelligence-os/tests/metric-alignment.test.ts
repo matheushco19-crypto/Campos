@@ -73,7 +73,7 @@ describe('QC blocks metric substitution in every block', () => {
   const facts = [IPCA, IGPM, fact({ id: 'f_spx', metric: 'SPX', label: 'S&P 500', value: 6550, change_pct: 1.2, previous_value: 6472.3 }), macro('f_selic', 'BR_SELIC_TARGET', 'Selic meta', 15, { unit: '% a.a.', reference_period: '2026-09-17' })]
   it('Content Lab "IPCA caiu, IPCA-15 subiu" with only the IPCA fact → blocked', () => {
     const a = goodAnalysis()
-    a.content_lab.carousel = { title: 'IPCA caiu, IPCA-15 subiu: qual vale?', angle: 'Usar a queda do IPCA de agosto e a alta da prévia para explicar os índices.', main_idea: 'Índices medem períodos diferentes.', fact_ids: ['f_ipca'], cluster_ids: [] }
+    a.content_lab.carousel = { title: 'IPCA caiu, IPCA-15 subiu: qual vale?', angle: 'Usar a queda do IPCA de agosto e a alta da prévia para explicar os índices.', main_idea: 'Índices medem períodos diferentes.', slides: ['IPCA ou IPCA-15?', 'Dois índices, dois períodos.', 'O dado do mês.', 'Leituras diferentes.', 'Qual olhar.'], fact_ids: ['f_ipca'], cluster_ids: [] }
     const { analysis, report } = qualityControl({ analysis: a, facts, marketRows: [], agenda: [] })
     expect(report.corrections.join(' ')).toMatch(/IPCA-15/)
     expect(analysis.content_lab.carousel.title).toMatch(/removida/)

@@ -164,11 +164,14 @@ export function briefText(a: AnalysisOutput): string {
   for (const u of a.uhnw_lens) parts.push(u.text)
   const cl = a.content_lab
   for (const idea of [cl.story, cl.carousel, cl.take]) parts.push(idea.title, idea.angle, idea.main_idea)
-  parts.push(cl.reel.title, cl.reel.angle, cl.reel.main_idea, cl.reel.hook, cl.reel.development, cl.reel.closing, cl.reel.cta)
+  parts.push(...(cl.story.frames ?? []), ...(cl.carousel.slides ?? []), cl.take.post_text ?? '')
+  parts.push(cl.reel.title, cl.reel.angle, cl.reel.main_idea, cl.reel.hook, cl.reel.development, cl.reel.on_screen ?? '', cl.reel.closing, cl.reel.cta)
   return parts.join('\n')
 }
 
-const itemTexts = (x: unknown): string[] => Object.values(x as Record<string, unknown>).filter((v): v is string => typeof v === 'string')
+// Prose fields of an item, including Content Lab structures (story screens, carousel slides). Id lists are not prose.
+const itemTexts = (x: unknown): string[] =>
+  Object.entries(x as Record<string, unknown>).flatMap(([k, v]) => (typeof v === 'string' ? [v] : Array.isArray(v) && (k === 'frames' || k === 'slides') ? v.filter((s): s is string => typeof s === 'string') : []))
 
 /** Removes a few leading filler phrases deterministically ("Vale ressaltar que o..." → "O..."). */
 export function stripFillers(text: string): string {
@@ -231,7 +234,10 @@ function checkItem(item: Cited & object, factsById: Map<string, VerifiedFact>, c
     }
     issues.push({ check: 'numbers_have_source', detail: `número sem fonte: "${t.raw}"` })
   }
-  if (CLOSED_WORDS.test(text) && cited.some((f) => f.category === 'MARKET' && f.market_status === 'OPEN')) {
+  // Only an intraday value can be wrongly called a close: a previous session's close (or an official
+  // close such as the Treasury curve) cited while the exchange trades again is still a close.
+  const isIntraday = (f: VerifiedFact) => (f.session ? f.session.is_intraday : f.market_status === 'OPEN')
+  if (CLOSED_WORDS.test(text) && cited.some((f) => f.category === 'MARKET' && isIntraday(f))) {
     issues.push({ check: 'no_market_wrongly_closed', detail: 'texto trata como fechado um mercado em negociação' })
   }
   const banned = findBannedPhrases(text)
@@ -320,6 +326,13 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
       all.push(issue)
     }
   }
+  // Intelligence: at least 3 insights when the packet has at least 3 distinct eligible events
+  // (after corrections). Fewer events → only what exists; never padded.
+  if (!input.factsOnly) {
+    const eligible = new Set((input.clusters ?? []).map((c) => c.id)).size
+    const need = Math.min(3, eligible)
+    if (analysis.insights.length < need) all.push({ check: 'insights_minimum', detail: `${analysis.insights.length} insight(s) aprovado(s); o pacote tem ${eligible} eventos elegíveis e o mínimo é ${need}. Reescreva ou substitua o insight removido.` })
+  }
   // Market table must never label an intraday value as closed.
   for (const r of input.marketRows) {
     if (r.market_status === 'CLOSED' && r.reference === null && r.value !== null) all.push({ check: 'no_market_wrongly_closed', detail: `${r.label} sem data de referência` })
@@ -355,6 +368,7 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
     ['no_market_wrongly_closed', 'Nenhum mercado fechado erroneamente'],
     ['no_stale_as_current', 'Nenhum dado antigo como atual'],
     ['insights_separated', 'Insights separados dos fatos'],
+    ['insights_minimum', 'Intelligence com 3 insights (quando há 3 eventos elegíveis)'],
     ['portuguese', 'Texto em português'],
     ['reading_time', 'Leitura em até 10 minutos'],
     ['content_lab_short', 'Content Lab curto'],
@@ -382,7 +396,12 @@ const REMOVED_IDEA = (reason: string) => ({
   fact_ids: [],
   cluster_ids: [],
 })
-const REMOVED_REEL = (reason: string) => ({ ...REMOVED_IDEA(reason), hook: 'Removido.', development: 'Removido pelo controle de qualidade antes de salvar.', closing: 'Removido.', cta: 'Removido.' })
+const REMOVED_REEL = (reason: string) => ({ ...REMOVED_IDEA(reason), hook: 'Removido.', development: 'Removido pelo controle de qualidade antes de salvar.', on_screen: 'Removido.', closing: 'Removido.', cta: 'Removido.' })
+const REMOVED_BY_KIND = (reason: string) => ({
+  story: { ...REMOVED_IDEA(reason), frames: ['Removido pelo controle de qualidade.', 'Sem roteiro nesta versão.', 'Gere de novo a partir dos fatos.'] },
+  carousel: { ...REMOVED_IDEA(reason), slides: ['Removido pelo controle de qualidade.', 'Sem slides nesta versão.', 'Gere de novo', 'a partir dos fatos', 'verificados do dia.'] },
+  take: { ...REMOVED_IDEA(reason), post_text: 'Removido pelo controle de qualidade antes de salvar. Gere de novo a partir dos fatos verificados do dia.' },
+})
 
 const PROSE_KEYS = new Set(['text', 'headline', 'why_it_matters', 'title', 'what_happened', 'why_it_happened', 'what_it_changes'])
 
@@ -430,11 +449,17 @@ export function qualityControl(input: QcInput): QcResult {
   for (const r of ['BR', 'US', 'CN', 'EU'] as const) analysis.macro_watch[r] = dropFrom(analysis.macro_watch[r], `Macro Watch ${r}`).slice(0, 3)
   if (bad(analysis.lede)) corrections.push(`Resumo do dia com problema: ${reasons(analysis.lede)}`)
   const cl: ContentLabInput = analysis.content_lab
-  for (const k of ['story', 'carousel', 'take'] as const) {
-    if (bad(cl[k])) {
-      corrections.push(`Content Lab (${k}) substituído: ${reasons(cl[k])}`)
-      cl[k] = REMOVED_IDEA(reasons(cl[k]))
-    }
+  if (bad(cl.story)) {
+    corrections.push(`Content Lab (story) substituído: ${reasons(cl.story)}`)
+    cl.story = REMOVED_BY_KIND(reasons(cl.story)).story
+  }
+  if (bad(cl.carousel)) {
+    corrections.push(`Content Lab (carousel) substituído: ${reasons(cl.carousel)}`)
+    cl.carousel = REMOVED_BY_KIND(reasons(cl.carousel)).carousel
+  }
+  if (bad(cl.take)) {
+    corrections.push(`Content Lab (take) substituído: ${reasons(cl.take)}`)
+    cl.take = REMOVED_BY_KIND(reasons(cl.take)).take
   }
   if (bad(cl.reel)) {
     corrections.push(`Content Lab (reel) substituído: ${reasons(cl.reel)}`)
@@ -481,10 +506,10 @@ export function snapshotToAnalysis(snap: IntelligenceSnapshot): AnalysisOutput |
     insights: snap.insights,
     uhnw_lens: snap.uhnw_lens,
     content_lab: {
-      story: idea(c.story),
-      carousel: idea(c.carousel),
-      take: idea(c.take),
-      reel: { ...idea(c.reel), hook: c.reel.hook ?? '', development: c.reel.development ?? '', closing: c.reel.closing ?? '', cta: c.reel.cta ?? '' },
+      story: { ...idea(c.story), frames: c.story.frames ?? [] },
+      carousel: { ...idea(c.carousel), slides: c.carousel.slides ?? [] },
+      take: { ...idea(c.take), post_text: c.take.post_text ?? '' },
+      reel: { ...idea(c.reel), hook: c.reel.hook ?? '', development: c.reel.development ?? '', on_screen: c.reel.on_screen ?? '', closing: c.reel.closing ?? '', cta: c.reel.cta ?? '' },
     },
   }
 }

@@ -156,9 +156,15 @@ export function liveQuotesFrom(observations: RawObservation[], facts: VerifiedFa
     if (o.category !== 'MARKET' || !isUnofficialSource(o.sourceId) || !o.referencePeriod) continue
     const f = byMetric.get(o.metric)
     if (f?.primary_source === o.sourceId) continue // already the displayed value (and labelled unofficial)
-    if (f?.reference_period && o.referencePeriod < f.reference_period) continue
-    if (f?.reference_period === o.referencePeriod && f.value === o.value) continue
-    out.push({ metric: o.metric, value: o.value, change_pct: o.changePct ?? null, observed_at: o.asOf, reference_date: o.referencePeriod, source: o.sourceId, is_intraday: o.session?.is_intraday ?? o.marketStatus === 'OPEN' })
+    const intraday = o.session?.is_intraday ?? o.marketStatus === 'OPEN'
+    const factIntraday = f?.session?.is_intraday ?? false
+    // Shown only when it adds something: a newer session than the official value, or an intraday quote
+    // while the official value is a close. Same-day, same-kind duplicates are dropped.
+    const newer = !f?.reference_period || f.value === null || o.referencePeriod > f.reference_period
+    const liveOverClose = intraday && !factIntraday && o.referencePeriod >= (f?.reference_period ?? '')
+    if (!newer && !liveOverClose) continue
+    if (out.some((q) => q.metric === o.metric)) continue
+    out.push({ metric: o.metric, value: o.value, change_pct: o.changePct ?? null, observed_at: o.asOf, reference_date: o.referencePeriod, source: o.sourceId, is_intraday: intraday })
   }
   return out
 }
@@ -263,7 +269,7 @@ export async function runMarketIntelligence(repo: Repository, rawInput: Agent1In
     const anyData = bundle.observations.length > 0 || bundle.news.length > 0
     const status = !anyData ? 'FAILED' : bundle.errors.length ? 'PARTIAL' : 'SUCCESS'
     await logger.finish(status)
-    return { runId: logger.id, facts, clusters, newsCount: bundle.news.length, errors: logger.run.errors, health: bundle.health, status, liveQuotes: input.liveQuote ? liveQuotesFrom(bundle.observations, facts) : [] }
+    return { runId: logger.id, facts, clusters, newsCount: bundle.news.length, errors: logger.run.errors, health: bundle.health, status, liveQuotes: liveQuotesFrom(bundle.observations, facts) }
   } catch (e) {
     logger.error('agent1', errorMessage(e))
     await logger.finish('FAILED')

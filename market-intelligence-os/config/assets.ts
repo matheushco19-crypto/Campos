@@ -72,7 +72,7 @@ const Y = (symbol: string): SourceMapping => ({ sourceId: 'yahoo', symbol })
  * Source order = priority. Rules (docs/provider-bakeoff.md):
  *  - Twelve Data symbols come from its /indices, /forex_pairs and /cryptocurrencies reference lists
  *    (S&P 500, Nasdaq Composite, Dow Jones and DXY are NOT in its index catalog, so they are not mapped).
- *  - Yahoo is an unofficial vendor: last in every list, off unless MI_ENABLE_YAHOO_FALLBACK=true, and
+ *  - Yahoo is an unofficial vendor: last in every list, display-only (on by default; MI_ENABLE_YAHOO_FALLBACK=false), and
  *    never counts toward VERIFIED.
  */
 export const ASSETS: AssetConfig[] = [

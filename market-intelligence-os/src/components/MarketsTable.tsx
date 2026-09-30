@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import type { MarketRow, VerifiedFact } from '@/core/schemas'
 import { fmtPct, fmtShortDate, fmtTimeBRT, fmtValue, STATUS_LABEL } from '@/lib/format'
 import { factProvenance } from '@/lib/provenance'
+import { QuoteLabel, quoteView } from './quote'
 import { Sparkline } from './Sparkline'
 import { cn } from './ui'
 import { VerificationBadge } from './VerificationBadge'
@@ -65,6 +66,7 @@ export function MarketsTable({ rows, facts, history, compare }: { rows: MarketRo
               const bps = r.unit === '%' && f?.previous_value != null && r.value != null ? (r.value - f.previous_value) * 100 : null
               const c = compareBy.get(r.metric)
               const vs = c?.value && r.value !== null ? ((r.value - c.value) / c.value) * 100 : null
+              const view = quoteView(r, f)
               return (
                 <tr key={r.metric} className="border-b border-line last:border-0 hover:bg-surface-2">
                   <td className="px-4 py-2.5 font-semibold text-ink">
@@ -72,11 +74,11 @@ export function MarketsTable({ rows, facts, history, compare }: { rows: MarketRo
                     {r.core && <span className="ml-1.5 align-middle text-[9.5px] font-bold tracking-wider text-ink-3 uppercase">core</span>}
                     {r.session === 'intraday' && <span className="ml-1.5 rounded bg-accent-soft px-1 align-middle text-[9.5px] font-bold text-accent">INTRADIÁRIO</span>}
                   </td>
-                  <td className={cn('px-3 py-2.5 text-right font-semibold tnum', r.value === null ? 'text-ink-3' : r.verification_status === 'CONFLICT' ? 'text-ink-3 line-through decoration-crit/60' : 'text-ink')}>
-                    {fmtValue(r.value, r.unit)}
-                    {r.live && <LiveQuoteLine row={r} className="justify-end" />}
+                  <td className={cn('px-3 py-2.5 text-right font-semibold tnum', view.value === null ? 'text-ink-3' : r.verification_status === 'CONFLICT' && !view.live ? 'text-ink-3 line-through decoration-crit/60' : 'text-ink')}>
+                    {fmtValue(view.value, r.unit)}
+                    <QuoteLabel v={view} className="font-normal" />
                   </td>
-                  <td className="px-3 py-2.5 text-right">{bps !== null ? <Change v={bps} unit="bps" /> : <Change v={r.change_pct} />}</td>
+                  <td className="px-3 py-2.5 text-right">{bps !== null && !r.live ? <Change v={bps} unit="bps" /> : <Change v={view.change} />}</td>
                   {compare && <td className="px-3 py-2.5 text-right">{r.unit === '%' ? <span className="text-ink-3">—</span> : <Change v={vs} />}</td>}
                   <td className="px-3 py-1">
                     <Sparkline data={history[r.metric] ?? []} label={r.label} />
@@ -104,19 +106,3 @@ export function MarketsTable({ rows, facts, history, compare }: { rows: MarketRo
   )
 }
 
-/** Manual live quote under the official value: timestamp + source, never presented as a close. */
-export function LiveQuoteLine({ row, className }: { row: MarketRow; className?: string }) {
-  const q = row.live
-  if (!q) return null
-  const src = q.source === 'yahoo' ? 'Yahoo, não oficial' : q.source
-  return (
-    <span className={cn('mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[10.5px] font-semibold text-accent tnum', className)} title="Cotação corrente da execução manual. Não é fechamento oficial e não é verificada.">
-      <span className="rounded bg-accent-soft px-1 text-[9.5px] font-bold">{q.is_intraday ? 'AGORA' : 'ÚLTIMA'}</span>
-      {fmtValue(q.value, row.unit)}
-      {q.change_pct !== null && <span>({fmtPct(q.change_pct)})</span>}
-      <span className="font-normal text-ink-3">
-        {fmtShortDate(q.reference_date)} {fmtTimeBRT(q.observed_at)} · {src}
-      </span>
-    </span>
-  )
-}

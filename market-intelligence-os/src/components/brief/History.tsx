@@ -16,7 +16,7 @@ export function History(props: {
 }) {
   const shownV = props.shown?.version
   return (
-    <Section id="history" index="06" eyebrow="Histórico" title="Briefings anteriores e versões" lead="O histórico é append-only: cada execução cria uma nova versão e nenhuma é sobrescrita. Use ← → no teclado para navegar entre datas.">
+    <Section id="history" eyebrow="Histórico" title="Briefings anteriores e versões" lead="O histórico é append-only: cada execução cria uma nova versão e nenhuma é sobrescrita. Use ← → no teclado para navegar entre datas.">
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="space-y-5 lg:col-span-2">
           <HistorySearch />

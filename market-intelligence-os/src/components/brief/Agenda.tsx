@@ -1,12 +1,12 @@
 import type { CalendarEvent, IntelligenceSnapshot } from '@/core/schemas'
 import { agendaTimeBRT } from '@/lib/agenda'
-import { fmtShortDate, fmtWeekday, REGION_LABEL } from '@/lib/format'
+import { fmtShortDate, REGION_LABEL } from '@/lib/format'
 import { eventProvenance } from '@/lib/provenance'
 import { addDays } from '@/core/time'
-import { cn, Panel, Pill, Section } from '../ui'
+import { cn, Panel, Section } from '../ui'
 import { VerificationBadge } from '../VerificationBadge'
 
-const WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
+const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 export function Agenda({ s, events }: { s: IntelligenceSnapshot; events: CalendarEvent[] }) {
   const day = new Date(`${s.date}T12:00:00Z`).getUTCDay()
@@ -18,49 +18,53 @@ export function Agenda({ s, events }: { s: IntelligenceSnapshot; events: Calenda
     .sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? '99').localeCompare(b.time ?? '99'))
 
   return (
-    <Section id="calendar" index="05" eyebrow="Agenda" title="Agenda da semana" lead="De domingo a sábado, em Brasília. Apenas os eventos relevantes da semana atual, sem o calendário de 45 dias ocupando espaço como se fosse um aeroporto.">
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 7 }, (_, i) => {
-          const date = addDays(weekStart, i)
-          const items = weekEvents.filter((e) => e.date === date)
-          return (
-            <Panel key={date} className={cn('min-w-0 overflow-hidden', date === s.date && 'border-accent/40')}>
-              <div className="border-b border-line px-4 py-3">
-                <div className="text-[10.5px] font-extrabold tracking-[0.14em] text-accent uppercase">{WEEKDAYS[i]}</div>
-                <div className="mt-0.5 text-[12px] font-semibold text-ink-3 tnum">{fmtShortDate(date)}</div>
+    <Section id="calendar" index="05" eyebrow="Agenda" title="Agenda da semana" lead="De domingo a sábado, em Brasília. Apenas os eventos relevantes da semana atual.">
+      <Panel className="overflow-x-auto">
+        <div data-testid="agenda-week" className="grid min-w-[840px] grid-cols-7 divide-x divide-line">
+          {Array.from({ length: 7 }, (_, i) => {
+            const date = addDays(weekStart, i)
+            const items = weekEvents.filter((e) => e.date === date)
+            const today = date === s.date
+            return (
+              <div key={date} data-testid="agenda-day" className={cn('min-w-0', today && 'bg-accent/5')}>
+                <div className={cn('flex items-baseline justify-between border-b border-line px-2.5 py-2', today && 'border-accent/40')}>
+                  <span className="text-[10.5px] font-extrabold tracking-[0.14em] text-accent uppercase">{WEEKDAYS[i]}</span>
+                  <span className="text-[11px] font-semibold text-ink-3 tnum">{fmtShortDate(date)}</span>
+                </div>
+                {items.length ? (
+                  <ul className="divide-y divide-line">
+                    {items.map((e) => <EventCell key={e.id} e={e} />)}
+                  </ul>
+                ) : (
+                  <p className="px-2.5 py-3 text-[11px] text-ink-3">Sem eventos relevantes</p>
+                )}
               </div>
-              {items.length ? (
-                <ul className="divide-y divide-line">
-                  {items.map((e) => <EventRow key={e.id} e={e} />)}
-                </ul>
-              ) : (
-                <p className="px-4 py-4 text-[12px] text-ink-3">Sem eventos relevantes.</p>
-              )}
-            </Panel>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      </Panel>
     </Section>
   )
 }
 
-function EventRow({ e }: { e: CalendarEvent }) {
+function EventCell({ e }: { e: CalendarEvent }) {
   const t = agendaTimeBRT(e)
+  const holiday = e.category === 'HOLIDAY'
   return (
-    <li className="px-4 py-3">
-      <div className="flex items-start gap-2.5">
-        <div className="w-11 shrink-0">
-          <div className="text-[11px] font-extrabold text-ink tnum">{t.time ?? '—'}</div>
-          <div className="mt-0.5 text-[10px] text-ink-3">{fmtWeekday(t.date)}</div>
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-[12.5px] leading-snug font-bold text-ink">{e.name}</div>
-          <div className="mt-1 flex flex-wrap items-center gap-1">
-            <Pill tone={e.importance === 'HIGH' && e.category !== 'HOLIDAY' ? 'accent' : 'neutral'}>{e.category === 'HOLIDAY' ? 'Feriado' : e.importance}</Pill>
-            <span className="text-[10px] font-semibold text-ink-3">{REGION_LABEL[e.region]}</span>
-          </div>
-        </div>
+    <li className="px-2.5 py-2">
+      <div className="flex items-center justify-between gap-1">
+        <span className="text-[11px] font-extrabold text-ink tnum">{holiday ? 'Feriado' : (t.time ?? '—')}</span>
         <VerificationBadge p={eventProvenance(e)} compact />
+      </div>
+      <div className="mt-0.5 line-clamp-3 text-[11.5px] leading-snug font-bold text-ink" title={e.name}>{e.name}</div>
+      <div className="mt-1 flex items-center gap-1.5 text-[10px] font-semibold text-ink-3">
+        <span
+          aria-label={`Relevância ${e.importance}`}
+          title={`Relevância ${e.importance}`}
+          className={cn('inline-block size-1.5 rounded-full', holiday ? 'bg-ink-3' : e.importance === 'HIGH' ? 'bg-accent' : 'bg-ink-3/50')}
+        />
+        <span>{REGION_LABEL[e.region]}</span>
+        {!holiday && <span className="text-ink-3/80">· {e.importance === 'HIGH' ? 'alta' : 'média'}</span>}
       </div>
     </li>
   )

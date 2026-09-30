@@ -1,4 +1,4 @@
-import { ExternalLink } from 'lucide-react'
+import { ChevronRight, ExternalLink } from 'lucide-react'
 import type { IntelligenceSnapshot } from '@/core/schemas'
 import { Kicker, Panel } from '../ui'
 
@@ -13,14 +13,12 @@ export function Sources({ s }: { s: IntelligenceSnapshot }) {
     ['Agenda', agenda],
   ]
   return (
-    <section id="sources" className="scroll-mt-28" aria-labelledby="sources-title">
-      <div className="mb-4 border-b border-line pb-3">
-        <div className="eyebrow">Fontes</div>
-        <h2 id="sources-title" className="mt-1 text-[17px] font-extrabold tracking-tight text-ink">
-          Referências deste briefing
-        </h2>
-        <p className="mt-1 text-[12.5px] text-ink-3">Cada número acima tem um selo clicável com fonte primária, secundária, data de referência e horário de coleta.</p>
-      </div>
+    <details id="sources" data-testid="sources" className="group scroll-mt-28 border-t border-line pt-3">
+      <summary className="flex cursor-pointer list-none items-center gap-2 text-[12.5px] font-bold text-ink-2 hover:text-ink [&::-webkit-details-marker]:hidden">
+        <ChevronRight className="size-3.5 shrink-0 transition-transform group-open:rotate-90" aria-hidden />
+        <span>Fontes e metodologia · {s.source_references.length}</span>
+      </summary>
+      <p className="mt-2 mb-3 text-[12.5px] text-ink-3">Cada número acima tem um selo clicável com fonte primária, secundária, data de referência e horário de coleta.</p>
       <div className="grid gap-4 lg:grid-cols-3">
         {groups
           .filter(([, list]) => list.length)
@@ -43,6 +41,6 @@ export function Sources({ s }: { s: IntelligenceSnapshot }) {
             </Panel>
           ))}
       </div>
-    </section>
+    </details>
   )
 }

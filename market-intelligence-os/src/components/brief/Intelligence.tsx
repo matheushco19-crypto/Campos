@@ -1,4 +1,4 @@
-import { ArrowRight, Scale, ShieldAlert } from 'lucide-react'
+import { ArrowRight, ShieldAlert } from 'lucide-react'
 import Link from 'next/link'
 import type { IntelligenceSnapshot } from '@/core/schemas'
 import { Empty, Kicker, Panel, Section } from '../ui'
@@ -14,9 +14,13 @@ export function Intelligence({ s, factById, packetStatus = null }: { s: Intellig
   const pending = s.analysis_mode === 'deterministic' && packetStatus === 'PENDING'
   const elsewhere = s.analysis_mode === 'deterministic' && packetStatus === 'SUBMITTED'
   return (
-    <Section id="intelligence" index="03" eyebrow="Intelligence" title="O mecanismo por trás dos fatos" lead="Três leituras do dia. O fato vem das fontes verificadas; o mecanismo e a leitura são interpretação, sinalizada como tal.">
+    <>
+    <Section id="intelligence" index="02" eyebrow="Intelligence" title="O mecanismo por trás dos fatos" lead="Três leituras do dia. O fato vem das fontes verificadas; o mecanismo e a leitura são interpretação, sinalizada como tal.">
       {s.insights.length ? (
         <div className="space-y-4">
+          {s.insights.length < 3 && s.analysis_mode !== 'deterministic' && (
+            <p className="text-[12px] text-ink-3">Cobertura menor hoje: {s.insights.length} {s.insights.length === 1 ? 'leitura' : 'leituras'} com base suficiente no pacote do dia.</p>
+          )}
           {s.insights.map((ins, i) => (
             <Panel key={i} as="article" className="card-lift overflow-hidden">
               <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-5 py-3.5">
@@ -70,15 +74,10 @@ export function Intelligence({ s, factById, packetStatus = null }: { s: Intellig
         </Empty>
       )}
 
-      <div id="uhnw" className="mt-10 scroll-mt-28">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <div className="eyebrow flex items-center gap-2">
-              <Scale className="size-3.5 text-accent" aria-hidden /> UHNW Lens
-            </div>
-            <h3 className="mt-1 text-[17px] font-extrabold tracking-tight text-ink">O que muda na conversa sobre patrimônio</h3>
-          </div>
-        </div>
+    </Section>
+
+    <Section id="uhnw" index="03" eyebrow="UHNW Lens" title="O que muda na conversa sobre patrimônio">
+      <div>
         {s.uhnw_lens.length ? (
           <>
             <div className="grid gap-4 md:grid-cols-3">
@@ -100,5 +99,6 @@ export function Intelligence({ s, factById, packetStatus = null }: { s: Intellig
         )}
       </div>
     </Section>
+    </>
   )
 }

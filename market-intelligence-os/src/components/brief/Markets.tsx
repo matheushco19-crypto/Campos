@@ -29,7 +29,6 @@ export function Markets(props: {
   return (
     <Section
       id="markets"
-      index="02"
       eyebrow="Mercados"
       title="Como estão os mercados"
       lead={`Core Markets Verified: ${coreVerified}/${CORE_MARKETS.length}. Mercados estendidos: ${extended.filter((r) => r.verification_status === 'VERIFIED').length}/${extended.length} verificados. Clique no selo para ver fonte, método de verificação, data de referência e horário de coleta.`}
