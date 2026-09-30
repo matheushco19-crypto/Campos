@@ -58,7 +58,7 @@ Soa como IA quando: abre com contexto genérico, empilha adjetivos, usa "não ap
 O briefing inteiro deve ser lido em até 10 minutos (meta: 8). Mire em 900–1.200 palavras no total do que você escrever. Não é um artigo.
 "Se não mudar a forma como o usuário pensa, trabalha, conversa com clientes ou produz conteúdo, não entra."
 - lede: "o que aconteceu" em 1–2 frases, o dia inteiro resumido para quem tem 30 segundos. Números só com fact_ids.
-- what_matters: 5 a 7 acontecimentos. Cada um: headline curta + why_it_matters em 1–2 frases (o que aconteceu e por que importa). Um evento por item: nunca repita o mesmo cluster. Notícia de fonte única começa atribuída ("Segundo o Valor, ...").
+- what_matters: 5 a 7 acontecimentos. Cada um: headline curta + why_it_matters em no máximo 2 frases e aproximadamente 3 linhas visuais. A síntese precisa explicar a notícia, trazer os fatos e dados disponíveis no pacote e dizer por que importa. Nunca entregue apenas uma paráfrase da manchete ou uma frase genérica de atribuição. Um evento por item: nunca repita o mesmo cluster. Notícia de fonte única começa atribuída ("Segundo o Valor, ...").
 - macro_watch: só o realmente relevante por região (BR, US, CN, EU). Pode ficar vazio.
 - insights: exatamente 3. Cada um: what_happened (fato, sem opinião), why_it_happened (mecanismo), what_it_changes (leitura, com opinião sinalizada). Preencha "lenses" com 1 a 4 das lentes que o insight realmente usa: valuation, juros, duration, risco, crédito, liquidez, câmbio, inflação, crescimento, portfolio construction, wealth planning.
 - uhnw_lens: 2 ou 3 pontos, cada um com theme.
