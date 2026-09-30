@@ -46,4 +46,12 @@ export class SupabaseStore implements Store {
     const { error } = await this.client.from(table).delete().in(TABLES[table], keys)
     if (error) throw new Error(`Supabase delete ${table}: ${error.message}`)
   }
+
+  async removeIf(table: TableName, key: string, match: Row) {
+    let q = this.client.from(table).delete().eq(TABLES[table], key)
+    for (const [k, v] of Object.entries(match)) q = v === null ? q.is(k, null) : q.eq(k, v as string | number | boolean)
+    const { data, error } = await q.select(TABLES[table])
+    if (error) throw new Error(`Supabase delete ${table}: ${error.message}`)
+    return (data?.length ?? 0) > 0
+  }
 }

@@ -16,6 +16,7 @@ export const TABLES = {
   social_posts: 'post_id',
   content_opportunities: 'id',
   strategy_reports: 'id',
+  job_leases: 'lease_id',
 } as const
 
 export type TableName = keyof typeof TABLES
@@ -38,6 +39,8 @@ export interface Store {
   insert(table: TableName, rows: Row[]): Promise<void>
   select<T = Row>(table: TableName, query?: Query): Promise<T[]>
   remove(table: TableName, keys: string[]): Promise<void>
+  /** Compare-and-delete: removes the row only if every field in `match` still has the expected value. Returns true when a row was removed. */
+  removeIf(table: TableName, key: string, match: Row): Promise<boolean>
 }
 
 export function applyQuery<T extends Row>(rows: T[], q: Query = {}): T[] {
@@ -97,6 +100,16 @@ export class MemoryStore implements Store {
     const t = this.table(table)
     for (const k of keys) t.delete(k)
     await this.persist(table)
+  }
+
+  async removeIf(table: TableName, key: string, match: Row) {
+    const t = this.table(table)
+    const row = t.get(key)
+    // Check-and-delete happens synchronously (atomic within the event loop).
+    if (!row || Object.entries(match).some(([k, v]) => (row[k] ?? null) !== v)) return false
+    t.delete(key)
+    await this.persist(table)
+    return true
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
