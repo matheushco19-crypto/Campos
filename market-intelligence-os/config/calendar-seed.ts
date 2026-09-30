@@ -30,6 +30,9 @@ const COPOM_CAL = 'https://www.bcb.gov.br/controleinflacao/calendarioreunioescop
 const ECB_CAL = 'https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html'
 const TSE_CAL = 'https://www.tse.jus.br/eleicoes/eleicoes-2026'
 const BLS_CAL = 'https://www.bls.gov/schedule/news_release/empsit.htm'
+const ISM_CAL = 'https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/'
+const SPG_PMI = 'https://www.pmi.spglobal.com/Public/Release/ReleaseDates'
+const COPOM_ATA = 'https://www.bcb.gov.br/publicacoes/atascopom'
 
 export const CALENDAR_SEED: SeedEvent[] = [
   {
@@ -112,5 +115,32 @@ export const CALENDAR_SEED: SeedEvent[] = [
     content_opportunity: 'Mercado de trabalho americano como variável-chave para a trajetória do Fed e, por tabela, para o dólar.',
     verification_status: 'UNVERIFIED',
     notes: 'Data estimada pela regra usual (primeira sexta-feira do mês). Confirmar no calendário do BLS.',
+  },
+  {
+    name: 'PMI industrial (S&P Global) — Brasil e mundo',
+    category: 'MACRO', region: 'GLOBAL', date: '2026-10-01', time: null, timezone: 'America/Sao_Paulo',
+    source: 'S&P Global — PMI release calendar', source_url: SPG_PMI,
+    importance: 'MEDIUM', market_relevance: 'MEDIUM', audience_relevance: 'LOW',
+    content_opportunity: 'Usar o PMI como termômetro antecedente: o que a indústria diz sobre crescimento antes do PIB, e o que isso significa para lucro das empresas.',
+    verification_status: 'UNVERIFIED',
+    notes: 'Data pela regra usual (primeiro dia útil do mês). Confirmar no calendário da S&P Global.',
+  },
+  {
+    name: 'ISM Manufacturing PMI (EUA)',
+    category: 'MACRO', region: 'US', date: '2026-10-01', time: '10:00', timezone: 'America/New_York',
+    source: 'Institute for Supply Management — Report On Business calendar', source_url: ISM_CAL,
+    importance: 'MEDIUM', market_relevance: 'MEDIUM', audience_relevance: 'LOW',
+    content_opportunity: null,
+    verification_status: 'UNVERIFIED',
+    notes: 'Data pela regra usual (primeiro dia útil do mês). Confirmar no calendário do ISM.',
+  },
+  {
+    name: 'Copom — ata da reunião',
+    category: 'MACRO', region: 'BR', date: '2026-11-10', time: '08:00', timezone: 'America/Sao_Paulo',
+    source: 'Banco Central do Brasil — Atas do Copom', source_url: COPOM_ATA,
+    importance: 'MEDIUM', market_relevance: 'HIGH', audience_relevance: 'MEDIUM',
+    content_opportunity: 'Ler a ata pelo que mudou em relação à anterior: é ali que o BC sinaliza os próximos passos, e é isso que a curva de juros precifica.',
+    verification_status: 'UNVERIFIED',
+    notes: 'Data pela regra usual (terça-feira seguinte à reunião). Confirmar no site do BCB.',
   },
 ]

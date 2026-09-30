@@ -3,8 +3,9 @@ import type { AgendaItem, CalendarEvent, EventCluster, VerifiedFact } from '../c
 import type { Provenance } from '@/components/VerificationBadge'
 
 export function factProvenance(f: VerifiedFact | undefined, fallbackStatus: Provenance['status'] = 'UNAVAILABLE'): Provenance {
-  if (!f) return { status: fallbackStatus, notes: 'Fato não encontrado para esta data.' }
+  if (!f) return { kind: 'fact', status: fallbackStatus, notes: 'Fato não encontrado para esta data.' }
   return {
+    kind: 'fact',
     status: f.verification_status,
     label: f.label,
     primary: f.primary_source ? { name: sourceName(f.primary_source), url: f.primary_url } : null,
@@ -22,8 +23,9 @@ export function factProvenance(f: VerifiedFact | undefined, fallbackStatus: Prov
 export function clusterProvenance(c: EventCluster): Provenance {
   const names = [...new Set(c.sources.map((s) => s.source))]
   return {
+    kind: 'news',
     status: c.verification_status,
-    label: 'Evento de notícia',
+    label: c.title,
     extraSources: c.sources.map((s) => ({ name: `${s.source}: ${s.headline.slice(0, 70)}`, url: s.url })),
     asOf: c.last_published_at,
     notes: c.verification_status === 'VERIFIED' ? `Confirmado por ${names.length} fonte(s) independente(s) ou por fonte oficial.` : 'Fonte única: atribuir, não tratar como fato confirmado.',
@@ -32,6 +34,7 @@ export function clusterProvenance(c: EventCluster): Provenance {
 
 export function eventProvenance(e: AgendaItem | CalendarEvent): Provenance {
   return {
+    kind: 'event',
     status: e.verification_status,
     label: e.name,
     primary: { name: e.source, url: e.source_url },

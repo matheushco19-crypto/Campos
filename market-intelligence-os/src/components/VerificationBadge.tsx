@@ -20,15 +20,19 @@ export interface Provenance {
   notes?: string | null
   fallback?: boolean
   stale?: boolean
+  /** What kind of item this is (changes which rows are relevant). */
+  kind?: 'fact' | 'news' | 'event'
 }
 
-const META: Record<VStatus, { label: string; cls: string; Icon: typeof ShieldCheck }> = {
-  VERIFIED: { label: 'Verified', cls: 'bg-ok-soft text-ok', Icon: ShieldCheck },
-  UNVERIFIED: { label: 'Unverified', cls: 'bg-warn-soft text-warn', Icon: HelpCircle },
-  CONFLICT: { label: 'Conflict', cls: 'bg-crit-soft text-crit', Icon: AlertTriangle },
-  UNAVAILABLE: { label: 'Unavailable', cls: 'bg-muted-soft text-ink-3', Icon: CircleDashed },
-  REJECTED: { label: 'Rejected', cls: 'bg-crit-soft text-crit', Icon: CircleSlash },
+const META: Record<VStatus, { label: string; explain: string; cls: string; Icon: typeof ShieldCheck }> = {
+  VERIFIED: { label: 'Verified', explain: 'Confirmado por duas fontes independentes ou pela fonte oficial.', cls: 'bg-ok-soft text-ok', Icon: ShieldCheck },
+  UNVERIFIED: { label: 'Unverified', explain: 'Uma única fonte respondeu. Mostrado, mas nunca citado como fato no texto.', cls: 'bg-warn-soft text-warn', Icon: HelpCircle },
+  CONFLICT: { label: 'Conflict', explain: 'As fontes divergem além da tolerância. O valor não é usado.', cls: 'bg-crit-soft text-crit', Icon: AlertTriangle },
+  UNAVAILABLE: { label: 'Unavailable', explain: 'Nenhuma fonte permitida respondeu. Nada foi estimado.', cls: 'bg-muted-soft text-ink-3', Icon: CircleDashed },
+  REJECTED: { label: 'Rejected', explain: 'O dado falhou na validação (faixa, data ou formato).', cls: 'bg-crit-soft text-crit', Icon: CircleSlash },
 }
+
+const CONFIDENCE: Record<string, string> = { HIGH: 'Alta', MEDIUM: 'Média', LOW: 'Baixa', NONE: '—' }
 
 export function VerificationBadge({ p, compact = false }: { p: Provenance; compact?: boolean }) {
   const [open, setOpen] = useState(false)
@@ -48,6 +52,9 @@ export function VerificationBadge({ p, compact = false }: { p: Provenance; compa
     }
   }, [open])
 
+  const kind = p.kind ?? (p.extraSources ? 'news' : 'fact')
+  const links = [p.primary, p.secondary, ...(p.extraSources ?? [])].filter((s): s is { name: string; url: string } => !!s?.url)
+
   return (
     <span ref={ref} className="relative inline-flex">
       <button
@@ -57,97 +64,95 @@ export function VerificationBadge({ p, compact = false }: { p: Provenance; compa
         aria-controls={id}
         title={`${m.label}: ver proveniência`}
         className={cn(
-          'inline-flex items-center gap-1 rounded-full font-semibold transition-shadow hover:ring-2 hover:ring-line-strong focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none',
-          compact ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-0.5 text-[11px]',
+          'inline-flex items-center gap-1 rounded-md font-bold tracking-wide transition hover:ring-2 hover:ring-line-strong',
+          compact ? 'px-1.5 py-0.5 text-[9.5px]' : 'px-2 py-0.5 text-[10.5px]',
           m.cls,
         )}
       >
-        <m.Icon aria-hidden className={compact ? 'size-3' : 'size-3.5'} strokeWidth={2.2} />
+        <m.Icon aria-hidden className={compact ? 'size-3' : 'size-3.5'} strokeWidth={2.4} />
         <span className={compact ? 'sr-only sm:not-sr-only' : ''}>{m.label.toUpperCase()}</span>
       </button>
       {open && (
-        <span
-          id={id}
-          role="dialog"
-          aria-label="Proveniência do dado"
-          className="absolute top-full right-0 z-50 mt-2 block w-[min(340px,86vw)] rounded-xl border border-line bg-surface p-4 text-left text-[12.5px] leading-relaxed text-ink-2 shadow-[0_18px_50px_-12px_rgba(10,22,40,0.35)]"
-        >
-          <span className="mb-2 flex items-center justify-between gap-2">
-            <span className="font-semibold text-ink">{p.label ?? 'Proveniência'}</span>
-            <button type="button" onClick={() => setOpen(false)} className="rounded p-0.5 text-ink-3 hover:text-ink" aria-label="Fechar">
-              <X className="size-3.5" />
-            </button>
+        <>
+          <span aria-hidden className="fixed inset-0 z-40 bg-deck/40 sm:hidden" onClick={() => setOpen(false)} />
+          <span
+            id={id}
+            role="dialog"
+            aria-label="Proveniência do dado"
+            className={cn(
+              'rise z-50 block border border-line bg-surface p-4 text-left text-[12.5px] leading-relaxed text-ink-2 shadow-[0_24px_60px_-18px_rgba(7,13,24,0.45)]',
+              // Mobile: bottom sheet. Desktop: anchored popover.
+              'fixed inset-x-0 bottom-0 max-h-[78vh] overflow-y-auto rounded-t-2xl pb-6',
+              'sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:bottom-auto sm:mt-2 sm:w-[360px] sm:rounded-xl sm:pb-4',
+            )}
+          >
+            <span className="mb-3 flex items-start justify-between gap-3">
+              <span className="min-w-0">
+                <span className="block text-[10px] font-extrabold tracking-[0.16em] text-ink-3 uppercase">Proveniência</span>
+                <span className="block font-bold text-ink">{p.label ?? 'Dado'}</span>
+              </span>
+              <button type="button" onClick={() => setOpen(false)} className="rounded p-1 text-ink-3 hover:bg-muted-soft hover:text-ink" aria-label="Fechar">
+                <X className="size-4" />
+              </button>
+            </span>
+            <span className={cn('mb-3 flex items-start gap-2 rounded-lg px-2.5 py-2', m.cls)}>
+              <m.Icon aria-hidden className="mt-0.5 size-4 shrink-0" />
+              <span>
+                <span className="block text-[11px] font-extrabold tracking-wide">{p.status}</span>
+                <span className="block text-[11.5px] font-medium opacity-90">{m.explain}</span>
+              </span>
+            </span>
+            <dl className="grid grid-cols-[112px_1fr] gap-x-3 gap-y-1.5">
+              {kind !== 'news' && <Row k="Fonte primária" v={p.primary ? <SourceLink s={p.primary} /> : '—'} />}
+              {kind === 'fact' && <Row k="Fonte secundária" v={p.secondary ? <SourceLink s={p.secondary} /> : 'sem segunda fonte'} />}
+              {kind !== 'news' && <Row k={kind === 'event' ? 'Data do evento' : 'Data de referência'} v={<span className="tnum">{p.reference ?? '—'}</span>} />}
+              {kind === 'fact' && <Row k="Válido em" v={<span className="tnum">{p.asOf ? fmtDateTimeBRT(p.asOf) : '—'}</span>} />}
+              {kind === 'news' && <Row k="Publicado" v={<span className="tnum">{p.asOf ? fmtDateTimeBRT(p.asOf) : '—'}</span>} />}
+              {kind === 'fact' && <Row k="Coletado em" v={<span className="tnum">{p.retrievedAt ? fmtDateTimeBRT(p.retrievedAt) : '—'}</span>} />}
+              {kind === 'fact' && <Row k="Confiança" v={CONFIDENCE[p.confidence ?? 'NONE'] ?? p.confidence} />}
+            </dl>
+            {(kind === 'news' || links.length > 0) && (
+              <span className="mt-3 block border-t border-line pt-2.5">
+                <span className="mb-1 block text-[10px] font-extrabold tracking-[0.16em] text-ink-3 uppercase">Links ({links.length})</span>
+                {links.length ? (
+                  links.slice(0, 10).map((s, i) => (
+                    <span key={i} className="block truncate">
+                      <SourceLink s={s} />
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-ink-3">Sem link público.</span>
+                )}
+              </span>
+            )}
+            {p.stale && (
+              <span className="mt-2.5 flex flex-wrap gap-1">
+                <span className="rounded bg-warn-soft px-1.5 py-0.5 text-[10.5px] font-semibold text-warn">defasado: fora do texto</span>
+              </span>
+            )}
+            {p.notes && <span className="mt-2.5 block border-t border-line pt-2.5 text-[12px] text-ink-3">{p.notes}</span>}
           </span>
-          <dl className="grid grid-cols-[92px_1fr] gap-x-2 gap-y-1">
-            <dt className="text-ink-3">Status</dt>
-            <dd className="font-semibold text-ink">
-              {p.status}
-              {p.confidence && p.confidence !== 'NONE' ? ` · confiança ${p.confidence}` : ''}
-            </dd>
-            {p.primary && (
-              <>
-                <dt className="text-ink-3">Fonte primária</dt>
-                <dd>
-                  <SourceLink s={p.primary} />
-                </dd>
-              </>
-            )}
-            {p.secondary && (
-              <>
-                <dt className="text-ink-3">Secundária</dt>
-                <dd>
-                  <SourceLink s={p.secondary} />
-                </dd>
-              </>
-            )}
-            {p.reference && (
-              <>
-                <dt className="text-ink-3">Referência</dt>
-                <dd className="tnum">{p.reference}</dd>
-              </>
-            )}
-            {p.asOf && (
-              <>
-                <dt className="text-ink-3">As of</dt>
-                <dd className="tnum">{fmtDateTimeBRT(p.asOf)}</dd>
-              </>
-            )}
-            {p.retrievedAt && (
-              <>
-                <dt className="text-ink-3">Coletado</dt>
-                <dd className="tnum">{fmtDateTimeBRT(p.retrievedAt)}</dd>
-              </>
-            )}
-          </dl>
-          {p.extraSources && p.extraSources.length > 0 && (
-            <span className="mt-2 block border-t border-line pt-2">
-              <span className="mb-1 block text-ink-3">Fontes ({p.extraSources.length})</span>
-              {p.extraSources.slice(0, 8).map((s, i) => (
-                <span key={i} className="block truncate">
-                  <SourceLink s={s} />
-                </span>
-              ))}
-            </span>
-          )}
-          {(p.fallback || p.stale) && (
-            <span className="mt-2 flex flex-wrap gap-1">
-              {p.fallback && <span className="rounded bg-muted-soft px-1.5 py-0.5 text-[10.5px] font-semibold">source_fallback</span>}
-              {p.stale && <span className="rounded bg-warn-soft px-1.5 py-0.5 text-[10.5px] font-semibold text-warn">defasado</span>}
-            </span>
-          )}
-          {p.notes && <span className="mt-2 block border-t border-line pt-2 text-[12px] text-ink-3">{p.notes}</span>}
-        </span>
+        </>
       )}
     </span>
+  )
+}
+
+function Row({ k, v }: { k: string; v: React.ReactNode }) {
+  return (
+    <>
+      <dt className="text-ink-3">{k}</dt>
+      <dd className="min-w-0 font-medium text-ink">{v}</dd>
+    </>
   )
 }
 
 function SourceLink({ s }: { s: { name: string; url: string | null } }) {
   if (!s.url) return <span>{s.name}</span>
   return (
-    <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 font-medium text-accent hover:underline">
-      {s.name}
-      <ExternalLink aria-hidden className="size-3" />
+    <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex max-w-full items-center gap-1 font-semibold text-accent hover:underline">
+      <span className="truncate">{s.name}</span>
+      <ExternalLink aria-hidden className="size-3 shrink-0" />
     </a>
   )
 }

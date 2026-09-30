@@ -1,6 +1,6 @@
-import type { AgentRun, AnalysisOutput, IntelligenceSnapshot, VerifiedFact } from '../core/schemas'
+import type { AgentRun, IntelligenceSnapshot, VerifiedFact } from '../core/schemas'
 import { isCitable } from '../verification/engine'
-import { qualityControl } from './quality-control'
+import { qualityControl, snapshotToAnalysis } from './quality-control'
 
 /**
  * AUTOMATIC AUDIT of a published snapshot: re-checks the saved brief
@@ -42,12 +42,12 @@ export function auditSnapshot(snap: IntelligenceSnapshot, facts: VerifiedFact[],
   push(bad.length ? 'fail' : 'ok', 'narrative_cites_verified', bad.length ? `${bad.length} citações a fatos não verificados` : `${cited.length} citações, todas a fatos VERIFIED e atuais`)
 
   // 4. QC re-run must be idempotent (nothing left to correct).
-  if (snap.content_lab) {
-    const analysis: AnalysisOutput = { what_matters: snap.what_matters, macro_watch: snap.macro_watch, insights: snap.insights, uhnw_lens: snap.uhnw_lens, content_lab: snap.content_lab }
-    const rerun = qualityControl({ analysis, facts, marketRows: snap.market_snapshot, agenda: snap.agenda })
+  const analysis = snapshotToAnalysis(snap)
+  if (analysis) {
+    const rerun = qualityControl({ analysis, facts, marketRows: snap.market_snapshot, agenda: snap.agenda, clusters: snap.news_snapshot, factsOnly: snap.status !== 'PUBLISHED' })
     push(rerun.report.corrections.length ? 'fail' : 'ok', 'qc_idempotent', rerun.report.corrections.length ? rerun.report.corrections.join(' | ') : 'Reexecução do QC não encontrou nada a corrigir')
   }
-  for (const c of snap.qc.checks) push(c.passed ? 'ok' : 'fail', `qc:${c.id}`, c.passed ? c.label : `${c.label}: ${c.detail}`)
+  for (const c of snap.qc.checks) push(c.passed ? 'ok' : c.severity === 'warn' ? 'warn' : 'fail', `qc:${c.id}`, c.passed ? c.label : `${c.label}: ${c.detail}`)
 
   // 5. Structure and limits.
   const counts = { what_matters: snap.what_matters.length, insights: snap.insights.length, uhnw: snap.uhnw_lens.length, agenda: snap.agenda.length, sources: snap.source_references.length }

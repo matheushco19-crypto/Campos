@@ -1,20 +1,23 @@
 import { ASSETS } from '../../config/assets'
 import { EDITORIAL_PROFILE } from '../../config/editorial-profile'
-import type { AgendaItem, AnalysisOutput, ContentIdea, MarketRow, QcCheck, QcReport, VerifiedFact } from '../core/schemas'
+import type { AgendaItem, AnalysisOutput, ContentLabInput, EventCluster, IntelligenceSnapshot, MarketRow, QcCheck, QcReport, VerifiedFact } from '../core/schemas'
 import { isCitable } from '../verification/engine'
 import { normalizeText } from './news-classifier'
 
 /**
  * QUALITY CONTROL OF THE MORNING BRIEF (deterministic, runs before every save).
  *
- *  1 numbers have a source          7 text is in Portuguese
- *  2 material facts are VERIFIED    8 reading time ≤ 10 min
- *  3 no duplicated news             9 Content Lab is short
- *  4 no market wrongly "closed"    10 agenda has sources
- *  5 no stale data as current      11 no generic AI language
- *  6 insights separated from facts 12 no invented personal experience
+ *  1 numbers have a source          9 Content Lab is short and specific
+ *  2 material facts are VERIFIED   10 agenda has sources
+ *  3 no duplicated news            11 no generic AI language
+ *  4 no market wrongly "closed"    12 no invented personal experience
+ *  5 no stale data as current      13 5–7 events, 1–2 sentences each
+ *  6 insights separated from facts 14 single-source news is attributed
+ *  7 text is in Portuguese         15 no individualized recommendation
+ *  8 reading time ≤ 10 min         16 target length 900–1.200 words (advisory)
  *
- * Failures are corrected (items removed or fixed) and the checks re-run.
+ * Failures are corrected (items removed, trimmed or replaced) and the checks
+ * re-run. A brief whose blocking checks still fail is never PUBLISHED.
  * The final report lists every correction.
  */
 
@@ -128,6 +131,22 @@ export function findInventedExperience(text: string): boolean {
   return EDITORIAL_PROFILE.inventedExperiencePatterns.some((re) => re.test(text))
 }
 
+/** Sentences in a short text (pt-BR); decimals use commas so periods end sentences. */
+export function sentences(text: string): string[] {
+  return text
+    .trim()
+    .split(/(?<=[.!?…])\s+(?=["“(]?[A-ZÀ-Ú0-9])/)
+    .map((x) => x.trim())
+    .filter(Boolean)
+}
+
+const RECOMMENDATION = /\b(recomendo que você|você deve (comprar|vender|investir|resgatar|migrar)|compre agora|venda agora|invista (já|agora)|coloque seu dinheiro|aloque \d+ ?% do seu)\b/i
+export function findPersonalRecommendation(text: string): boolean {
+  return RECOMMENDATION.test(text)
+}
+
+const ATTRIBUTION = /\b(segundo|de acordo com|conforme|informa|informou|reporta|reportou|noticia|noticiou|diz|disse|afirma|afirmou|relata|publicou)\b/i
+
 const CLOSED_WORDS = /\b(fechou|fechamento|encerrou|terminou o pregão|no fechamento)\b/i
 const OPINION_WORDS = /\b(minha leitura|eu acho|acredito que|na minha visão|na minha opinião)\b/i
 
@@ -137,13 +156,14 @@ export function wordCount(text: string): number {
 
 /** Text of the brief that the user actually reads (excludes tables and source lists). */
 export function briefText(a: AnalysisOutput): string {
-  const parts: string[] = []
+  const parts: string[] = [a.lede.text]
   for (const w of a.what_matters) parts.push(w.headline, w.why_it_matters)
   for (const r of ['BR', 'US', 'CN', 'EU'] as const) for (const m of a.macro_watch[r]) parts.push(m.text)
   for (const i of a.insights) parts.push(i.title, i.what_happened, i.why_it_happened, i.what_it_changes)
   for (const u of a.uhnw_lens) parts.push(u.text)
   const cl = a.content_lab
-  for (const idea of [cl.story, cl.carousel, cl.reel, cl.take, cl.exceptional]) if (idea) parts.push(idea.title, idea.hook, idea.angle)
+  for (const idea of [cl.story, cl.carousel, cl.take]) parts.push(idea.title, idea.angle, idea.main_idea)
+  parts.push(cl.reel.title, cl.reel.angle, cl.reel.main_idea, cl.reel.hook, cl.reel.development, cl.reel.closing, cl.reel.cta)
   return parts.join('\n')
 }
 
@@ -166,6 +186,10 @@ export interface QcInput {
   facts: VerifiedFact[]
   marketRows: MarketRow[]
   agenda: AgendaItem[]
+  /** Event clusters, used to require attribution for single-source news. */
+  clusters?: EventCluster[]
+  /** Facts-only drafts (no interpretation) skip the editorial-shape checks (event count, target length). */
+  factsOnly?: boolean
 }
 
 export interface QcResult {
@@ -201,6 +225,8 @@ function checkItem(item: Cited & object, factsById: Map<string, VerifiedFact>, c
   const banned = findBannedPhrases(text)
   if (banned.length) issues.push({ check: 'no_ai_language', detail: `expressões proibidas: ${banned.join(', ')}` })
   if (findInventedExperience(text)) issues.push({ check: 'no_invented_experience', detail: 'possível experiência pessoal inventada' })
+  if (findPersonalRecommendation(text)) issues.push({ check: 'no_personal_recommendation', detail: 'recomendação individualizada' })
+  if (text.length > 120 && !isPortuguese(text)) issues.push({ check: 'portuguese', detail: `trecho fora do português: "${text.slice(0, 60)}…"` })
   return { issues, addedFacts }
 }
 
@@ -211,12 +237,12 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
   const all: Issue[] = []
   const cl = analysis.content_lab
   const items: (Cited & object)[] = [
+    analysis.lede,
     ...analysis.what_matters,
     ...analysis.macro_watch.BR, ...analysis.macro_watch.US, ...analysis.macro_watch.CN, ...analysis.macro_watch.EU,
     ...analysis.insights,
     ...analysis.uhnw_lens,
     cl.story, cl.carousel, cl.reel, cl.take,
-    ...(cl.exceptional ? [cl.exceptional] : []),
   ]
   for (const it of items) {
     const { issues, addedFacts } = checkItem(it, factsById, citable)
@@ -239,6 +265,34 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
     w.cluster_ids.forEach((c) => seenClusters.add(c))
     seenHeads.add(key)
   }
+  // 13. each event in 1–2 sentences
+  for (const w of analysis.what_matters) {
+    const n = sentences(w.why_it_matters).length
+    if (n > 2) {
+      const issue = { check: 'event_brevity', detail: `"${w.headline}" tem ${n} frases` }
+      perItem.set(w, [...(perItem.get(w) ?? []), issue])
+      all.push(issue)
+    }
+  }
+  const count = analysis.what_matters.length
+  if (!input.factsOnly && (count < 5 || count > 7)) all.push({ check: 'event_count', detail: `${count} acontecimentos (5–7)` })
+
+  // 14. news backed only by single-source clusters must be attributed ("segundo o Valor...")
+  const clusterById = new Map((input.clusters ?? []).map((c) => [c.id, c]))
+  for (const it of [analysis.lede, ...analysis.what_matters, ...analysis.insights, ...analysis.uhnw_lens] as (Cited & object)[]) {
+    if (it.fact_ids.length || !it.cluster_ids.length) continue
+    const cited = it.cluster_ids.map((id) => clusterById.get(id)).filter((c): c is EventCluster => !!c)
+    if (!cited.length || cited.some((c) => c.verification_status === 'VERIFIED')) continue
+    const text = itemTexts(it).join(' ')
+    const names = cited.flatMap((c) => c.sources.map((x) => x.source))
+    const n = normalizeText(text)
+    if (!ATTRIBUTION.test(text) && !names.some((name) => n.includes(normalizeText(name.split(' ')[0])))) {
+      const issue = { check: 'single_source_attributed', detail: `notícia de fonte única sem atribuição: "${text.slice(0, 60)}…"` }
+      perItem.set(it, [...(perItem.get(it) ?? []), issue])
+      all.push(issue)
+    }
+  }
+
   // 6. insights separated from facts: grounded, and no opinion inside "what happened"
   for (const i of analysis.insights) {
     if (!i.fact_ids.length && !i.cluster_ids.length) {
@@ -258,7 +312,7 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
   }
   // 9. Content Lab
   for (const [k, idea] of Object.entries({ story: cl.story, carousel: cl.carousel, reel: cl.reel, take: cl.take })) {
-    if (idea.hook.length > 240 || idea.angle.length > 500) {
+    if (idea.angle.length > 400 || idea.main_idea.length > 400) {
       const issue = { check: 'content_lab_short', detail: `${k} longo demais` }
       perItem.set(idea, [...(perItem.get(idea) ?? []), issue])
       all.push(issue)
@@ -277,8 +331,10 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
   const minutes = Math.round((words / EDITORIAL_PROFILE.briefLimits.wordsPerMinute) * 10) / 10
   if (minutes > EDITORIAL_PROFILE.briefLimits.maxReadingMinutes) all.push({ check: 'reading_time', detail: `${words} palavras ≈ ${minutes} min` })
   if (text.trim() && !isPortuguese(text)) all.push({ check: 'portuguese', detail: 'texto não parece estar em português' })
+  const [lo, hi] = EDITORIAL_PROFILE.briefLimits.targetWords
+  if (!input.factsOnly && (words < lo || words > hi)) all.push({ check: 'brief_target', detail: `${words} palavras (meta ${lo}–${hi}, ≈ 8 min)` })
 
-  const DEFS: [string, string][] = [
+  const DEFS: [string, string, ('block' | 'warn')?][] = [
     ['numbers_have_source', 'Todos os números têm fonte'],
     ['material_facts_verified', 'Fatos materiais verificados'],
     ['no_duplicate_news', 'Nenhuma notícia duplicada'],
@@ -291,21 +347,29 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
     ['agenda_has_source', 'Agenda com fonte'],
     ['no_ai_language', 'Sem linguagem genérica de IA'],
     ['no_invented_experience', 'Nenhuma experiência pessoal inventada'],
+    ['event_count', '5 a 7 acontecimentos'],
+    ['event_brevity', 'Cada acontecimento em 1–2 frases'],
+    ['single_source_attributed', 'Notícia de fonte única atribuída'],
+    ['no_personal_recommendation', 'Sem recomendação individualizada'],
+    ['brief_target', 'Extensão na meta (900–1.200 palavras)', 'warn'],
   ]
-  const checks = DEFS.map(([id, label]) => {
+  const checks: QcCheck[] = DEFS.map(([id, label, severity = 'block']) => {
     const issues = all.filter((i) => i.check === id)
-    return { id, label, passed: issues.length === 0, detail: issues.length ? issues.map((i) => i.detail).slice(0, 5).join(' | ') : null }
+    return { id, label, passed: issues.length === 0, detail: issues.length ? issues.map((i) => i.detail).slice(0, 5).join(' | ') : null, severity }
   })
   return { checks, perItem, words, minutes }
 }
 
-const REMOVED_IDEA = (reason: string): ContentIdea => ({
+const REMOVED_IDEA = (reason: string) => ({
   title: 'Ideia removida pelo controle de qualidade',
-  hook: 'Removida antes de salvar.',
-  angle: `Motivo: ${reason}. Gere novamente pelo Content Lab ou via research request.`,
+  angle: `Motivo: ${reason}.`,
+  main_idea: 'Removida antes de salvar. Gere de novo a partir dos fatos verificados do dia.',
   fact_ids: [],
   cluster_ids: [],
 })
+const REMOVED_REEL = (reason: string) => ({ ...REMOVED_IDEA(reason), hook: 'Removido.', development: 'Removido pelo controle de qualidade antes de salvar.', closing: 'Removido.', cta: 'Removido.' })
+
+const PROSE_KEYS = new Set(['text', 'headline', 'why_it_matters', 'title', 'what_happened', 'why_it_happened', 'what_it_changes'])
 
 export function qualityControl(input: QcInput): QcResult {
   const analysis: AnalysisOutput = structuredClone(input.analysis)
@@ -313,15 +377,25 @@ export function qualityControl(input: QcInput): QcResult {
 
   // Pre-pass: strip filler phrases deterministically.
   const strip = <T extends object>(o: T): T => {
-    for (const [k, v] of Object.entries(o)) if (typeof v === 'string') (o as Record<string, unknown>)[k] = stripFillers(v)
+    for (const [k, v] of Object.entries(o)) if (typeof v === 'string' && PROSE_KEYS.has(k)) (o as Record<string, unknown>)[k] = stripFillers(v)
     return o
   }
   const before = JSON.stringify(analysis)
+  strip(analysis.lede)
   analysis.what_matters.forEach(strip)
   analysis.insights.forEach(strip)
   analysis.uhnw_lens.forEach(strip)
   for (const r of ['BR', 'US', 'CN', 'EU'] as const) analysis.macro_watch[r].forEach(strip)
   if (JSON.stringify(analysis) !== before) corrections.push('Expressões de preenchimento removidas do texto.')
+
+  // Events: keep 1–2 sentences (trimming never adds claims).
+  for (const w of analysis.what_matters) {
+    const ss = sentences(w.why_it_matters)
+    if (ss.length > 2) {
+      w.why_it_matters = ss.slice(0, 2).join(' ')
+      corrections.push(`"${w.headline}" encurtado para 2 frases.`)
+    }
+  }
 
   const first = runChecks(input, analysis)
   const bad = (o: object) => (first.perItem.get(o) ?? []).length > 0
@@ -338,16 +412,17 @@ export function qualityControl(input: QcInput): QcResult {
   analysis.insights = dropFrom(analysis.insights, 'Insight').slice(0, 3)
   analysis.uhnw_lens = dropFrom(analysis.uhnw_lens, 'Ponto UHNW').slice(0, 3)
   for (const r of ['BR', 'US', 'CN', 'EU'] as const) analysis.macro_watch[r] = dropFrom(analysis.macro_watch[r], `Macro Watch ${r}`).slice(0, 3)
-  const cl = analysis.content_lab
-  for (const k of ['story', 'carousel', 'reel', 'take'] as const) {
+  if (bad(analysis.lede)) corrections.push(`Resumo do dia com problema: ${reasons(analysis.lede)}`)
+  const cl: ContentLabInput = analysis.content_lab
+  for (const k of ['story', 'carousel', 'take'] as const) {
     if (bad(cl[k])) {
       corrections.push(`Content Lab (${k}) substituído: ${reasons(cl[k])}`)
       cl[k] = REMOVED_IDEA(reasons(cl[k]))
     }
   }
-  if (cl.exceptional && bad(cl.exceptional)) {
-    corrections.push(`Content Lab (exceptional) removido: ${reasons(cl.exceptional)}`)
-    cl.exceptional = null
+  if (bad(cl.reel)) {
+    corrections.push(`Content Lab (reel) substituído: ${reasons(cl.reel)}`)
+    cl.reel = REMOVED_REEL(reasons(cl.reel))
   }
 
   // Reading time: trim lowest-priority sections until within limit.
@@ -356,7 +431,6 @@ export function qualityControl(input: QcInput): QcResult {
     const regions = (['EU', 'CN', 'US', 'BR'] as const).find((r) => analysis.macro_watch[r].length > 1)
     if (regions) analysis.macro_watch[regions].pop()
     else if (analysis.what_matters.length > 5) analysis.what_matters.pop()
-    else if (cl.exceptional) cl.exceptional = null
     else if (analysis.uhnw_lens.length > 2) analysis.uhnw_lens.pop()
     else break
     corrections.push('Brief encurtado para caber em 10 minutos.')
@@ -366,11 +440,35 @@ export function qualityControl(input: QcInput): QcResult {
   return {
     analysis,
     report: {
-      passed: pass.checks.every((c) => c.passed),
+      passed: pass.checks.every((c) => c.passed || c.severity === 'warn'),
       checks: pass.checks,
       word_count: pass.words,
       reading_minutes: pass.minutes,
       corrections,
+    },
+  }
+}
+
+/**
+ * Stored snapshot → Agent 2 output shape, so QC can be re-run on history (audit).
+ * Older versions predate the lede and the Reel script; missing parts become empty strings,
+ * which carry no claims.
+ */
+export function snapshotToAnalysis(snap: IntelligenceSnapshot): AnalysisOutput | null {
+  if (!snap.content_lab) return null
+  const c = snap.content_lab
+  const idea = (x: typeof c.story) => ({ title: x.title, angle: x.angle, main_idea: x.main_idea ?? x.hook ?? '', fact_ids: x.fact_ids, cluster_ids: x.cluster_ids })
+  return {
+    lede: snap.lede ?? { text: '', fact_ids: [], cluster_ids: [] },
+    what_matters: snap.what_matters,
+    macro_watch: snap.macro_watch,
+    insights: snap.insights,
+    uhnw_lens: snap.uhnw_lens,
+    content_lab: {
+      story: idea(c.story),
+      carousel: idea(c.carousel),
+      take: idea(c.take),
+      reel: { ...idea(c.reel), hook: c.reel.hook ?? '', development: c.reel.development ?? '', closing: c.reel.closing ?? '', cta: c.reel.cta ?? '' },
     },
   }
 }

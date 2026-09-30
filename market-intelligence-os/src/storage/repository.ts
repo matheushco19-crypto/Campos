@@ -4,13 +4,13 @@ import type {
   CalendarEvent,
   ContentOpportunity,
   EventCluster,
-  IntelligenceSnapshot,
   NewsItem,
   RawObservation,
   ResearchRequest,
   SocialPostMetrics,
   VerifiedFact,
 } from '../core/schemas'
+import { IntelligenceSnapshot } from '../core/schemas'
 import { FileStore } from './file-store'
 import { MemoryStore, type Row, type Store } from './store'
 import { SupabaseStore } from './supabase-store'
@@ -134,10 +134,14 @@ export class Repository {
     return full
   }
   async getLatestSnapshot(date: string): Promise<IntelligenceSnapshot | null> {
-    return (await this.store.select<IntelligenceSnapshot>('intelligence_snapshots', { eq: { date }, order: { field: 'version', ascending: false }, limit: 1 }))[0] ?? null
+    return normalizeSnapshot((await this.store.select<IntelligenceSnapshot>('intelligence_snapshots', { eq: { date }, order: { field: 'version', ascending: false }, limit: 1 }))[0])
+  }
+  /** Latest version that was actually published (passed QC), if any. */
+  async getLatestPublishedSnapshot(date: string): Promise<IntelligenceSnapshot | null> {
+    return normalizeSnapshot((await this.store.select<IntelligenceSnapshot>('intelligence_snapshots', { eq: { date, status: 'PUBLISHED' }, order: { field: 'version', ascending: false }, limit: 1 }))[0])
   }
   async getSnapshot(date: string, version: number): Promise<IntelligenceSnapshot | null> {
-    return (await this.store.select<IntelligenceSnapshot>('intelligence_snapshots', { eq: { date, version } }))[0] ?? null
+    return normalizeSnapshot((await this.store.select<IntelligenceSnapshot>('intelligence_snapshots', { eq: { date, version } }))[0])
   }
   getSnapshotVersions(date: string) {
     return this.store.select<Pick<IntelligenceSnapshot, 'id' | 'version' | 'generated_at' | 'status'>>('intelligence_snapshots', {
@@ -181,6 +185,17 @@ export class Repository {
   async getLatestStrategyReport(): Promise<StrategyReport | null> {
     return (await this.store.select<StrategyReport>('strategy_reports', { order: { field: 'generated_at', ascending: false }, limit: 1 }))[0] ?? null
   }
+}
+
+/**
+ * Snapshots are append-only, so older versions predate newer optional fields.
+ * Parsing applies the schema defaults (lede, lenses, themes, Reel script...)
+ * without rewriting history. A row that no longer parses is returned as stored.
+ */
+export function normalizeSnapshot(row: IntelligenceSnapshot | undefined): IntelligenceSnapshot | null {
+  if (!row) return null
+  const parsed = IntelligenceSnapshot.safeParse(row)
+  return parsed.success ? parsed.data : row
 }
 
 let singleton: Repository | null = null

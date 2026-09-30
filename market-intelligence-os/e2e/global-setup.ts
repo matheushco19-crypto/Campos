@@ -39,6 +39,7 @@ export default async function globalSetup() {
   const spx = packet.citable_facts.find((f) => f.label === 'S&P 500')!.id
   const selic = packet.citable_facts.find((f) => f.label === 'Selic meta')!.id
   const analysis = goodAnalysis()
+  analysis.lede = { text: 'Segundo a imprensa internacional, o Fed segurou os juros, e o S&P 500 subiu 0,8% mesmo assim.', fact_ids: [spx], cluster_ids: [packet.clusters[0].id] }
   analysis.what_matters[1] = { headline: 'S&P 500 sobe', why_it_matters: 'O índice fechou em 6.550 pontos, puxado por tecnologia, sinal de apetite por duration longa.', fact_ids: [spx], cluster_ids: [] }
   const json = JSON.stringify(analysis).replaceAll('f_spx', spx).replaceAll('f_selic', selic).replaceAll('c_fed', packet.clusters[0].id)
   await submitAnalysis(repo, '2026-09-29', JSON.parse(json), new Date('2026-09-29T08:30:00Z'))

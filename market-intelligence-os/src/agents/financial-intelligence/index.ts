@@ -7,7 +7,7 @@ import { qualityControl } from '../../engines/quality-control'
 import { callStructured } from '../../llm/provider'
 import { RunLogger } from '../../observability/run-logger'
 import type { Repository } from '../../storage/repository'
-import { buildAgenda, buildMacroRows, buildMarketRows, buildSourceReferences, deterministicAnalysis } from './brief'
+import { buildAgenda, buildMacroRows, buildMarketRows, buildSourceReferences, deterministicAnalysis, toStoredContentLab } from './brief'
 import { FINANCIAL_INTELLIGENCE_INSTRUCTIONS } from './instructions'
 import { buildAnalysisPacket, packetToPrompt, type AnalysisPacket } from './packet'
 
@@ -81,8 +81,17 @@ export function assembleDraft(args: {
 }): { draft: BriefDraft; qc: QcReport } {
   const marketRows = buildMarketRows(args.facts)
   const agenda: AgendaItem[] = buildAgenda(args.events, args.date)
-  const { analysis, report } = qualityControl({ analysis: args.analysis, facts: args.facts, marketRows, agenda })
+  const { analysis, report } = qualityControl({ analysis: args.analysis, facts: args.facts, marketRows, agenda, clusters: args.clusters, factsOnly: args.status !== 'PUBLISHED' })
+  // QC runs before any publication: a brief whose blocking checks still fail is not published.
+  let status = args.status
+  const limitations = [...args.limitations]
+  if (status === 'PUBLISHED' && !report.passed) {
+    status = 'FAILED_QC'
+    const failed = report.checks.filter((c) => !c.passed && c.severity === 'block')
+    limitations.push(`Não publicado: o controle de qualidade reprovou ${failed.map((c) => `${c.label} (${c.detail})`).join('; ')}.`)
+  }
   const usedClusters = new Set([
+    ...analysis.lede.cluster_ids,
     ...analysis.what_matters.flatMap((w) => w.cluster_ids),
     ...analysis.insights.flatMap((i) => i.cluster_ids),
   ])
@@ -90,20 +99,21 @@ export function assembleDraft(args: {
     date: args.date,
     generated_at: args.now.toISOString(),
     run_id: args.runId,
-    status: args.status,
+    status,
     analysis_mode: args.mode,
     market_snapshot: marketRows,
     macro_snapshot: buildMacroRows(args.facts),
     news_snapshot: args.clusters.slice(0, 25),
+    lede: args.mode === 'deterministic' || status === 'AWAITING_ANALYSIS' ? null : analysis.lede,
     what_matters: analysis.what_matters,
     macro_watch: analysis.macro_watch,
     insights: analysis.insights,
     uhnw_lens: analysis.uhnw_lens,
-    content_lab: args.mode === 'deterministic' || args.status === 'AWAITING_ANALYSIS' ? null : analysis.content_lab,
+    content_lab: args.mode === 'deterministic' || status === 'AWAITING_ANALYSIS' ? null : toStoredContentLab(analysis.content_lab),
     agenda,
     source_references: buildSourceReferences(args.facts, args.clusters, agenda, usedClusters),
     qc: report,
-    limitations: args.limitations,
+    limitations,
   }
   return { draft, qc: report }
 }

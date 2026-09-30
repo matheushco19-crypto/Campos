@@ -307,52 +307,91 @@ const Cited = { fact_ids: z.array(z.string()).default([]), cluster_ids: z.array(
 
 export const WhatMattersItem = z.object({
   headline: z.string().min(3).max(160),
+  /** 1–2 sentences: what happened and why it matters (QC enforces the sentence limit). */
   why_it_matters: z.string().min(10).max(420),
   ...Cited,
 })
 export type WhatMattersItem = z.infer<typeof WhatMattersItem>
 
+/** "O que aconteceu" in one or two sentences, for the top of the Overview. */
+export const Lede = z.object({ text: z.string().min(20).max(360), ...Cited })
+export type Lede = z.infer<typeof Lede>
+
 export const MacroWatchItem = z.object({ text: z.string().min(5).max(420), ...Cited })
+
+/** Analytical lenses an insight touches (shown as tags). */
+export const INSIGHT_LENSES = ['valuation', 'juros', 'duration', 'risco', 'crédito', 'liquidez', 'câmbio', 'inflação', 'crescimento', 'portfolio construction', 'wealth planning'] as const
+export const InsightLens = z.enum(INSIGHT_LENSES)
 
 export const Insight = z.object({
   title: z.string().min(3).max(120),
   what_happened: z.string().min(10).max(500),
   why_it_happened: z.string().min(10).max(600),
   what_it_changes: z.string().min(10).max(600),
+  lenses: z.array(InsightLens).max(4).default([]),
   ...Cited,
 })
 export type Insight = z.infer<typeof Insight>
 
-export const UhnwPoint = z.object({ text: z.string().min(10).max(420), ...Cited })
+/** Wealth themes for the UHNW Lens. */
+export const UHNW_THEMES = ['alocação', 'liquidez', 'proteção', 'sucessão', 'tributação', 'concentração', 'exposição internacional'] as const
+export const UhnwTheme = z.enum(UHNW_THEMES)
+
+export const UhnwPoint = z.object({ theme: UhnwTheme.nullable().default(null), text: z.string().min(10).max(420), ...Cited })
+export type UhnwPoint = z.infer<typeof UhnwPoint>
+
+/*
+ * Content Lab. Stored snapshots are append-only, so the stored shape stays
+ * lenient (older versions have no main_idea / reel script). Agent 2's input
+ * schema (AnalysisOutput) is strict.
+ */
+const ideaTitle = z.string().min(3).max(140)
+const ideaAngle = z.string().min(10).max(400)
+const ideaMain = z.string().min(10).max(400)
 
 export const ContentIdea = z.object({
-  title: z.string().min(3).max(140),
-  hook: z.string().min(5).max(240),
-  angle: z.string().min(10).max(500),
+  title: ideaTitle,
+  angle: ideaAngle.or(z.string().min(10).max(500)),
+  main_idea: z.string().nullable().default(null),
+  hook: z.string().nullable().default(null),
   ...Cited,
 })
 export type ContentIdea = z.infer<typeof ContentIdea>
 
-export const ContentLab = z.object({
-  story: ContentIdea,
-  carousel: ContentIdea,
-  reel: ContentIdea,
-  take: ContentIdea,
-  exceptional: ContentIdea.nullable().default(null),
+export const ReelIdea = ContentIdea.extend({
+  development: z.string().nullable().default(null),
+  closing: z.string().nullable().default(null),
+  cta: z.string().nullable().default(null),
 })
+export type ReelIdea = z.infer<typeof ReelIdea>
+
+export const ContentLab = z.object({ story: ContentIdea, carousel: ContentIdea, reel: ReelIdea, take: ContentIdea })
 export type ContentLab = z.infer<typeof ContentLab>
 
+export const ContentIdeaInput = z.object({ title: ideaTitle, angle: ideaAngle, main_idea: ideaMain, ...Cited })
+export const ReelIdeaInput = ContentIdeaInput.extend({
+  hook: z.string().min(5).max(200),
+  development: z.string().min(20).max(500),
+  closing: z.string().min(10).max(300),
+  cta: z.string().min(5).max(160),
+})
+export const ContentLabInput = z.object({ story: ContentIdeaInput, carousel: ContentIdeaInput, reel: ReelIdeaInput, take: ContentIdeaInput })
+export type ContentLabInput = z.infer<typeof ContentLabInput>
+
+export const MacroWatch = z.object({
+  BR: z.array(MacroWatchItem).max(3),
+  US: z.array(MacroWatchItem).max(3),
+  CN: z.array(MacroWatchItem).max(3),
+  EU: z.array(MacroWatchItem).max(3),
+})
+
 export const AnalysisOutput = z.object({
+  lede: Lede,
   what_matters: z.array(WhatMattersItem).min(1).max(7),
-  macro_watch: z.object({
-    BR: z.array(MacroWatchItem).max(3),
-    US: z.array(MacroWatchItem).max(3),
-    CN: z.array(MacroWatchItem).max(3),
-    EU: z.array(MacroWatchItem).max(3),
-  }),
+  macro_watch: MacroWatch,
   insights: z.array(Insight).max(3),
   uhnw_lens: z.array(UhnwPoint).max(3),
-  content_lab: ContentLab,
+  content_lab: ContentLabInput,
 })
 export type AnalysisOutput = z.infer<typeof AnalysisOutput>
 
@@ -400,14 +439,25 @@ export const AgendaItem = z.object({
   source: z.string(),
   source_url: z.string().nullable(),
   verification_status: VerificationStatus,
-  bucket: z.enum(['today', 'tomorrow', 'upcoming']),
+  bucket: z.enum(['today', 'tomorrow', 'week', 'upcoming']),
+  /** Timezone of `time` (the dashboard shows it converted to BRT). */
+  timezone: z.string().default('America/Sao_Paulo'),
+  /** Editorial opportunity for the event (Agent 3). */
+  content_opportunity: z.string().nullable().default(null),
 })
 export type AgendaItem = z.infer<typeof AgendaItem>
 
 export const SourceReference = z.object({ name: z.string(), url: z.string(), used_for: z.string() })
 export type SourceReference = z.infer<typeof SourceReference>
 
-export const QcCheck = z.object({ id: z.string(), label: z.string(), passed: z.boolean(), detail: z.string().nullable() })
+export const QcCheck = z.object({
+  id: z.string(),
+  label: z.string(),
+  passed: z.boolean(),
+  detail: z.string().nullable(),
+  /** 'block' checks must pass for a snapshot to be PUBLISHED; 'warn' checks are advisory (e.g. target length). */
+  severity: z.enum(['block', 'warn']).default('block'),
+})
 export type QcCheck = z.infer<typeof QcCheck>
 
 export const QcReport = z.object({
@@ -445,8 +495,9 @@ export const IntelligenceSnapshot = z.object({
   market_snapshot: z.array(MarketRow),
   macro_snapshot: z.array(MacroRow),
   news_snapshot: z.array(EventCluster),
+  lede: Lede.nullable().default(null),
   what_matters: z.array(WhatMattersItem),
-  macro_watch: AnalysisOutput.shape.macro_watch,
+  macro_watch: MacroWatch,
   insights: z.array(Insight),
   uhnw_lens: z.array(UhnwPoint),
   content_lab: ContentLab.nullable(),

@@ -140,7 +140,8 @@ export async function submitAnalysis(repo: Repository, date: string, analysis: u
   const packet = await repo.getAnalysisPacket(date)
   const latest = await repo.getLatestSnapshot(date)
   const a2 = await runFinancialIntelligence(repo, { date, now, parentRunId: packet?.run_id ?? latest?.run_id ?? null, submittedAnalysis: analysis })
-  if (a2.draft.status !== 'PUBLISHED') throw new Error(`Análise rejeitada: ${a2.draft.limitations.join(' ')}`)
+  // Only a brief that passed QC is published. Rejections go back to the submitter with the reasons.
+  if (a2.draft.status !== 'PUBLISHED') throw new Error(`Análise rejeitada (${a2.draft.status}): ${a2.draft.limitations.join(' ')}`)
   const snapshot = await repo.insertSnapshot({
     ...a2.draft,
     content_opportunities: latest?.content_opportunities ?? [],

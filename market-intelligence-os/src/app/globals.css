@@ -5,80 +5,86 @@
 
 :root {
   color-scheme: light;
-  --bg: #f4f6f9;
+  --bg: #f2f4f7;
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --line: #e3e8ef;
-  --line-strong: #cfd7e2;
-  --ink: #0a1628;
-  --ink-2: #3e4c63;
-  --ink-3: #6b7890;
-  --navy: #0b1f3f;
-  --navy-2: #122c57;
-  --accent: #2a78d6;
-  --accent-soft: #e8f1fc;
-  --up: #0f7b4a;
-  --down: #c2362f;
-  --ok: #117a45;
-  --ok-soft: #e6f4ec;
-  --warn: #9a6400;
-  --warn-soft: #fdf3dc;
+  --surface-2: #f7f9fb;
+  --line: #e1e6ed;
+  --line-strong: #c9d2de;
+  --ink: #070d18;
+  --ink-2: #334158;
+  --ink-3: #5f6d84;
+  --navy: #0a1a36;
+  --navy-2: #12295a;
+  --deck: #050b16;
+  --deck-2: #0c1628;
+  --accent: #1f6fd1;
+  --accent-soft: #e7f0fc;
+  --up: #0d7a48;
+  --down: #c0342d;
+  --ok: #0f7843;
+  --ok-soft: #e4f3ea;
+  --warn: #8f5d00;
+  --warn-soft: #fcf1d8;
   --crit: #b42318;
-  --crit-soft: #fdecea;
-  --muted-soft: #eef1f5;
+  --crit-soft: #fdebe9;
+  --muted-soft: #edf0f4;
   --spark: #8fa3bf;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme='light'])) {
     color-scheme: dark;
-    --bg: #060b14;
-    --surface: #0c1422;
-    --surface-2: #0f1929;
-    --line: #1b2638;
-    --line-strong: #26344b;
-    --ink: #f3f6fb;
-    --ink-2: #b6c2d4;
-    --ink-3: #7d8ba1;
+    --bg: #04070d;
+    --surface: #0a111c;
+    --surface-2: #0d1623;
+    --line: #19233a;
+    --line-strong: #25324a;
+    --ink: #f4f7fc;
+    --ink-2: #b9c4d6;
+    --ink-3: #8190a7;
     --navy: #0f2447;
     --navy-2: #173163;
-    --accent: #3987e5;
-    --accent-soft: #10233f;
-    --up: #34b27a;
+    --deck: #02050b;
+    --deck-2: #08101d;
+    --accent: #4b93ea;
+    --accent-soft: #0f2340;
+    --up: #36b37b;
     --down: #f06a62;
     --ok: #3fbf7f;
-    --ok-soft: #0e2a1d;
-    --warn: #e0a93a;
-    --warn-soft: #2c220c;
+    --ok-soft: #0d2a1c;
+    --warn: #e2ab3d;
+    --warn-soft: #2b210b;
     --crit: #f2716a;
     --crit-soft: #33130f;
-    --muted-soft: #141e2e;
+    --muted-soft: #121c2c;
     --spark: #5b6f8d;
   }
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #060b14;
-  --surface: #0c1422;
-  --surface-2: #0f1929;
-  --line: #1b2638;
-  --line-strong: #26344b;
-  --ink: #f3f6fb;
-  --ink-2: #b6c2d4;
-  --ink-3: #7d8ba1;
+  --bg: #04070d;
+  --surface: #0a111c;
+  --surface-2: #0d1623;
+  --line: #19233a;
+  --line-strong: #25324a;
+  --ink: #f4f7fc;
+  --ink-2: #b9c4d6;
+  --ink-3: #8190a7;
   --navy: #0f2447;
   --navy-2: #173163;
-  --accent: #3987e5;
-  --accent-soft: #10233f;
-  --up: #34b27a;
+  --deck: #02050b;
+  --deck-2: #08101d;
+  --accent: #4b93ea;
+  --accent-soft: #0f2340;
+  --up: #36b37b;
   --down: #f06a62;
   --ok: #3fbf7f;
-  --ok-soft: #0e2a1d;
-  --warn: #e0a93a;
-  --warn-soft: #2c220c;
+  --ok-soft: #0d2a1c;
+  --warn: #e2ab3d;
+  --warn-soft: #2b210b;
   --crit: #f2716a;
   --crit-soft: #33130f;
-  --muted-soft: #141e2e;
+  --muted-soft: #121c2c;
   --spark: #5b6f8d;
 }
 
@@ -94,6 +100,8 @@
   --color-ink-3: var(--ink-3);
   --color-navy: var(--navy);
   --color-navy-2: var(--navy-2);
+  --color-deck: var(--deck);
+  --color-deck-2: var(--deck-2);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-up: var(--up);
@@ -109,7 +117,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 132px;
+  scroll-padding-top: 118px;
 }
 body {
   background: var(--bg);
@@ -122,11 +130,47 @@ body {
   font-variant-numeric: tabular-nums;
 }
 .eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-3);
+}
+/* Long-form reading: comfortable measure and rhythm. */
+.prose-brief {
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: var(--ink-2);
+}
+.card-lift {
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+.card-lift:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 10px 30px -18px rgba(7, 13, 24, 0.35);
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 ::selection {
   background: var(--accent-soft);

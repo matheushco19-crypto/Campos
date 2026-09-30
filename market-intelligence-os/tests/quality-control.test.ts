@@ -39,7 +39,7 @@ describe('morning brief quality control', () => {
     a.what_matters.push({ headline: 'Nikkei renova recorde', why_it_matters: 'O índice chegou a 44.000 pontos segundo a fonte primária.', fact_ids: ['f_conf'], cluster_ids: [] })
     a.what_matters.push({ headline: 'Fed segura juros de novo', why_it_matters: 'Mesma notícia repetida em outro item, que deveria ser removida.', fact_ids: [], cluster_ids: ['c_fed'] })
     const { analysis, report } = qualityControl({ analysis: a, facts, marketRows: [], agenda: [] })
-    expect(analysis.what_matters).toHaveLength(2)
+    expect(analysis.what_matters).toHaveLength(5)
     expect(report.corrections.join(' ')).toMatch(/número sem fonte/)
     expect(report.corrections.join(' ')).toMatch(/CONFLICT/)
     expect(report.corrections.join(' ')).toMatch(/evento repetido/)
@@ -61,8 +61,8 @@ describe('morning brief quality control', () => {
   it('strips AI filler phrases and rejects invented experiences', () => {
     expect(stripFillers('Vale ressaltar que o dólar caiu.')).toBe('O dólar caiu.')
     const a = goodAnalysis()
-    a.uhnw_lens.push({ text: 'Ontem conversei com um cliente meu que estava preocupado com o câmbio.', fact_ids: [], cluster_ids: [] })
-    a.uhnw_lens.push({ text: 'Em um cenário cada vez mais volátil, a diversificação importa para a família.', fact_ids: [], cluster_ids: [] })
+    a.uhnw_lens.push({ theme: null, text: 'Ontem conversei com um cliente meu que estava preocupado com o câmbio.', fact_ids: [], cluster_ids: [] })
+    a.uhnw_lens.push({ theme: null, text: 'Em um cenário cada vez mais volátil, a diversificação importa para a família.', fact_ids: [], cluster_ids: [] })
     const { analysis, report } = qualityControl({ analysis: a, facts, marketRows: [], agenda: [] })
     expect(analysis.uhnw_lens).toHaveLength(1)
     expect(report.corrections.join(' ')).toMatch(/experiência pessoal inventada/)
@@ -76,6 +76,35 @@ describe('morning brief quality control', () => {
     const { analysis, report } = qualityControl({ analysis: a, facts, marketRows: [], agenda: [] })
     expect(analysis.content_lab.carousel.title).toMatch(/removida/)
     expect(report.reading_minutes).toBeLessThanOrEqual(10)
+  })
+  it('keeps each event to 1–2 sentences and requires 5–7 events', () => {
+    const a = goodAnalysis()
+    a.what_matters[3].why_it_matters = 'Primeira frase curta. Segunda frase curta. Terceira frase que sobra.'
+    const { analysis, report } = qualityControl({ analysis: a, facts, marketRows: [], agenda: [] })
+    expect(analysis.what_matters[3].why_it_matters).toBe('Primeira frase curta. Segunda frase curta.')
+    expect(report.corrections.join(' ')).toMatch(/2 frases/)
+    const few = goodAnalysis()
+    few.what_matters = few.what_matters.slice(0, 3)
+    const r2 = qualityControl({ analysis: few, facts, marketRows: [], agenda: [] })
+    expect(r2.report.passed).toBe(false)
+    expect(r2.report.checks.find((c) => c.id === 'event_count')!.passed).toBe(false)
+  })
+  it('requires attribution for single-source news and blocks individualized advice', () => {
+    const cluster = { id: 'c_one', title: 'Banco X anuncia plano', topic: 'corporate', region: 'BR', item_ids: [], sources: [{ source: 'Valor Econômico', url: 'https://valor.globo.com/x', headline: 'x' }], importance: 50, market_relevance: 50, uhnw_relevance: 10, social_relevance: 10, verification_status: 'UNVERIFIED', brief_date: '2026-09-29' } as never
+    const a = goodAnalysis()
+    a.what_matters.push({ headline: 'Banco X anuncia plano', why_it_matters: 'O banco anunciou um plano de expansão para o interior do país.', fact_ids: [], cluster_ids: ['c_one'] })
+    a.uhnw_lens.push({ theme: 'alocação', text: 'Você deve comprar títulos longos agora, antes que a curva feche de vez.', fact_ids: [], cluster_ids: [] })
+    const { analysis, report } = qualityControl({ analysis: a, facts, marketRows: [], agenda: [], clusters: [cluster] })
+    expect(analysis.what_matters.map((w) => w.headline)).not.toContain('Banco X anuncia plano')
+    expect(report.corrections.join(' ')).toMatch(/fonte única sem atribuição/)
+    expect(report.corrections.join(' ')).toMatch(/recomendação individualizada/)
+    a.what_matters[5].why_it_matters = 'Segundo o Valor, o banco anunciou um plano de expansão para o interior.'
+  })
+  it('target length is advisory, reading time is blocking', () => {
+    const { report } = qualityControl({ analysis: goodAnalysis(), facts, marketRows: [], agenda: [] })
+    const target = report.checks.find((c) => c.id === 'brief_target')!
+    expect(target.severity).toBe('warn')
+    expect(report.passed).toBe(true)
   })
   it('detects Portuguese', () => {
     expect(isPortuguese('O Banco Central manteve os juros e isso muda a conta para quem tem dívida.')).toBe(true)

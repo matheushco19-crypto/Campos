@@ -1,8 +1,8 @@
 import { ASSETS } from '../../../config/assets'
 import { MACRO_INDICATORS } from '../../../config/macro'
 import { sourceName } from '../../../config/sources'
-import type { AgendaItem, AnalysisOutput, CalendarEvent, ContentLab, EventCluster, MacroRow, MarketRow, NewsTopic, SourceReference, VerifiedFact } from '../../core/schemas'
-import { addDays } from '../../core/time'
+import type { AgendaItem, AnalysisOutput, CalendarEvent, ContentLab, ContentLabInput, EventCluster, MacroRow, MarketRow, NewsTopic, SourceReference, VerifiedFact } from '../../core/schemas'
+import { addDays, weekdayOf } from '../../core/time'
 import { isCitable } from '../../verification/engine'
 
 /* Deterministic parts of the Morning Brief: tables, agenda and sources. No LLM. */
@@ -48,16 +48,60 @@ export function buildMacroRows(facts: VerifiedFact[]): MacroRow[] {
 
 const IMPORTANCE_RANK = { HIGH: 0, MEDIUM: 1, LOW: 2 } as const
 
-export function buildAgenda(events: CalendarEvent[], date: string, horizonDays = 21, maxUpcoming = 8): AgendaItem[] {
+/**
+ * Editorial priority of recurring events (lower = more important). Events not
+ * matched keep their importance ordering after these.
+ */
+export const EVENT_PRIORITY: [RegExp, number][] = [
+  [/\bcopom\b/i, 0],
+  [/\bipca\b(?!-15)|pre[çc]os ao consumidor amplo(?! ?-? ?15)/i, 1],
+  [/\bpayroll\b|employment situation/i, 2],
+  [/\bcpi\b|consumer price index/i, 3],
+  [/\bfomc\b|federal reserve/i, 4],
+  [/\becb\b|bce\b/i, 5],
+  [/\bpmi\b|\bism\b/i, 6],
+  [/fiscal|tesouro|arrecada|resultado prim[áa]rio|or[çc]amento|dívida/i, 7],
+  [/regula|cvm|reforma|lei |projeto de lei|receita federal/i, 8],
+  [/resultado|balan[çc]o|earnings|ipo\b/i, 9],
+]
+
+export function eventPriority(name: string): number {
+  return EVENT_PRIORITY.find(([re]) => re.test(name))?.[1] ?? 20
+}
+
+/** Last day (Sunday) of the ISO week that contains `date`. */
+export function endOfWeek(date: string): string {
+  const wd = weekdayOf(date) // 0 = Sunday
+  return addDays(date, wd === 0 ? 0 : 7 - wd)
+}
+
+const CATEGORY_ANGLE: Record<string, string> = {
+  MACRO: 'Explicar o mecanismo: como o dado ou a decisão chega a juros, câmbio, valuation e patrimônio.',
+  POLICY: 'Separar fato de ruído: impacto econômico e fiscal documentado, sem viés político nem previsão.',
+  TAX: 'Fato legal com fonte, depois a leitura econômica e o possível impacto patrimonial, sem aconselhamento categórico.',
+  REGULATION: 'O que muda na prática para investidores e famílias, e o que ainda não se sabe.',
+  MARKET: 'Contexto histórico e o que o movimento sinaliza sobre prêmio de risco.',
+  CORPORATE: 'O que o resultado revela sobre o ciclo econômico, além da empresa.',
+  GEOPOLITICS: 'Canais de transmissão para o portfólio: commodities, dólar e aversão a risco.',
+  TECH: 'Da tecnologia ao valuation: por que expectativas longas deixam esses ativos sensíveis a juros.',
+}
+
+export function editorialAngle(e: Pick<CalendarEvent, 'category' | 'content_opportunity'>): string | null {
+  return e.content_opportunity ?? CATEGORY_ANGLE[e.category] ?? null
+}
+
+export function buildAgenda(events: CalendarEvent[], date: string, horizonDays = 21, maxUpcoming = 10): AgendaItem[] {
   const tomorrow = addDays(date, 1)
+  const weekEnd = endOfWeek(date)
   const end = addDays(date, horizonDays)
   const inRange = events.filter((e) => e.date >= date && e.date <= end)
-  const bucket = (d: string): AgendaItem['bucket'] => (d === date ? 'today' : d === tomorrow ? 'tomorrow' : 'upcoming')
+  const bucket = (d: string): AgendaItem['bucket'] => (d === date ? 'today' : d === tomorrow ? 'tomorrow' : d <= weekEnd ? 'week' : 'upcoming')
   const toItem = (e: CalendarEvent): AgendaItem => ({
     event_id: e.id,
     name: e.name,
     date: e.date,
     time: e.time,
+    timezone: e.timezone,
     category: e.category,
     region: e.region,
     importance: e.importance,
@@ -65,13 +109,16 @@ export function buildAgenda(events: CalendarEvent[], date: string, horizonDays =
     source_url: e.source_url,
     verification_status: e.verification_status,
     bucket: bucket(e.date),
+    content_opportunity: e.category === 'HOLIDAY' ? null : editorialAngle(e),
   })
-  const near = inRange.filter((e) => e.date <= tomorrow).map(toItem)
+  const rank = (e: CalendarEvent) => eventPriority(e.name) * 10 + IMPORTANCE_RANK[e.importance]
+  const byDay = (a: CalendarEvent, b: CalendarEvent) => a.date.localeCompare(b.date) || (a.time ?? '99').localeCompare(b.time ?? '99') || rank(a) - rank(b)
+  const near = inRange.filter((e) => e.date <= weekEnd || e.date <= tomorrow).filter((e) => e.date <= tomorrow || e.importance !== 'LOW').sort(byDay).map(toItem)
   const upcoming = inRange
-    .filter((e) => e.date > tomorrow && e.importance !== 'LOW')
-    .sort((a, b) => IMPORTANCE_RANK[a.importance] - IMPORTANCE_RANK[b.importance] || a.date.localeCompare(b.date))
+    .filter((e) => e.date > weekEnd && e.date > tomorrow && e.importance !== 'LOW')
+    .sort((a, b) => rank(a) - rank(b) || a.date.localeCompare(b.date))
     .slice(0, maxUpcoming)
-    .sort((a, b) => a.date.localeCompare(b.date))
+    .sort(byDay)
     .map(toItem)
   return [...near, ...upcoming]
 }
@@ -132,9 +179,18 @@ export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventClus
       .filter((f) => f.region === r)
       .slice(0, 3)
       .map((f) => ({ text: `${f.label}: ${fmt(f.value as number, f.unit)} (referência ${f.reference_period}, ${sourceName(f.primary_source)}).`, fact_ids: [f.id], cluster_ids: [] }))
-  const idea = (title: string) => ({ title, hook: 'Indisponível nesta execução.', angle: 'Content Lab requer a etapa de interpretação (Agent 2 com LLM). Nenhuma ideia foi gerada automaticamente.', fact_ids: [], cluster_ids: [] })
-  const content_lab: ContentLab = { story: idea('Story'), carousel: idea('Carrossel'), reel: idea('Reel'), take: idea('Opinião'), exceptional: null }
+  const idea = (title: string) => ({ title, angle: 'Content Lab requer a etapa de interpretação (Agent 2).', main_idea: 'Nenhuma ideia foi gerada automaticamente nesta execução.', fact_ids: [], cluster_ids: [] })
+  const content_lab: ContentLabInput = {
+    story: idea('Story'),
+    carousel: idea('Carrossel'),
+    reel: { ...idea('Reel'), hook: 'Indisponível.', development: 'Indisponível nesta execução, sem etapa de interpretação.', closing: 'Indisponível.', cta: 'Indisponível.' },
+    take: idea('Opinião'),
+  }
+  const lede = top.length
+    ? { text: `Briefing apenas com fatos: ${top.length} eventos do noticiário e os dados verificados abaixo, sem interpretação nesta versão.`, fact_ids: [], cluster_ids: [] }
+    : { text: 'Briefing apenas com fatos verificados, sem interpretação nesta versão.', fact_ids: [], cluster_ids: [] }
   return {
+    lede,
     what_matters: top.map((c) => {
       const names = [...new Set(c.sources.map((s) => s.source))]
       return {
@@ -149,4 +205,10 @@ export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventClus
     uhnw_lens: [],
     content_lab,
   }
+}
+
+/** Agent 2's content (strict) → stored Content Lab shape. */
+export function toStoredContentLab(c: ContentLabInput): ContentLab {
+  const idea = (x: ContentLabInput['story']) => ({ ...x, hook: null })
+  return { story: idea(c.story), carousel: idea(c.carousel), take: idea(c.take), reel: { ...c.reel } }
 }
