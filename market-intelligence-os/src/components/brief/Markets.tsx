@@ -38,12 +38,12 @@ export function Markets(props: {
           <div className="flex flex-wrap items-center gap-1 text-[11.5px]">
             <span className="font-semibold text-ink-3">Comparar com</span>
             {others.map((o) => (
-              <Link key={o} href={`/?date=${props.date}&compare=${o}#markets`} className={cn('rounded-md px-2 py-0.5 font-bold tnum', props.compare?.date === o ? 'bg-ink text-surface' : 'bg-muted-soft text-ink-2 hover:bg-line')}>
+              <Link key={o} href={`/mercados?date=${props.date}&compare=${o}`} className={cn('rounded-md px-2 py-0.5 font-bold tnum', props.compare?.date === o ? 'bg-ink text-surface' : 'bg-muted-soft text-ink-2 hover:bg-line')}>
                 {fmtShortDate(o)}
               </Link>
             ))}
             {props.compare && (
-              <Link href={`/?date=${props.date}#markets`} className="px-1 font-semibold text-ink-3 hover:text-ink">
+              <Link href={`/mercados?date=${props.date}`} className="px-1 font-semibold text-ink-3 hover:text-ink">
                 limpar
               </Link>
             )}
