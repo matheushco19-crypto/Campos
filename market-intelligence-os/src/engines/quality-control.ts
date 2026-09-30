@@ -2,6 +2,7 @@ import { ASSETS } from '../../config/assets'
 import { EDITORIAL_PROFILE } from '../../config/editorial-profile'
 import type { AgendaItem, AnalysisOutput, ContentLabInput, EventCluster, IntelligenceSnapshot, MarketRow, QcCheck, QcReport, VerifiedFact } from '../core/schemas'
 import { isCitable } from '../verification/engine'
+import { checkAlignment } from './metric-alignment'
 import { normalizeText } from './news-classifier'
 
 /**
@@ -81,7 +82,7 @@ export function extractNumbers(input: string): NumberToken[] {
   return out
 }
 
-function isExempt(t: NumberToken): boolean {
+export function isExempt(t: NumberToken): boolean {
   const n = t.candidates[0]
   if (t.unitHint === 'º' || t.unitHint === 'ª' || t.unitHint === '°') return true
   const quantified = /%|p\.?p\.?|bps|pb|ponto|mil|bilh|trilh/.test(t.unitHint) || /R\$|US\$|\$|€/.test(t.raw)
@@ -199,9 +200,20 @@ export interface QcResult {
 
 type Issue = { check: string; detail: string }
 
-function checkItem(item: Cited & object, factsById: Map<string, VerifiedFact>, citable: VerifiedFact[]): { issues: Issue[]; addedFacts: string[] } {
+/** Numbers in a sentence that are claims (not years/ordinals/small counts), for metric alignment. */
+const claimNumbers = (sentence: string) =>
+  extractNumbers(sentence)
+    .filter((t) => !isExempt(t))
+    .map((t) => ({ raw: t.raw, supportedBy: (f: VerifiedFact) => isCitable(f) && numberSupported(t, [f]) }))
+
+function checkItem(item: Cited & object, factsById: Map<string, VerifiedFact>, citable: VerifiedFact[]): { issues: Issue[]; addedFacts: string[]; aligned: string[] } {
   const issues: Issue[] = []
   const addedFacts: string[] = []
+  // Metric alignment first: the named metric's own fact becomes the primary evidence.
+  const alignment = checkAlignment(itemTexts(item), item.fact_ids, factsById, citable, claimNumbers)
+  const aligned = alignment.attach.filter((id) => !item.fact_ids.includes(id))
+  if (aligned.length) item.fact_ids = [...aligned, ...item.fact_ids]
+  for (const a of alignment.issues) issues.push({ check: 'metric_alignment', detail: a.detail })
   const cited = item.fact_ids.map((id) => factsById.get(id)).filter((f): f is VerifiedFact => !!f)
   for (const id of item.fact_ids) {
     const f = factsById.get(id)
@@ -227,10 +239,11 @@ function checkItem(item: Cited & object, factsById: Map<string, VerifiedFact>, c
   if (findInventedExperience(text)) issues.push({ check: 'no_invented_experience', detail: 'possível experiência pessoal inventada' })
   if (findPersonalRecommendation(text)) issues.push({ check: 'no_personal_recommendation', detail: 'recomendação individualizada' })
   if (text.length > 120 && !isPortuguese(text)) issues.push({ check: 'portuguese', detail: `trecho fora do português: "${text.slice(0, 60)}…"` })
-  return { issues, addedFacts }
+  return { issues, addedFacts, aligned }
 }
 
-function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[]; perItem: Map<object, Issue[]>; words: number; minutes: number } {
+function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[]; perItem: Map<object, Issue[]>; words: number; minutes: number; alignNotes: string[] } {
+  const alignNotes: string[] = []
   const factsById = new Map(input.facts.map((f) => [f.id, f]))
   const citable = input.facts.filter(isCitable)
   const perItem = new Map<object, Issue[]>()
@@ -245,8 +258,9 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
     cl.story, cl.carousel, cl.reel, cl.take,
   ]
   for (const it of items) {
-    const { issues, addedFacts } = checkItem(it, factsById, citable)
+    const { issues, addedFacts, aligned } = checkItem(it, factsById, citable)
     if (addedFacts.length) it.fact_ids = [...new Set([...it.fact_ids, ...addedFacts])]
+    for (const id of aligned) alignNotes.push(`Fato da métrica citada associado como evidência principal: ${factsById.get(id)?.label ?? id}.`)
     perItem.set(it, issues)
     all.push(...issues)
   }
@@ -351,13 +365,14 @@ function runChecks(input: QcInput, analysis: AnalysisOutput): { checks: QcCheck[
     ['event_brevity', 'Cada acontecimento em 1–2 frases'],
     ['single_source_attributed', 'Notícia de fonte única atribuída'],
     ['no_personal_recommendation', 'Sem recomendação individualizada'],
+    ['metric_alignment', 'Métrica citada = métrica do fato (sem substituição)'],
     ['brief_target', 'Extensão na meta (900–1.200 palavras)', 'warn'],
   ]
   const checks: QcCheck[] = DEFS.map(([id, label, severity = 'block']) => {
     const issues = all.filter((i) => i.check === id)
     return { id, label, passed: issues.length === 0, detail: issues.length ? issues.map((i) => i.detail).slice(0, 5).join(' | ') : null, severity }
   })
-  return { checks, perItem, words, minutes }
+  return { checks, perItem, words, minutes, alignNotes }
 }
 
 const REMOVED_IDEA = (reason: string) => ({
@@ -398,6 +413,7 @@ export function qualityControl(input: QcInput): QcResult {
   }
 
   const first = runChecks(input, analysis)
+  corrections.push(...first.alignNotes)
   const bad = (o: object) => (first.perItem.get(o) ?? []).length > 0
   const reasons = (o: object) => (first.perItem.get(o) ?? []).map((i) => i.detail).join('; ')
 

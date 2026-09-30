@@ -12,7 +12,12 @@ export interface FetchOptions {
   maxBytes?: number
   /** Injected in tests. */
   fetchImpl?: typeof fetch
+  /** Per-run memo: identical GETs within one collection are fetched once (e.g. the Treasury CSV for 8 vertices). */
+  memo?: Map<string, Promise<string>>
 }
+
+/** Provider call accounting for agent_runs (reset per collection). */
+export const httpStats = { calls: 0, retries: 0, failures: 0, reset() { this.calls = 0; this.retries = 0; this.failures = 0 } }
 
 export const USER_AGENT = 'MarketIntelligenceOS/0.1 (personal research; low-frequency)'
 
@@ -30,10 +35,24 @@ export class HttpError extends Error {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export async function fetchText(url: string, opts: FetchOptions = {}): Promise<string> {
+  if (opts.memo) {
+    const hit = opts.memo.get(url)
+    if (hit) return hit
+    const p = fetchTextOnce(url, opts)
+    opts.memo.set(url, p)
+    p.catch(() => opts.memo?.delete(url))
+    return p
+  }
+  return fetchTextOnce(url, opts)
+}
+
+async function fetchTextOnce(url: string, opts: FetchOptions): Promise<string> {
   const { timeoutMs = 12_000, retries = 2, backoffMs = 800, maxBytes = 5_000_000 } = opts
   const doFetch = opts.fetchImpl ?? fetch
   let lastError: unknown
   for (let attempt = 0; attempt <= retries; attempt++) {
+    httpStats.calls++
+    if (attempt > 0) httpStats.retries++
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutMs)
     try {
@@ -55,13 +74,17 @@ export async function fetchText(url: string, opts: FetchOptions = {}): Promise<s
         return text
       }
     } catch (err) {
-      if (err instanceof HttpError && err.status !== null && err.status < 500 && err.status !== 429) throw err
+      if (err instanceof HttpError && err.status !== null && err.status < 500 && err.status !== 429) {
+        httpStats.failures++
+        throw err
+      }
       lastError = err instanceof Error && err.name === 'AbortError' ? new HttpError(`Timeout after ${timeoutMs}ms`, null, url) : err
     } finally {
       clearTimeout(timer)
     }
     if (attempt < retries) await sleep(backoffMs * 2 ** attempt)
   }
+  httpStats.failures++
   throw lastError instanceof Error ? lastError : new HttpError(String(lastError), null, url)
 }
 

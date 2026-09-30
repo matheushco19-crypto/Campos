@@ -140,6 +140,16 @@ export function clusterNews(items: NewsItem[], briefDate: string, opts: ClusterO
       social_relevance: max('social_relevance'),
       verification_status: status,
       brief_date: briefDate,
+      // Filled by engines/relevance.ts.
+      relevance_score: 0,
+      relevance_components: {},
+      hard_override: false,
+      hard_override_reason: null,
+      geography: seed.region,
+      domain: 'other',
+      metric_target: null,
+      market_signals: [],
+      rank_bucket: 'tail',
     })
     for (const m of g.members) outItems.push({ ...m, event_cluster_id: id, verification_status: status })
   }

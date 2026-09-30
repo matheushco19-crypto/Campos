@@ -16,8 +16,44 @@ export type FactCategory = z.infer<typeof FactCategory>
 export const MarketStatus = z.enum(['OPEN', 'CLOSED', 'PRE_MARKET', 'UNKNOWN'])
 export type MarketStatus = z.infer<typeof MarketStatus>
 
+/**
+ * HOW a fact was verified (docs/verification.md). Never "independent" when the
+ * two sources share the same underlying feed.
+ *  - independent_crosscheck: two sources with different lineage agree on the same reference date
+ *  - official_crosscheck: two sources of the same official infrastructure agree (e.g. BRAPI + B3, Treasury + FRED/H.15)
+ *  - official_single: the official source alone (the authority of the number)
+ *  - single_source: one non-official source (vendor/exchange); never VERIFIED
+ *  - unofficial_vendor: undocumented vendor endpoint (e.g. Yahoo); never counts toward VERIFIED
+ *  - proxy: an approximation of the named instrument (e.g. DXY from ECB rates); never VERIFIED
+ *  - derived: deterministic calculation from verified inputs (e.g. 2s10s spread)
+ *  - unavailable / conflict
+ */
+export const VerificationMethod = z.enum(['independent_crosscheck', 'official_crosscheck', 'official_single', 'single_source', 'unofficial_vendor', 'proxy', 'derived', 'unavailable', 'conflict'])
+export type VerificationMethod = z.infer<typeof VerificationMethod>
+
+/**
+ * Session semantics of an observation. A morning run must never present an
+ * intraday print as a close.
+ */
+export const SessionInfo = z.object({
+  /** Instant the value was observed/published by the source (UTC ISO). */
+  observed_at: z.string(),
+  /** Calendar date (in the market's timezone) the value refers to. */
+  reference_date: z.string(),
+  session: z.enum(['regular_close', 'intraday', 'fixing', 'continuous', 'settlement', 'official_close', 'release']),
+  timezone: z.string(),
+  source: z.string(),
+  is_close: z.boolean(),
+  is_intraday: z.boolean(),
+  /** Trading session (date) the value belongs to. */
+  session_of: z.string(),
+  /** Human-readable rule used (docs/sessions.md). */
+  rule: z.string().optional(),
+})
+export type SessionInfo = z.infer<typeof SessionInfo>
+
 export const SourceKind = z.enum(['market', 'macro', 'news', 'calendar'])
-export const SourceAuthority = z.enum(['official', 'exchange', 'data_vendor', 'press', 'manual'])
+export const SourceAuthority = z.enum(['official', 'exchange', 'data_vendor', 'unofficial_vendor', 'press', 'manual'])
 export const AccessMethod = z.enum(['api', 'rss', 'csv', 'ics', 'manual', 'not_integrated'])
 
 export const EventCategory = z.enum([
@@ -65,6 +101,12 @@ export type Level = z.infer<typeof Level>
 
 export const SourceDefinition = z.object({
   id: z.string(),
+  /**
+   * Data lineage: sources sharing the same underlying feed have the same lineage
+   * (e.g. brapi and B3 → "b3"; us-treasury and FRED DGS* → "us-treasury").
+   * Two agreeing sources only count as independent when their lineages differ.
+   */
+  lineage: z.string().optional(),
   name: z.string(),
   kind: SourceKind,
   authority: SourceAuthority,
@@ -102,6 +144,9 @@ export const RawObservation = z.object({
   changePct: z.number().finite().nullable().optional(),
   marketStatus: MarketStatus.optional(),
   notes: z.string().optional(),
+  session: SessionInfo.optional(),
+  /** Publication date of the value (e.g. IBGE release date from SIDRA /periodos). */
+  releasedAt: z.string().optional(),
 })
 export type RawObservation = z.infer<typeof RawObservation>
 
@@ -135,6 +180,10 @@ export const VerifiedFact = z.object({
   source_fallback: z.boolean().default(false),
   single_source: z.boolean().default(false),
   is_stale: z.boolean().default(false),
+  verification_method: VerificationMethod.default('unavailable'),
+  session: SessionInfo.nullable().default(null),
+  /** Release/publication date of the number, when the source provides it (e.g. IBGE release). */
+  released_at: z.string().nullable().default(null),
   /** Snapshot date (America/Sao_Paulo) the fact was collected for. */
   brief_date: z.string(),
   run_id: z.string().nullable(),
@@ -205,6 +254,17 @@ export const EventCluster = z.object({
   social_relevance: z.number(),
   verification_status: VerificationStatus,
   brief_date: z.string(),
+  /** Deterministic salience (engines/relevance.ts). */
+  relevance_score: z.number().min(0).max(100).default(0),
+  relevance_components: z.record(z.string(), z.number()).default({}),
+  hard_override: z.boolean().default(false),
+  hard_override_reason: z.string().nullable().default(null),
+  geography: z.string().default('GLOBAL'),
+  domain: z.string().default('other'),
+  /** Named metric the event refers to (engines/metric-alignment.ts). */
+  metric_target: z.string().nullable().default(null),
+  market_signals: z.array(z.string()).default([]),
+  rank_bucket: z.enum(['top', 'watchlist', 'tail']).default('tail'),
 })
 export type EventCluster = z.infer<typeof EventCluster>
 

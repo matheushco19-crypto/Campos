@@ -104,6 +104,9 @@ function baseFact(ctx: VerificationContext, metric: string, label: string, regio
     source_fallback: false,
     single_source: false,
     is_stale: false,
+    verification_method: 'unavailable',
+    session: null,
+    released_at: null,
     brief_date: ctx.briefDate,
     run_id: ctx.runId,
     created_at: processedAt,
@@ -196,6 +199,7 @@ export function verifyMacro(ind: MacroIndicator, observations: RawObservation[],
       fact.primary_source = o.sourceId
       fact.primary_url = o.url
       fact.previous_value = o.previousValue ?? null
+      fact.released_at = o.releasedAt ?? null
       if (o.notes) notes.push(o.notes)
     } else {
       fact.secondary_source = o.sourceId

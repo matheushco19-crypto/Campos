@@ -6,7 +6,7 @@ import type { Region } from '../src/core/schemas'
  */
 export type MacroSourceRef =
   | { sourceId: 'bcb-sgs'; code: number }
-  | { sourceId: 'ibge-sidra'; table: number; variable: number; classification?: string }
+  | { sourceId: 'ibge-sidra'; table: number; variable: number; classification?: string; releaseDates?: boolean }
   | { sourceId: 'bcb-focus'; indicator: string; horizon: 'current_year' | 'next_year' }
   | { sourceId: 'bls'; series: string }
   | { sourceId: 'fred-macro'; series: string }
@@ -33,8 +33,14 @@ export const MACRO_INDICATORS: MacroIndicator[] = [
   /* BRASIL */
   { metric: 'BR_SELIC_TARGET', label: 'Selic meta', region: 'BR', unit: '% a.a.', frequency: 'meeting',
     official: { sourceId: 'bcb-sgs', code: 432 }, secondary: null, tolerance: 0.001, maxAgeDays: 120, enabled: true },
+  { metric: 'BR_SELIC_EFFECTIVE', label: 'Selic efetiva (over, anualizada)', region: 'BR', unit: '% a.a.', frequency: 'daily',
+    official: { sourceId: 'bcb-sgs', code: 1178 }, secondary: null, tolerance: 0.001, maxAgeDays: 7, enabled: true,
+    notes: 'Taxa Selic efetiva (média dos financiamentos diários lastreados em títulos federais, SGS 1178). Não é a Selic meta, nem o CDI, nem o DI futuro.' },
+  { metric: 'BR_IPCA15_MOM', label: 'IPCA-15 (variação mensal)', region: 'BR', unit: '%', frequency: 'monthly',
+    official: { sourceId: 'ibge-sidra', table: 7062, variable: 355, classification: '315[7169]', releaseDates: true }, secondary: { sourceId: 'bcb-sgs', code: 7478 }, tolerance: 0.005, maxAgeDays: 40, enabled: true,
+    notes: 'IPCA-15 (prévia da inflação), IBGE/SIDRA tabela 7062, índice geral. Data de divulgação lida de /periodos. Não é o IPCA mensal.' },
   { metric: 'BR_IPCA_MOM', label: 'IPCA (variação mensal)', region: 'BR', unit: '%', frequency: 'monthly',
-    official: { sourceId: 'ibge-sidra', table: 1737, variable: 63 }, secondary: { sourceId: 'bcb-sgs', code: 433 }, tolerance: 0.005, maxAgeDays: 75, enabled: true },
+    official: { sourceId: 'ibge-sidra', table: 1737, variable: 63, releaseDates: true }, secondary: { sourceId: 'bcb-sgs', code: 433 }, tolerance: 0.005, maxAgeDays: 75, enabled: true },
   { metric: 'BR_IPCA_12M', label: 'IPCA (12 meses)', region: 'BR', unit: '%', frequency: 'monthly',
     official: { sourceId: 'ibge-sidra', table: 1737, variable: 2265 }, secondary: { sourceId: 'bcb-sgs', code: 13522 }, tolerance: 0.005, maxAgeDays: 75, enabled: true },
   { metric: 'BR_IGPM_MOM', label: 'IGP-M (variação mensal)', region: 'BR', unit: '%', frequency: 'monthly',

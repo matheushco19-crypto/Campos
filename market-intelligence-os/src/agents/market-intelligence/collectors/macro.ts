@@ -39,7 +39,18 @@ const normaliseFredPeriod = (p: SeriesPoint, frequency: MacroIndicator['frequenc
   return p
 }
 
-async function fetchSeries(ind: MacroIndicator, ref: MacroSourceRef, now: Date, http: FetchOptions): Promise<{ points: SeriesPoint[]; url: string; notes?: string }> {
+/** SIDRA /periodos gives each period's publication date ("modificacao", dd/mm/yyyy). */
+export function parseSidraReleases(json: unknown): Map<string, string> {
+  const out = new Map<string, string>()
+  if (!Array.isArray(json)) return out
+  for (const p of json as { id?: string; modificacao?: string }[]) {
+    const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(p.modificacao ?? '')
+    if (p.id && /^\d{6}$/.test(p.id) && m) out.set(`${p.id.slice(0, 4)}-${p.id.slice(4)}`, `${m[3]}-${m[2]}-${m[1]}`)
+  }
+  return out
+}
+
+async function fetchSeries(ind: MacroIndicator, ref: MacroSourceRef, now: Date, http: FetchOptions): Promise<{ points: SeriesPoint[]; url: string; notes?: string; releases?: Map<string, string> }> {
   const env = getEnv()
   switch (ref.sourceId) {
     case 'bcb-sgs': {
@@ -56,8 +67,19 @@ async function fetchSeries(ind: MacroIndicator, ref: MacroSourceRef, now: Date, 
       return { points, url }
     }
     case 'ibge-sidra': {
-      const url = `https://servicodados.ibge.gov.br/api/v3/agregados/${ref.table}/periodos/-6/variaveis/${ref.variable}?localidades=N1[all]`
-      return { points: parseSidra(await fetchJson(url, http)), url }
+      const cls = ref.classification ? `&classificacao=${ref.classification}` : ''
+      const url = `https://servicodados.ibge.gov.br/api/v3/agregados/${ref.table}/periodos/-6/variaveis/${ref.variable}?localidades=N1[all]${cls}`
+      const points = parseSidra(await fetchJson(url, http))
+      // Release dates (one cheap structured request per table; no page scraping).
+      let releases: Map<string, string> | undefined
+      if (ref.releaseDates) {
+        try {
+          releases = parseSidraReleases(await fetchJson(`https://servicodados.ibge.gov.br/api/v3/agregados/${ref.table}/periodos`, http))
+        } catch {
+          releases = undefined
+        }
+      }
+      return { points, url, releases }
     }
     case 'bcb-focus': {
       const year = Number(toLocalDate(now).slice(0, 4)) + (ref.horizon === 'next_year' ? 1 : 0)
@@ -103,9 +125,10 @@ export async function collectMacro(now = new Date(), indicators = MACRO_INDICATO
         const started = Date.now()
         const key = refKey(ref)
         try {
-          const { points, url, notes } = await fetchSeries(ind, ref, now, http)
+          const { points, url, notes, releases } = await fetchSeries(ind, ref, now, http)
           const last = points.at(-1)
           if (!last) throw new Error('no observations after transform')
+          const releasedOn = releases?.get(last.period)
           const obs: RawObservation = {
             sourceId: ref.sourceId,
             category: 'MACRO',
@@ -113,12 +136,14 @@ export async function collectMacro(now = new Date(), indicators = MACRO_INDICATO
             value: last.value,
             unit: ind.unit,
             referencePeriod: last.period,
-            asOf: periodInstant(last.period),
+            // IBGE publishes at 09:00 BRT; with a known release date that is the instant the number became public.
+            asOf: releasedOn ? zonedToUtc(releasedOn, '09:00', 'America/Sao_Paulo') : periodInstant(last.period),
             retrievedAt,
             url,
             previousValue: points.at(-2)?.value ?? null,
             changePct: null,
             notes,
+            ...(releasedOn ? { releasedAt: releasedOn } : {}),
           }
           result.observations.push(obs)
           result.health.push({ source_id: key, ok: true, items: 1, latency_ms: Date.now() - started, error: null })

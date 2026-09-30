@@ -8,7 +8,11 @@ import type { SourceDefinition } from '../src/core/schemas'
  *
  * Rules enforced by code:
  *  - official sources are the authority for macro numbers;
- *  - market data needs two independent sources to be VERIFIED;
+ *  - market data is VERIFIED by two agreeing sources on the same reference date, or by
+ *    the instrument's official publisher alone (official_single, e.g. Treasury, PTAX, B3);
+ *  - `lineage` groups sources that share the same underlying feed: agreement between two
+ *    sources of the same lineage is never called "independent";
+ *  - `unofficial_vendor` sources (Yahoo) never count toward VERIFIED;
  *  - sources marked `not_integrated` are never fetched automatically.
  */
 export const SOURCES: SourceDefinition[] = [
@@ -29,6 +33,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'brapi',
+    lineage: 'b3',
     name: 'brapi.dev (B3)',
     kind: 'market',
     authority: 'data_vendor',
@@ -45,6 +50,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'bitstamp',
+    lineage: 'bitstamp',
     name: 'Bitstamp',
     kind: 'market',
     authority: 'exchange',
@@ -57,6 +63,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'gemini',
+    lineage: 'gemini',
     name: 'Gemini',
     kind: 'market',
     authority: 'exchange',
@@ -69,6 +76,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'bok-ecos',
+    lineage: 'krx',
     name: 'Bank of Korea — ECOS',
     kind: 'market',
     authority: 'official',
@@ -82,6 +90,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'stooq',
+    lineage: 'stooq',
     name: 'Stooq',
     kind: 'market',
     authority: 'data_vendor',
@@ -94,6 +103,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'fred',
+    lineage: 'fred',
     name: 'FRED — Federal Reserve Bank of St. Louis',
     kind: 'market',
     authority: 'official',
@@ -107,6 +117,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'us-treasury',
+    lineage: 'us-treasury',
     name: 'U.S. Department of the Treasury',
     kind: 'market',
     authority: 'official',
@@ -118,6 +129,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'bcb-ptax',
+    lineage: 'bcb',
     name: 'Banco Central do Brasil — PTAX (SGS)',
     kind: 'market',
     authority: 'official',
@@ -130,6 +142,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'coingecko',
+    lineage: 'coingecko',
     name: 'CoinGecko',
     kind: 'market',
     authority: 'data_vendor',
@@ -143,6 +156,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'ecb-fx',
+    lineage: 'ecb',
     name: 'European Central Bank — taxas de referência',
     kind: 'market',
     authority: 'official',
@@ -155,6 +169,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'coinbase',
+    lineage: 'coinbase',
     name: 'Coinbase',
     kind: 'market',
     authority: 'exchange',
@@ -166,6 +181,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'kraken',
+    lineage: 'kraken',
     name: 'Kraken',
     kind: 'market',
     authority: 'exchange',
@@ -177,6 +193,7 @@ export const SOURCES: SourceDefinition[] = [
   },
   {
     id: 'twelvedata',
+    lineage: 'twelvedata',
     name: 'Twelve Data',
     kind: 'market',
     authority: 'data_vendor',
@@ -190,6 +207,36 @@ export const SOURCES: SourceDefinition[] = [
   },
 
   /* ----------------------------- MACRO ---------------------------- */
+  {
+    id: 'b3-arquivos',
+    lineage: 'b3',
+    name: 'B3 — Arquivos Públicos (TradeInformationConsolidated)',
+    kind: 'market',
+    authority: 'official',
+    priority: 1,
+    homepage: 'https://arquivos.b3.com.br/',
+    access: 'csv',
+    enabled: true,
+    regions: ['BR'],
+    limitation:
+      'Arquivo oficial e público da B3 (download em duas etapas no portal de Arquivos Públicos). Usado para a curva DI1: contratos reais com a taxa de ajuste (AdjstdQtTax) do pregão. ~5 MB por arquivo; 2 downloads por dia (D e D-1). ' +
+      'O fluxo de download é o mesmo usado pelo portal público, sem login; não é uma API documentada formalmente, por isso está registrado como decisão a revisar.',
+  },
+  {
+    id: 'yahoo',
+    lineage: 'yahoo',
+    name: 'Yahoo Finance (endpoint JSON de gráfico)',
+    kind: 'market',
+    authority: 'unofficial_vendor',
+    priority: 9,
+    homepage: 'https://finance.yahoo.com',
+    access: 'api',
+    enabled: false,
+    regions: ['GLOBAL'],
+    limitation:
+      'Prova de conceito técnica (bakeoff de 30/09/2026: 15/15 ativos). Endpoint não documentado oficialmente e com termos de uso restritivos: nunca é fonte primária institucional nem conta para VERIFIED (verification_method = unofficial_vendor). ' +
+      'Desligado por padrão; só roda com MI_ENABLE_YAHOO_FALLBACK=true, como último fallback de exibição. Decisão humana pendente.',
+  },
   {
     id: 'bcb-sgs',
     name: 'Banco Central do Brasil — SGS',
