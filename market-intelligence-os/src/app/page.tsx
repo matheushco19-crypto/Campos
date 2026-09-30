@@ -2,9 +2,7 @@ import { Activity, AlertCircle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Agenda } from '@/components/brief/Agenda'
 import { Content } from '@/components/brief/Content'
-import { History } from '@/components/brief/History'
 import { Intelligence } from '@/components/brief/Intelligence'
-import { Markets } from '@/components/brief/Markets'
 import { Overview } from '@/components/brief/Overview'
 import { longDate } from '@/components/brief/shared'
 import { Sources } from '@/components/brief/Sources'
@@ -75,13 +73,11 @@ export default async function Page({ searchParams }: { searchParams: SP }) {
           <>
             {diagnosis && s.status !== 'PUBLISHED' && <DiagnosisBar diagnosis={diagnosis} />}
             <Overview s={s} date={d.date} today={d.today} factById={factById} clusterById={clusterById} previous={d.previous} prevDate={d.prevDate} newerUnpublished={d.newerUnpublished} />
-            <Markets s={s} date={d.date} facts={d.facts} factById={factById} history={d.history} availableDates={d.availableDates} compare={d.compare} />
             <Intelligence s={s} factById={factById} />
             <Content s={s} date={d.date} pipeline={d.pipeline} performance={d.performance} strategy={d.strategy} />
             <Agenda s={s} events={d.events} />
           </>
         )}
-        <History date={d.date} availableDates={d.availableDates} versions={d.versions} shown={s} diff={d.versionDiff} />
         {s && <Sources s={s} />}
         <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-[11.5px] text-ink-3">
           <span>Horários em America/Sao_Paulo (BRT). Dados antes das interpretações: todo número tem fonte e opinião é sempre sinalizada.</span>
