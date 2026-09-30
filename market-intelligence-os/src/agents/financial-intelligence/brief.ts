@@ -250,7 +250,6 @@ export function deterministicAnalysis(facts: VerifiedFact[], clusters: EventClus
   return {
     lede,
     what_matters: top.map((c) => {
-      const names = [...new Set(c.sources.map((s) => s.source))]
       return {
         headline: c.title.slice(0, 160),
         why_it_matters: synthesis(c),
