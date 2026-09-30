@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { dxyFromEcb, parseBitstamp, parseEcos, parseGemini } from '../src/agents/market-intelligence/collectors/parsers'
-import { collectMarkets } from '../src/agents/market-intelligence/collectors/market'
+import { collectMarkets, sessionOf } from '../src/agents/market-intelligence/collectors/market'
 import { mergeExtraObservations, type CollectionBundle } from '../src/agents/market-intelligence'
 import { verifyAll } from '../src/verification/engine'
 import { assetByMetric, ASSETS } from '../config/assets'
@@ -61,6 +61,23 @@ describe('source coverage audit: new free adapters', () => {
   })
 })
 
+describe('quote timestamps → trading session', () => {
+  const ibov = assetByMetric('IBOV')!
+  it('a feed update after midnight belongs to the previous session close', () => {
+    // 2026-09-30 03:07 UTC = 00:07 BRT on 30/09 (before the open) → 29/09 close.
+    expect(sessionOf(ibov, '2026-09-30T03:07:53.000Z')).toEqual({ referenceDate: '2026-09-29', asOf: '2026-09-29T20:00:00.000Z' })
+  })
+  it('an evening update is capped at that day\'s close', () => {
+    expect(sessionOf(ibov, '2026-09-30T01:07:53.000Z')).toEqual({ referenceDate: '2026-09-29', asOf: '2026-09-29T20:00:00.000Z' })
+  })
+  it('weekend updates roll back to Friday', () => {
+    expect(sessionOf(ibov, '2026-10-04T15:00:00.000Z').referenceDate).toBe('2026-10-02')
+  })
+  it('intraday keeps the real timestamp', () => {
+    expect(sessionOf(ibov, '2026-09-29T16:30:00.000Z')).toEqual({ referenceDate: '2026-09-29', asOf: '2026-09-29T16:30:00.000Z' })
+  })
+})
+
 describe('source registry consistency', () => {
   it('every asset mapping points to a registered source', () => {
     for (const a of ASSETS) for (const m of a.sources) expect(getSource(m.sourceId), `${a.metric}@${m.sourceId}`).toBeTruthy()
@@ -103,5 +120,18 @@ describe('external observations (BRAPI MCP bridge)', () => {
     const f = facts.find((x) => x.metric === 'IBOV')!
     expect(f.verification_status).toBe('UNVERIFIED')
     expect(f.value).toBe(183827.6)
+  })
+})
+
+describe('blocked sources are skipped, not hammered', () => {
+  it('Stooq and keyless CoinGecko are skipped with a recorded reason', async () => {
+    let calls = 0
+    const spy = (async () => (calls++, new Response('', { status: 403 }))) as unknown as typeof fetch
+    const spx = { ...assetByMetric('SPX')!, sources: [{ sourceId: 'stooq' as const, symbol: '^spx' }] }
+    const btc = { ...assetByMetric('BTCUSD')!, sources: [{ sourceId: 'coingecko' as const, symbol: 'bitcoin' }] }
+    const res = await collectMarkets(new Date('2026-09-30T08:00:00Z'), [spx, btc], { fetchImpl: spy, retries: 0 })
+    expect(calls).toBe(0)
+    expect(res.skipped).toHaveLength(2)
+    expect(res.errors).toHaveLength(0)
   })
 })

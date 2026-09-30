@@ -73,3 +73,4 @@ npm run dev                          # http://localhost:3000
 - [Automação e jobs](docs/automation.md)
 - [Deploy](docs/deployment.md)
 - [Primeiro teste real (29/09/2026)](docs/first-run/README.md)
+- [Source Coverage Audit (30/09/2026): cobertura por ativo, BRAPI/MCP, fontes gratuitas](docs/coverage-audit/README.md)

@@ -2,7 +2,7 @@ import { ASSETS, type AssetConfig, type SourceMapping } from '../../../../config
 import { getEnv } from '../../../core/env'
 import { fetchJson, fetchText, redactUrl, type FetchOptions } from '../../../core/http'
 import type { RawObservation } from '../../../core/schemas'
-import { addDays, toLocalDate, zonedToUtc } from '../../../core/time'
+import { addDays, toLocalDate, toLocalTime, weekdayOf, zonedToUtc } from '../../../core/time'
 import {
   parseBrapiCurrency,
   parseBrapiQuote,
@@ -39,6 +39,24 @@ const lastTwo = (points: SeriesPoint[]) => {
 /** Close of a daily series, stamped at the exchange's closing time. */
 const closeInstant = (asset: AssetConfig, date: string) => zonedToUtc(date, asset.exchange.close, asset.exchange.timezone)
 
+/**
+ * Quote APIs stamp the last feed update, not the session. A timestamp before the
+ * open (or on a weekend) belongs to the previous session; after the close it is
+ * the close of that day.
+ */
+export function sessionOf(asset: AssetConfig, instant: string): { referenceDate: string; asOf: string } {
+  const tz = asset.exchange.timezone
+  let date = toLocalDate(instant, tz)
+  const hhmm = toLocalTime(instant, tz)
+  const isWeekend = (d: string) => asset.exchange.weekdaysOnly && [0, 6].includes(weekdayOf(d))
+  if (hhmm < asset.exchange.open || isWeekend(date)) {
+    do date = addDays(date, -1)
+    while (isWeekend(date))
+    return { referenceDate: date, asOf: closeInstant(asset, date) }
+  }
+  return { referenceDate: date, asOf: hhmm > asset.exchange.close ? closeInstant(asset, date) : new Date(instant).toISOString() }
+}
+
 export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping, now: Date, http: FetchOptions = {}): Promise<Fetched> {
   const env = getEnv()
   switch (m.sourceId) {
@@ -52,8 +70,8 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
       }
       const url = `https://brapi.dev/api/quote/${encodeURIComponent(m.symbol)}?token=${env.BRAPI_TOKEN}`
       const r = parseBrapiQuote(await fetchJson(url, http))
-      const asOf = r.time ? new Date(r.time).toISOString() : now.toISOString()
-      return { value: r.value, changePct: r.changePct, previous: r.previous, referenceDate: toLocalDate(asOf, asset.exchange.timezone), asOf, url: redactUrl(url) }
+      const session = sessionOf(asset, r.time ? new Date(r.time).toISOString() : now.toISOString())
+      return { value: r.value, changePct: r.changePct, previous: r.previous, ...session, url: redactUrl(url) }
     }
     case 'stooq': {
       const d2 = toLocalDate(now, 'UTC').replace(/-/g, '')
@@ -163,11 +181,17 @@ export async function fetchMarketFromSource(asset: AssetConfig, m: SourceMapping
   }
 }
 
-/** Sources that need a missing credential are skipped (not counted as failures). */
-function skipReason(m: SourceMapping): string | null {
+/**
+ * Sources that need a missing credential, or that block this host, are skipped
+ * (recorded, not counted as failures). A source that refuses us is never retried
+ * around its block.
+ */
+export function skipReason(m: SourceMapping): string | null {
   const env = getEnv()
   if (m.sourceId === 'brapi' && !env.BRAPI_TOKEN) return 'BRAPI_TOKEN ausente'
   if (m.sourceId === 'twelvedata' && !env.TWELVEDATA_API_KEY) return 'TWELVEDATA_API_KEY ausente'
+  if (m.sourceId === 'coingecko' && !env.COINGECKO_DEMO_KEY) return 'COINGECKO_DEMO_KEY ausente (403 sem chave)'
+  if (m.sourceId === 'stooq' && env.MI_ENABLE_STOOQ !== 'true') return 'Stooq bloqueia IPs de datacenter (MI_ENABLE_STOOQ=false)'
   return null
 }
 

@@ -1,0 +1,226 @@
+{
+ "what_matters": [
+  {
+   "headline": "Inflação ao consumidor volta a ceder",
+   "why_it_matters": "O IPCA recuou 0,32% em agosto e a inflação em 12 meses desceu para 4,22%, de 4,44% no mês anterior. É o dado que dá sustentação à tese de juros menores daqui para frente.",
+   "fact_ids": [
+    "fact_c0eb639dab67478ede02",
+    "fact_6233214ba206207b67e4"
+   ],
+   "cluster_ids": []
+  },
+  {
+   "headline": "No atacado, o sinal é o oposto: IGP-M acelera",
+   "why_it_matters": "O IGP-M subiu 1,57% em setembro, depois de -0,22% em agosto. Quando o atacado acelera enquanto o consumidor desacelera, o recado costuma vir de commodities e câmbio, e ele pode chegar ao varejo com defasagem.",
+   "fact_ids": [
+    "fact_bc2487ba964e02657a0f"
+   ],
+   "cluster_ids": []
+  },
+  {
+   "headline": "Fed: inflação ainda sem trajetória clara, segundo Barr",
+   "why_it_matters": "Segundo o Valor, Barr, do Fed, afirmou que a inflação americana ainda não mostra caminho claro de volta à meta. O CPI roda em 3,4% em 12 meses, com o teto dos Fed Funds em 4%.",
+   "fact_ids": [
+    "fact_2483443e9f8555c85d92",
+    "fact_34d5ff64a9c3ae190072"
+   ],
+   "cluster_ids": [
+    "evt_1b5909ffe972052c2656"
+   ]
+  },
+  {
+   "headline": "ECB sobe juros e descasa o mapa global",
+   "why_it_matters": "O ECB elevou a taxa de depósito para 2,5%, alta de 25 bps. Com bancos centrais indo em direções diferentes, os diferenciais de juros passam a pesar mais no câmbio.",
+   "fact_ids": [
+    "fact_beca4eb7d825868f821f"
+   ],
+   "cluster_ids": []
+  },
+  {
+   "headline": "Conflito EUA–Irã segue no pano de fundo",
+   "why_it_matters": "Valor e Financial Times citam a guerra como fonte de custo, via combustível e frete, e de aversão a risco. No Brasil, o Valor reporta recorde no índice de volatilidade da bolsa, com a eleição no radar.",
+   "fact_ids": [],
+   "cluster_ids": [
+    "evt_0c6a434849384a0f0c4a",
+    "evt_8aad5cf37f2f68551514"
+   ]
+  },
+  {
+   "headline": "Reforma tributária vira decisão de caixa no Simples",
+   "why_it_matters": "Segundo o g1, mudou o prazo para empresas do Simples Nacional escolherem como vão recolher IBS e CBS. A reforma sai do papel e chega à rotina de pequenas e médias empresas.",
+   "fact_ids": [],
+   "cluster_ids": [
+    "evt_67bcf8344de55a1e6df0"
+   ]
+  },
+  {
+   "headline": "EUA x Canadá: nova rodada da guerra comercial",
+   "why_it_matters": "A BBC informa que entrou em vigor a proibição americana a bebidas alcoólicas e laticínios do Canadá. Tarifas e proibições voltam a ser ferramenta de negociação, com efeito direto sobre preços e cadeias.",
+   "fact_ids": [],
+   "cluster_ids": [
+    "evt_a6754e8db454f6530201"
+   ]
+  }
+ ],
+ "macro_watch": {
+  "BR": [
+   {
+    "text": "Desemprego em 5,3% na PNAD de agosto e dívida bruta em 82,56% do PIB em julho, acima dos 81,95% do mês anterior. Mercado de trabalho apertado e fiscal pressionado convivem com a inflação cedendo.",
+    "fact_ids": [
+     "fact_9f93b7da89ca04e55b67",
+     "fact_bc32e549d537d84fe9bb"
+    ],
+    "cluster_ids": []
+   },
+   {
+    "text": "A Selic meta está em 13,75%, e o Focus projeta 13,5% para o fim do ano, com IPCA de 4,99%. O IBC-Br recuou em julho frente a junho, sinal de atividade perdendo tração.",
+    "fact_ids": [
+     "fact_15c937423f9591f81f05",
+     "fact_6f525eba5988ebdf4e50",
+     "fact_6f6981a05dd31dc892c4",
+     "fact_cd7d9c5f0955f6bf768a"
+    ],
+    "cluster_ids": []
+   }
+  ],
+  "US": [
+   {
+    "text": "Payroll de 162 mil vagas em agosto, após 21 mil no mês anterior, desemprego em 4,1% e PIB do segundo trimestre em 1,5% anualizado, abaixo dos 2,1% do primeiro. Emprego resiliente com crescimento mais fraco.",
+    "fact_ids": [
+     "fact_adb5e36fdc8cef8b2d5f",
+     "fact_391cd7215ff85d5dae92",
+     "fact_db6af1ee66271307803a"
+    ],
+    "cluster_ids": []
+   }
+  ],
+  "CN": [
+   {
+    "text": "Sem dados oficiais verificados da China nesta coleta: NBS e PBoC não têm API estruturada integrada, e nada foi estimado.",
+    "fact_ids": [],
+    "cluster_ids": []
+   }
+  ],
+  "EU": [
+   {
+    "text": "Desemprego da zona do euro em 6,4%. O HICP oficial disponível está defasado e ficou fora deste briefing.",
+    "fact_ids": [
+     "fact_621d9694cf335a507103"
+    ],
+    "cluster_ids": []
+   }
+  ]
+ },
+ "insights": [
+  {
+   "title": "Desinflação no varejo, pressão no atacado",
+   "what_happened": "O IPCA de agosto caiu 0,32% e a inflação em 12 meses desceu para 4,22%. Em setembro, o IGP-M subiu 1,57%.",
+   "why_it_happened": "Os índices medem coisas diferentes. O IPCA acompanha o consumo das famílias, com peso grande de serviços e alimentos. O IGP-M é dominado por preços no atacado, muito sensíveis a commodities e câmbio. Combustível e frete, pressionados pelo conflito no Oriente Médio segundo a imprensa, aparecem primeiro no atacado.",
+   "what_it_changes": "Minha leitura é que a queda do IPCA abre espaço para a política monetária, mas o IGP-M avisa que o próximo repasse pode não ser tão benigno. O Focus ainda vê IPCA de 4,99% no ano. Para a renda fixa, isso favorece equilibrar pós-fixado e inflação, em vez de concentrar tudo numa aposta de queda rápida de juros.",
+   "fact_ids": [
+    "fact_c0eb639dab67478ede02",
+    "fact_6233214ba206207b67e4",
+    "fact_bc2487ba964e02657a0f",
+    "fact_6f6981a05dd31dc892c4"
+   ],
+   "cluster_ids": [
+    "evt_8aad5cf37f2f68551514"
+   ]
+  },
+  {
+   "title": "Bancos centrais descasados",
+   "what_happened": "O ECB elevou a taxa de depósito para 2,5%. Nos EUA, o teto dos Fed Funds está em 4%, com CPI de 3,4% em 12 meses. No Brasil, a Selic meta está em 13,75%, e o Focus aponta 13,5% no fim do ano.",
+   "why_it_happened": "Cada banco central responde à própria inflação. Na Europa, o aperto mostra desconforto com os preços. Nos EUA, inflação acima da meta com emprego ainda firme e PIB mais fraco, de 1,5% anualizado no segundo trimestre, tira do Fed a pressa para cortar.",
+   "what_it_changes": "Quando os diferenciais de juros mudam, o câmbio se move. Com o dólar a R$ 5,2204 pela PTAX e o euro a R$ 5,9178, o principal risco que eu monitoraria é um dólar mais forte se o mercado passar a precificar um Fed duro por mais tempo. Exposição cambial deveria ser decisão de alocação, não resíduo.",
+   "fact_ids": [
+    "fact_15c937423f9591f81f05",
+    "fact_beca4eb7d825868f821f",
+    "fact_34d5ff64a9c3ae190072",
+    "fact_2483443e9f8555c85d92",
+    "fact_cd7d9c5f0955f6bf768a",
+    "fact_db6af1ee66271307803a",
+    "fact_e6458535aaa88d1537ae",
+    "fact_3d97e6b8b6f3683d0946"
+   ],
+   "cluster_ids": []
+  },
+  {
+   "title": "Eleição e prêmio de risco",
+   "what_happened": "O primeiro turno das eleições gerais é no domingo, 4 de outubro. Segundo o Valor, o índice de volatilidade da bolsa brasileira bateu recorde, com a aversão a risco atribuída ao cenário externo e à proximidade da eleição. Ainda segundo o Valor, o Ibovespa virou durante a tarde e fechou em alta, com o dólar e os juros futuros em queda.",
+   "why_it_happened": "Eleições concentram incerteza sobre a trajetória fiscal. Com a dívida bruta em 82,56% do PIB, o mercado cobra prêmio por qualquer sinal de afrouxamento, e esse prêmio aparece na curva de juros, no câmbio e na volatilidade das ações.",
+   "what_it_changes": "Minha leitura é que posicionar o portfólio para um resultado eleitoral é aposta, não gestão de risco. Faz mais sentido revisar liquidez, calibrar a volatilidade que cada cliente tolera e manter proteção cambial e duration coerentes com o plano, seja qual for o resultado.",
+   "fact_ids": [
+    "fact_bc32e549d537d84fe9bb"
+   ],
+   "cluster_ids": [
+    "evt_0c6a434849384a0f0c4a",
+    "evt_a6c6b44d99b2b355b7c2"
+   ]
+  }
+ ],
+ "uhnw_lens": [
+  {
+   "text": "IGP-M em alta com IPCA em queda pesa sobre contratos indexados: aluguéis corrigidos pelo IGP-M tendem a subir mais que a inflação ao consumidor. Boa hora para revisar os indexadores das principais receitas e despesas da família.",
+   "fact_ids": [
+    "fact_bc2487ba964e02657a0f"
+   ],
+   "cluster_ids": []
+  },
+  {
+   "text": "Para famílias empresárias, a transição para IBS e CBS deixou de ser tema de longo prazo: há escolhas de regime com prazo curto. Conversa para ter contador e jurídico à mesa, sem conclusões apressadas.",
+   "fact_ids": [],
+   "cluster_ids": [
+    "evt_67bcf8344de55a1e6df0"
+   ]
+  },
+  {
+   "text": "Com eleição e conflito externo no radar, a pergunta útil não é qual cenário vai prevalecer, e sim quanto de liquidez e de proteção cambial este patrimônio precisa para atravessar qualquer cenário sem vender ativo na hora errada.",
+   "fact_ids": [],
+   "cluster_ids": [
+    "evt_0c6a434849384a0f0c4a"
+   ]
+  }
+ ],
+ "content_lab": {
+  "story": {
+   "title": "Varejo x atacado: duas inflações no mesmo mês",
+   "hook": "A inflação caiu. E subiu. No mesmo mês.",
+   "angle": "Mostrar o IPCA de agosto em queda e o IGP-M de setembro em alta, e explicar em três telas por que o atacado costuma antecipar o que chega ao consumidor.",
+   "fact_ids": [
+    "fact_c0eb639dab67478ede02",
+    "fact_bc2487ba964e02657a0f"
+   ],
+   "cluster_ids": []
+  },
+  "carousel": {
+   "title": "Por que o IGP-M importa para quem tem imóvel alugado",
+   "hook": "Seu contrato de aluguel não lê o IPCA.",
+   "angle": "Explicar a composição do IGP-M, por que ele reage a commodities e câmbio e o que isso significa para contratos indexados. Fechar com o que observar ao negociar um contrato novo.",
+   "fact_ids": [
+    "fact_bc2487ba964e02657a0f"
+   ],
+   "cluster_ids": []
+  },
+  "reel": {
+   "title": "Três bancos centrais, três direções",
+   "hook": "A Europa subiu juros, o Fed está em 4% e o Focus vê Selic de 13,5% no fim do ano. O câmbio é onde essas decisões se encontram.",
+   "angle": "Em 60 segundos: como diferenciais de juros movem moedas e por que exposição cambial precisa ser escolha consciente no portfólio.",
+   "fact_ids": [
+    "fact_beca4eb7d825868f821f",
+    "fact_34d5ff64a9c3ae190072",
+    "fact_cd7d9c5f0955f6bf768a"
+   ],
+   "cluster_ids": []
+  },
+  "take": {
+   "title": "Eleição não é estratégia de investimento",
+   "hook": "Se o seu plano depende de quem ganha no domingo, o problema é o plano.",
+   "angle": "Opinião, sinalizada como tal: posicionar o portfólio pela eleição é aposta binária. O trabalho sério é liquidez, horizonte e proteção dimensionados para atravessar qualquer resultado. Sem citar candidatos e sem previsão.",
+   "fact_ids": [],
+   "cluster_ids": [
+    "evt_0c6a434849384a0f0c4a"
+   ]
+  },
+  "exceptional": null
+ }
+}

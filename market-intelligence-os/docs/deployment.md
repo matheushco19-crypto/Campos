@@ -14,7 +14,9 @@
    - `SUPABASE_SERVICE_ROLE_KEY`, copiada de Supabase → Project Settings → API (projeto *market-intelligence-os*);
    - `CRON_SECRET`, uma string aleatória longa (`openssl rand -hex 32`);
    - `DASHBOARD_PASSWORD`, a senha do dashboard;
-   - opcionais: `BRAPI_TOKEN`, `TWELVEDATA_API_KEY`, `FRED_API_KEY`, `COINGECKO_DEMO_KEY`, `ANTHROPIC_API_KEY` (e aí `MI_LLM_PROVIDER=anthropic_api`).
+   - recomendada (gratuita): `BRAPI_TOKEN`, que liga o Ibovespa no backend (brapi.dev → cadastro gratuito);
+   - opcionais gratuitas: `BOK_ECOS_KEY` (KOSPI), `TWELVEDATA_API_KEY`, `FRED_API_KEY`, `COINGECKO_DEMO_KEY`;
+   - opcional paga: `ANTHROPIC_API_KEY` (e aí `MI_LLM_PROVIDER=anthropic_api`).
 3. Fazer deploy (push para a branch de produção). Os crons do `vercel.json` passam a rodar sozinhos.
 4. (Opcional) Importar o histórico do primeiro teste: `SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... npm run mi -- sync --from data` numa máquina que tenha rodado o pipeline local, ou reproduzir com o bundle em `docs/first-run/`.
 5. Ativar a rotina do Claude Code (veja [automation.md](automation.md)).

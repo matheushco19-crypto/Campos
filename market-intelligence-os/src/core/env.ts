@@ -20,6 +20,8 @@ const EnvSchema = z.object({
   COINGECKO_DEMO_KEY: z.string().optional(),
   TWELVEDATA_API_KEY: z.string().optional(),
   BOK_ECOS_KEY: z.string().optional(),
+  /** Stooq answers 403 to datacenter IPs (Vercel). Enable only where it responds (e.g. a home machine). */
+  MI_ENABLE_STOOQ: z.enum(['true', 'false']).default('false'),
   MI_VERIFICATION_STRICT_MACRO: z.enum(['true', 'false']).default('false'),
 })
 
