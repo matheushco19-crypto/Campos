@@ -5,7 +5,7 @@ import { fmtDate, fmtShortDate, fmtTimeBRT, fmtValue } from '@/lib/format'
 import type { VersionDiff } from '@/lib/version-diff'
 import { HistorySearch } from '../HistorySearch'
 import { cn, Kicker, Panel, Pill, Section } from '../ui'
-import { SNAP_STATUS } from './shared'
+import { MODE_LABEL, SNAP_STATUS } from './shared'
 
 export function History(props: {
   date: string
@@ -92,8 +92,9 @@ function DiffPanel({ d, date }: { d: VersionDiff; date: string }) {
           fechar comparação
         </Link>
       </div>
-      <dl className="mt-3 grid gap-3 text-[12.5px] sm:grid-cols-4">
+      <dl className="mt-3 grid gap-3 text-[12.5px] sm:grid-cols-5">
         <Meta k="Status" a={SNAP_STATUS[d.from.status]?.label ?? d.from.status} b={SNAP_STATUS[d.to.status]?.label ?? d.to.status} />
+        <Meta k="Modo" a={MODE_LABEL[d.from.mode] ?? d.from.mode} b={MODE_LABEL[d.to.mode] ?? d.to.mode} />
         <Meta k="Horário" a={fmtTimeBRT(d.from.generated_at)} b={fmtTimeBRT(d.to.generated_at)} />
         <Meta k="Palavras" a={String(d.from.words)} b={String(d.to.words)} />
         <Meta k="QC" a={d.from.qcPassed ? 'aprovado' : 'reprovado'} b={d.to.qcPassed ? 'aprovado' : 'reprovado'} />

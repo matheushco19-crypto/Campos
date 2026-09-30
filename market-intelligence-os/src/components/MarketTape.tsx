@@ -21,7 +21,7 @@ export function MarketTape({ rows, facts }: { rows: MarketRow[]; facts: Verified
           return (
             <li key={r.metric} className="relative flex items-baseline gap-2 px-3 py-2 first:pl-0" title={`${r.label}: ${r.verification_status}${r.reference ? ` · ref. ${r.reference}` : ''}`}>
               <span className={cn('size-1.5 shrink-0 translate-y-[-1px] rounded-full', DOT[r.verification_status])} aria-hidden />
-              <span className="text-[10.5px] font-extrabold tracking-[0.12em] text-white/55">{SHORT[r.metric] ?? r.label}</span>
+              <span className="text-[10.5px] font-extrabold tracking-[0.12em] text-white/55">{SHORT[r.metric] ?? r.label}{r.verification_method === 'proxy' ? ' proxy' : ''}</span>
               <span className={cn('text-[12.5px] font-bold tnum', r.value === null ? 'text-white/35' : 'text-white')}>{fmtValue(r.value, r.unit)}</span>
               {ch !== null && r.value !== null && (
                 <span className={cn('text-[11.5px] font-bold tnum', ch > 0 ? 'text-[#46c28a]' : ch < 0 ? 'text-[#f5857e]' : 'text-white/50')}>

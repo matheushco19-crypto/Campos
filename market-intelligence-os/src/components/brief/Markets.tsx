@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { ASSETS } from '../../../config/assets'
+import { ASSETS, CORE_MARKETS } from '../../../config/assets'
 import type { IntelligenceSnapshot, VerifiedFact } from '@/core/schemas'
 import { fmtShortDate, fmtValue, REGION_LABEL } from '@/lib/format'
 import { factProvenance } from '@/lib/provenance'
 import { CompareChart } from '../CompareChart'
 import { MarketsTable } from '../MarketsTable'
+import { Rates } from './Rates'
 import { cn, Kicker, Panel, Section } from '../ui'
 import { VerificationBadge } from '../VerificationBadge'
 import type { FactMap } from './shared'
@@ -20,7 +21,9 @@ export function Markets(props: {
 }) {
   const { s, factById } = props
   const compareRows = props.compare?.snapshot ? { date: props.compare.date, rows: props.compare.snapshot.market_snapshot } : null
-  const verified = s.market_snapshot.filter((r) => r.verification_status === 'VERIFIED').length
+  const core = s.market_snapshot.filter((r) => r.core)
+  const coreVerified = core.filter((r) => r.verification_status === 'VERIFIED').length
+  const extended = s.market_snapshot.filter((r) => !r.core)
   const others = props.availableDates.filter((x) => x !== props.date).slice(0, 6)
 
   return (
@@ -29,7 +32,7 @@ export function Markets(props: {
       index="02"
       eyebrow="Mercados"
       title="Como estão os mercados"
-      lead={`${verified} de ${s.market_snapshot.length} ativos confirmados por duas fontes. Clique no selo para ver fonte, data de referência e horário de coleta.`}
+      lead={`Core Markets Verified: ${coreVerified}/${CORE_MARKETS.length}. Mercados estendidos: ${extended.filter((r) => r.verification_status === 'VERIFIED').length}/${extended.length} verificados. Clique no selo para ver fonte, método de verificação, data de referência e horário de coleta.`}
       action={
         others.length > 0 ? (
           <div className="flex flex-wrap items-center gap-1 text-[11.5px]">
@@ -49,6 +52,7 @@ export function Markets(props: {
       }
     >
       <MarketsTable rows={s.market_snapshot} facts={props.facts} history={props.history} compare={compareRows} />
+      <Rates s={s} factById={factById} />
 
       <div className="mt-5 grid gap-5 xl:grid-cols-5">
         <Panel className="p-5 xl:col-span-2">

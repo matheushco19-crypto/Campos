@@ -20,7 +20,7 @@ export interface DiagnosisInput {
   nowLocal: string
   isToday: boolean
   runs: AgentRun[]
-  versions: Pick<IntelligenceSnapshot, 'version' | 'status' | 'generated_at'>[]
+  versions: (Pick<IntelligenceSnapshot, 'version' | 'status' | 'generated_at'> & { analysis_mode?: string })[]
   latest: IntelligenceSnapshot | null
   packetStatus: 'PENDING' | 'SUBMITTED' | 'EXPIRED' | null
   /** Scheduled time of the morning job, local "HH:MM". */
@@ -28,18 +28,24 @@ export interface DiagnosisInput {
 }
 
 export function diagnoseBrief(i: DiagnosisInput): Diagnosis {
-  const published = i.versions.find((v) => v.status === 'PUBLISHED')
+  const published = [...i.versions].sort((a, b) => b.version - a.version).find((v) => v.status === 'PUBLISHED')
   const orch = i.runs.filter((r) => r.agent === 'orchestrator').sort((a, b) => b.started_at.localeCompare(a.started_at))[0]
   const agentErrors = i.runs.flatMap((r) => r.errors.map((e) => `${r.agent} · ${e.step}${e.source ? ` (${e.source})` : ''}: ${e.message}`))
   const scheduled = i.scheduledAt ?? '05:00'
+  // Vercel Hobby fires the cron at some point inside the scheduled hour.
+  const windowEnd = `${scheduled.slice(0, 2)}:59`
 
   if (published) {
     const newer = i.versions.filter((v) => v.version > published.version)
+    const deterministic = (published.analysis_mode ?? (i.latest?.version === published.version ? i.latest.analysis_mode : undefined)) === 'deterministic'
     return {
       state: 'PUBLISHED',
       tone: 'ok',
-      headline: `Briefing publicado (v${published.version}).`,
-      detail: newer.length ? [`Há ${newer.length} versão(ões) mais recente(s) não publicada(s): ${newer.map((v) => `v${v.version} ${v.status}`).join(', ')}. O dashboard mostra a última publicada.`] : [],
+      headline: deterministic ? `Briefing determinístico publicado (v${published.version}).` : `Briefing publicado (v${published.version}).`,
+      detail: [
+        ...(deterministic ? [i.packetStatus === 'PENDING' ? 'Versão só com fatos. O enriquecimento do Claude Code (POST /api/analysis) substitui esta versão para a mesma data quando enviado.' : 'Versão só com fatos (sem etapa de interpretação nesta execução).'] : []),
+        ...(newer.length ? [`Há ${newer.length} versão(ões) mais recente(s) não publicada(s): ${newer.map((v) => `v${v.version} ${v.status}`).join(', ')}. O dashboard mostra a última publicada.`] : []),
+      ],
       nextStep: null,
     }
   }
@@ -79,8 +85,8 @@ export function diagnoseBrief(i: DiagnosisInput): Diagnosis {
       nextStep: 'Veja os erros por agente e rode de novo em "Rodar agora".',
     }
   }
-  if (i.isToday && i.nowLocal < scheduled) {
-    return { state: 'SCHEDULED', tone: 'neutral', headline: `O Morning Intelligence de hoje roda às ${scheduled} (BRT).`, detail: [], nextStep: null }
+  if (i.isToday && i.nowLocal <= windowEnd) {
+    return { state: 'SCHEDULED', tone: 'neutral', headline: `O Morning Intelligence de hoje roda na janela ${scheduled}–${windowEnd} (BRT).`, detail: ['No plano Hobby da Vercel o cron dispara em algum momento dentro da hora agendada, e só fica ativo após um deploy de produção.'], nextStep: null }
   }
   return {
     state: 'NOT_RUN',

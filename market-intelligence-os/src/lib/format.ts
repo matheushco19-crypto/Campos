@@ -5,7 +5,7 @@ export function fmtValue(v: number | null, unit: string): string {
   const n = v.toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits })
   if (unit === 'BRL') return `R$ ${n}`
   if (unit === 'USD') return `US$ ${n}`
-  if (unit.startsWith('%')) return `${n}${unit === '%' ? '%' : unit.slice(1)}`
+  if (unit.startsWith('%')) return `${n}%${unit.slice(1)}`
   if (unit === 'pts' || unit === 'idx') return n
   return `${n} ${unit}`
 }

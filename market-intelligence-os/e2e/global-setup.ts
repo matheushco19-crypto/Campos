@@ -19,6 +19,11 @@ function bundle(date: string, collectedAt: string, spx: number): CollectionBundl
     observations: [
       obs('stooq', 'SPX', spx, { changePct: 0.8 }),
       obs('fred', 'SPX', spx + 1),
+      obs('us-treasury', 'US10Y', 5.26, { unit: '%', previousValue: 5.24 }),
+      obs('fred', 'US10Y', 5.26, { unit: '%', previousValue: 5.24 }),
+      obs('us-treasury', 'US_UST_2Y', 4.89, { unit: '%', previousValue: 4.92 }),
+      obs('bcb-ptax', 'USDBRL', 5.2043, { unit: 'BRL', changePct: -0.3 }),
+      obs('ecb-fx', 'USDBRL', 5.21, { unit: 'BRL' }),
       obs('bcb-sgs', 'BR_SELIC_TARGET', 15, { category: 'MACRO', unit: '% a.a.', referencePeriod: '2026-09-17', asOf: '2026-09-17T03:00:00Z' }),
     ],
     news: [

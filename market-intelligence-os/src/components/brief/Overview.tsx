@@ -124,6 +124,31 @@ export function Overview(props: {
                 </div>
               </details>
             )}
+            {s.coverage_matrix.length > 0 && (
+              <div className="mt-4 rounded-xl border border-line p-3" aria-label="Cobertura do dia">
+                <Kicker className="mb-2">Cobertura mínima · Brasil e Mundo</Kicker>
+                <ul className="flex flex-wrap gap-1.5">
+                  {s.coverage_matrix.map((c) => (
+                    <li key={c.id} title={c.note ?? `${c.cluster_ids.length} evento(s)`} className={cn('rounded-md px-2 py-0.5 text-[11.5px] font-semibold', c.covered ? 'bg-ok-soft text-ok' : 'bg-warn-soft text-warn')}>
+                      {c.label}
+                      <span className="sr-only">{c.covered ? ': coberto' : ': sem evento relevante coletado'}</span>
+                    </li>
+                  ))}
+                </ul>
+                {s.coverage_matrix.some((c) => !c.covered) && <p className="mt-2 text-[11.5px] text-ink-3">Categorias em amarelo não tiveram evento relevante coletado hoje. Não são preenchidas artificialmente.</p>}
+              </div>
+            )}
+            {s.watchlist_candidates.length > 0 && (
+              <details className="group mt-3">
+                <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-[12.5px] font-bold text-accent hover:underline">
+                  Watchlist: próximos {s.watchlist_candidates.length} eventos por relevância
+                  <ArrowRight className="size-3.5 transition-transform group-open:rotate-90" aria-hidden />
+                </summary>
+                <div className="mt-3">
+                  <NewsList clusters={s.watchlist_candidates} />
+                </div>
+              </details>
+            )}
           </div>
         </div>
 

@@ -2,6 +2,7 @@ import 'server-only'
 import type { AgentRun, IntelligenceSnapshot, ResearchRequest, VerifiedFact } from '../core/schemas'
 import { toLocalDate, toLocalTime } from '../core/time'
 import { diagnoseBrief, type Diagnosis } from '../engines/diagnosis'
+import { computeSystemHealth, type SystemHealth } from '../engines/system-health'
 import { getRepository } from '../storage/repository'
 
 const AGENTS = ['market-intelligence', 'financial-intelligence', 'social-strategist', 'orchestrator'] as const
@@ -24,6 +25,7 @@ export interface AdminData {
   unavailableFacts: VerifiedFact[]
   research: ResearchRequest[]
   storage: string
+  health: SystemHealth
   error: string | null
 }
 
@@ -72,10 +74,14 @@ export async function loadAdmin(dateParam?: string): Promise<AdminData> {
   const skippedSources = ((a1?.execution_metadata?.skipped_sources as string[] | undefined) ?? []).slice(0, 60)
   const diagnosis = diagnoseBrief({ date, nowLocal: toLocalTime(new Date()), isToday: date === today, runs: runsForDate, versions, latest: latestForDate, packetStatus: packet?.status ?? null })
 
+  const healthFacts = facts.length ? facts : lastPublishedDate ? await repo.getLatestFactsForDate(lastPublishedDate) : []
+  const health = computeSystemHealth({ now: new Date(), runs: recentRuns, lastPublished, facts: healthFacts, packetStatus: packet?.status ?? null })
+
   return {
     today,
     date,
     diagnosis,
+    health,
     lastRuns,
     runsForDate,
     recentRuns: recentRuns.slice(0, 40),

@@ -2,6 +2,16 @@ import { sourceName } from '../../config/sources'
 import type { AgendaItem, CalendarEvent, EventCluster, VerifiedFact } from '../core/schemas'
 import type { Provenance } from '@/components/VerificationBadge'
 
+const SESSION_LABEL: Record<string, string> = {
+  regular_close: 'Fechamento do pregão',
+  intraday: 'Intradiário (não é fechamento)',
+  fixing: 'Fixing oficial',
+  continuous: 'Mercado 24h (sem fechamento)',
+  settlement: 'Ajuste B3',
+  official_close: 'Fechamento oficial',
+  release: 'Divulgação oficial',
+}
+
 export function factProvenance(f: VerifiedFact | undefined, fallbackStatus: Provenance['status'] = 'UNAVAILABLE'): Provenance {
   if (!f) return { kind: 'fact', status: fallbackStatus, notes: 'Fato não encontrado para esta data.' }
   return {
@@ -17,6 +27,8 @@ export function factProvenance(f: VerifiedFact | undefined, fallbackStatus: Prov
     notes: f.notes,
     fallback: f.source_fallback,
     stale: f.is_stale,
+    method: f.verification_method,
+    session: f.session ? SESSION_LABEL[f.session.session] ?? f.session.session : null,
   }
 }
 

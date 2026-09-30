@@ -144,10 +144,10 @@ export class Repository {
     return normalizeSnapshot((await this.store.select<IntelligenceSnapshot>('intelligence_snapshots', { eq: { date, version } }))[0])
   }
   getSnapshotVersions(date: string) {
-    return this.store.select<Pick<IntelligenceSnapshot, 'id' | 'version' | 'generated_at' | 'status'>>('intelligence_snapshots', {
+    return this.store.select<Pick<IntelligenceSnapshot, 'id' | 'version' | 'generated_at' | 'status' | 'analysis_mode'>>('intelligence_snapshots', {
       eq: { date },
       order: { field: 'version', ascending: false },
-      select: ['id', 'version', 'generated_at', 'status'],
+      select: ['id', 'version', 'generated_at', 'status', 'analysis_mode'],
     })
   }
   async listSnapshotDates(): Promise<string[]> {

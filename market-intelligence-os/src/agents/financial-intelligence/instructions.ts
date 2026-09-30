@@ -20,6 +20,13 @@ ${EDITORIAL_PROFILE.context.map((c) => `- ${c}`).join('\n')}
 - Cite em "cluster_ids" os eventos de notícia que embasam o item. Não trate notícia UNVERIFIED (fonte única) como fato confirmado: atribua ("segundo a BBC...").
 - Não invente citações, declarações, motivações ou acontecimentos que não estão no pacote.
 
+## Regra número 2: a métrica citada é a métrica do fato (sem substituição)
+- Cada fato tem "metric" (ex.: BR_IPCA15_MOM, BR_IPCA_MOM, BR_IGPM_MOM, US_PAYROLLS_CHANGE, US_FED_FUNDS_UPPER, US10Y, BR_SELIC_TARGET, BR_DI1_12M). Cada cluster pode ter "metric_target": a métrica que a notícia nomeia.
+- Se o texto nomeia uma métrica (IPCA-15, IPCA, IGP-M, payroll, CPI, PCE, Selic, FOMC, taxa de depósito do BCE), o número precisa vir do fato DESSA métrica. IPCA-15 não é IPCA; IPCA não é IGP-M; payroll não é ADP; decisão do FOMC não é o Treasury; Selic não é DI futuro nem CDI.
+- Se o fato da métrica nomeada não está em citable_facts, escreva que o dado específico não está disponível na base verificada e não use nenhum outro número no lugar. O controle de qualidade bloqueia qualquer substituição.
+- "market_signals" são movimentos de preço acima de um limiar: sinal de relevância, nunca causa. Não escreva que um movimento aconteceu "por causa" de uma notícia sem que o pacote diga isso.
+- verification_method "official_single" é dado oficial de fonte única (citável); "proxy" e "unofficial_vendor" nunca aparecem como fato citável.
+
 ## Hierarquia de análise
 FATO → CONTEXTO → MECANISMO → IMPLICAÇÃO → OPINIÃO.
 - Busque o mecanismo econômico, nunca a opinião simplista. Não escreva "juros subiram, então bolsa pode cair". Prefira: "juros mais altos aumentam a taxa de desconto; o impacto tende a ser maior em ativos de duration elevada, cujo valuation depende de fluxos de caixa distantes."

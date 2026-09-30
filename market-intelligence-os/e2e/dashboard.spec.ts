@@ -18,7 +18,14 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
 
   test('markets, intelligence, UHNW, content lab and agenda', async ({ page }) => {
     await page.goto('/?date=2026-09-29')
-    await expect(page.locator('#markets table')).toContainText('S&P 500')
+    await expect(page.locator('#markets table').first()).toContainText('S&P 500')
+    await expect(page.locator('#markets')).toContainText('Core Markets Verified:')
+    const rates = page.locator('#rates')
+    await expect(rates.getByRole('heading', { name: 'Curvas de Juros' })).toBeVisible()
+    await expect(rates).toContainText('US Treasury')
+    await expect(rates).toContainText('2s10s')
+    await expect(rates).toContainText('37 bps')
+    await expect(page.locator('#overview')).toContainText('Cobertura mínima')
     const intel = page.locator('#intelligence')
     for (const k of ['O que aconteceu', 'Por que aconteceu', 'O que isso muda']) await expect(intel.getByText(k).first()).toBeVisible()
     await expect(intel).toContainText('duration')
@@ -34,10 +41,10 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
 
   test('provenance shows sources, reference date, collection time, status and confidence', async ({ page }) => {
     await page.goto('/?date=2026-09-29')
-    await page.locator('#markets table').getByRole('button', { name: /VERIFIED/ }).first().click()
+    await page.locator('#markets table').first().getByRole('button', { name: /VERIFIED/ }).first().click()
     const dialog = page.getByRole('dialog', { name: 'Proveniência do dado' })
     await expect(dialog).toBeVisible()
-    for (const k of ['Fonte primária', 'Fonte secundária', 'Data de referência', 'Coletado em', 'Confiança', 'VERIFIED', 'Links']) await expect(dialog).toContainText(k)
+    for (const k of ['Fonte primária', 'Fonte secundária', 'Data de referência', 'Coletado em', 'Confiança', 'Método', 'VERIFIED', 'Links']) await expect(dialog).toContainText(k)
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
   })
@@ -55,13 +62,15 @@ test.describe('Market Intelligence OS — MVP daily flow', () => {
     await expect(history.getByText('v2', { exact: true })).toBeVisible()
     await history.getByRole('link', { name: /comparar/ }).first().click()
     await expect(page).toHaveURL(/cv=1/)
-    await expect(history).toContainText('Aguardando análise → Publicado')
+    await expect(history).toContainText('Somente fatos → Claude Code')
   })
 
   test('admin explains the state of the brief', async ({ page }) => {
     await page.goto('/admin?date=2026-09-29')
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Briefing publicado (v2)')
     for (const k of ['Agent 1', 'Agent 2', 'Agent 3', 'Último snapshot publicado', 'Fontes indisponíveis na última coleta']) await expect(page.getByText(k, { exact: false }).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: /SYSTEM HEALTH: (HEALTHY|DEGRADED|FAILED)/ })).toBeVisible()
+    await expect(page.getByText(/Core Markets Verified: \d\/8/).first()).toBeVisible()
     await page.goto('/admin?date=2026-09-01')
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Nenhuma execução registrada')
   })

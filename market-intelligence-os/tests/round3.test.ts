@@ -332,3 +332,39 @@ describe('job_leases: duplicate cron and concurrency', () => {
     expect([x.acquired, y.acquired].filter(Boolean)).toHaveLength(1)
   })
 })
+
+/* ------------------------------ System health ------------------------------ */
+
+import { computeSystemHealth } from '../src/engines/system-health'
+import type { AgentRun, IntelligenceSnapshot } from '../src/core/schemas'
+
+describe('system health', () => {
+  const run = (agent: string, status: string, sources: AgentRun['sources'] = [], meta: Record<string, unknown> = {}) =>
+    ({ run_id: `${agent}-1`, agent, job: 'MORNING_INTELLIGENCE', brief_date: DATE, started_at: '2026-09-29T08:01:00Z', finished_at: '2026-09-29T08:03:00Z', status, sources, errors: [], execution_metadata: meta }) as unknown as AgentRun
+  const snapshot = { date: DATE, version: 1, generated_at: '2026-09-29T08:03:00Z', analysis_mode: 'deterministic' } as IntelligenceSnapshot
+  const core = ['IBOV', 'SPX', 'NASDAQ', 'DJI', 'USDBRL', 'EURBRL', 'US10Y', 'BTCUSD'].map((m, i) => fact({ id: m, metric: m, verification_status: i < 4 ? 'UNVERIFIED' : 'VERIFIED' }))
+  const now = new Date('2026-09-29T12:00:00Z')
+
+  it('a single secondary provider down is not a global failure', () => {
+    const sources = [
+      { source_id: 'bcb-ptax:1', ok: true, items: 1, latency_ms: 1, error: null },
+      { source_id: 'ecb-fx:USD', ok: true, items: 1, latency_ms: 1, error: null },
+      { source_id: 'kraken:XBTUSD', ok: false, items: 0, latency_ms: 1, error: 'timeout' },
+      { source_id: 'coinbase:BTC-USD', ok: true, items: 1, latency_ms: 1, error: null },
+      { source_id: 'sgs:432', ok: true, items: 1, latency_ms: 1, error: null },
+      { source_id: 'rss-g1-economia', ok: true, items: 5, latency_ms: 1, error: null },
+    ]
+    const h = computeSystemHealth({ now, runs: [run('market-intelligence', 'PARTIAL', sources), run('financial-intelligence', 'AWAITING_ANALYSIS', [], { packet_chars: 21000, packet_estimated_tokens: 5250 }), run('social-strategist', 'SUCCESS')], lastPublished: snapshot, facts: core, packetStatus: 'PENDING' })
+    expect(h.status).toBe('HEALTHY')
+    expect(h.core).toMatchObject({ verified: 4, total: 8 })
+    expect(h.providers.find((p) => p.source === 'kraken')!.status).toBe('down')
+    expect(h.lastSuccess.macro).not.toBeNull()
+    expect(h.lastSuccess.news).not.toBeNull()
+    expect(h.packet).toMatchObject({ chars: 21000, estimatedTokens: 5250, status: 'PENDING' })
+  })
+  it('DEGRADED when a core market has no usable value; FAILED with no published snapshot', () => {
+    const broken = core.map((f) => (f.metric === 'USDBRL' ? { ...f, verification_status: 'UNAVAILABLE' as const } : f))
+    expect(computeSystemHealth({ now, runs: [run('market-intelligence', 'SUCCESS')], lastPublished: snapshot, facts: broken, packetStatus: null }).status).toBe('DEGRADED')
+    expect(computeSystemHealth({ now, runs: [run('market-intelligence', 'SUCCESS')], lastPublished: null, facts: core, packetStatus: null }).status).toBe('FAILED')
+  })
+})

@@ -67,7 +67,11 @@ export function MarketsTable({ rows, facts, history, compare }: { rows: MarketRo
               const vs = c?.value && r.value !== null ? ((r.value - c.value) / c.value) * 100 : null
               return (
                 <tr key={r.metric} className="border-b border-line last:border-0 hover:bg-surface-2">
-                  <td className="px-4 py-2.5 font-semibold text-ink">{r.label}</td>
+                  <td className="px-4 py-2.5 font-semibold text-ink">
+                    {r.verification_method === 'proxy' ? `${r.label.replace(/ \(.*\)$/, '')} proxy` : r.label}
+                    {r.core && <span className="ml-1.5 align-middle text-[9.5px] font-bold tracking-wider text-ink-3 uppercase">core</span>}
+                    {r.session === 'intraday' && <span className="ml-1.5 rounded bg-accent-soft px-1 align-middle text-[9.5px] font-bold text-accent">INTRADIÁRIO</span>}
+                  </td>
                   <td className={cn('px-3 py-2.5 text-right font-semibold tnum', r.value === null ? 'text-ink-3' : r.verification_status === 'CONFLICT' ? 'text-ink-3 line-through decoration-crit/60' : 'text-ink')}>{fmtValue(r.value, r.unit)}</td>
                   <td className="px-3 py-2.5 text-right">{bps !== null ? <Change v={bps} unit="bps" /> : <Change v={r.change_pct} />}</td>
                   {compare && <td className="px-3 py-2.5 text-right">{r.unit === '%' ? <span className="text-ink-3">—</span> : <Change v={vs} />}</td>}

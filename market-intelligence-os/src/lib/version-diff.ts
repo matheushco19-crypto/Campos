@@ -11,8 +11,8 @@ export interface DiffRow {
 
 /** What changed between two versions of the same day's brief (history is append-only). */
 export interface VersionDiff {
-  from: { version: number; status: string; generated_at: string; words: number; qcPassed: boolean }
-  to: { version: number; status: string; generated_at: string; words: number; qcPassed: boolean }
+  from: { version: number; status: string; mode: string; generated_at: string; words: number; qcPassed: boolean }
+  to: { version: number; status: string; mode: string; generated_at: string; words: number; qcPassed: boolean }
   headlinesAdded: string[]
   headlinesRemoved: string[]
   markets: DiffRow[]
@@ -33,7 +33,7 @@ export function diffVersions(a: IntelligenceSnapshot, b: IntelligenceSnapshot): 
       .filter(({ r, o }) => !o || o.value !== r.value || o.verification_status !== r.verification_status)
       .map(({ r, o }) => ({ label: r.label, unit: r.unit, from: o?.value ?? null, to: r.value, statusFrom: o?.verification_status ?? '—', statusTo: r.verification_status }))
   }
-  const meta = (s: IntelligenceSnapshot) => ({ version: s.version, status: s.status, generated_at: s.generated_at, words: s.qc.word_count, qcPassed: s.qc.passed })
+  const meta = (s: IntelligenceSnapshot) => ({ version: s.version, status: s.status, mode: s.analysis_mode, generated_at: s.generated_at, words: s.qc.word_count, qcPassed: s.qc.passed })
   return {
     from: meta(from),
     to: meta(to),

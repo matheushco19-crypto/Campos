@@ -4,6 +4,7 @@ import { sourceName } from '../../../config/sources'
 import { SNAP_STATUS } from '@/components/brief/shared'
 import { ResearchPanel, RunNowButton } from '@/components/ResearchPanel'
 import { cn, Kicker, Panel, Pill } from '@/components/ui'
+import type { SystemHealth } from '@/engines/system-health'
 import type { AgentRun } from '@/core/schemas'
 import { type AdminData, type AgentKey, loadAdmin } from '@/lib/admin-data'
 import { fmtDate, fmtDateTimeBRT, fmtTimeBRT } from '@/lib/format'
@@ -76,6 +77,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             </div>
           </Panel>
         </section>
+
+        <SystemHealthPanel h={a.health} />
 
         <section aria-label="Últimas execuções por agente" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {AGENT_CARDS.map(([key, name, role]) => (
@@ -291,4 +294,71 @@ function duration(r: AgentRun): string {
   if (!r.finished_at) return 'em andamento'
   const s = Math.max(0, (new Date(r.finished_at).getTime() - new Date(r.started_at).getTime()) / 1000)
   return s < 60 ? `${s.toFixed(1).replace('.', ',')} s` : `${Math.round(s / 60)} min`
+}
+
+const HEALTH_TONE = { HEALTHY: 'ok', DEGRADED: 'warn', FAILED: 'crit' } as const
+const PROVIDER_TONE = { ok: 'ok', partial: 'warn', down: 'crit' } as const
+
+function SystemHealthPanel({ h }: { h: SystemHealth }) {
+  const when = (iso: string | null) => (iso ? fmtDateTimeBRT(iso) : 'nunca')
+  return (
+    <section aria-labelledby="health-title">
+      <Kicker>System health</Kicker>
+      <Panel className={cn('mt-2 p-5', h.status === 'FAILED' && 'border-crit/40', h.status === 'DEGRADED' && 'border-warn/40', h.status === 'HEALTHY' && 'border-ok/40')}>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="health-title" className="text-[17px] font-extrabold text-ink">
+            SYSTEM HEALTH: {h.status}
+          </h2>
+          <Pill tone={HEALTH_TONE[h.status]}>{h.status}</Pill>
+          <span className="text-[12.5px] font-semibold text-ink-2 tnum">
+            Core Markets Verified: {h.core.verified}/{h.core.total}
+          </span>
+        </div>
+        {h.reasons.length > 0 && (
+          <ul className="mt-2 list-disc space-y-0.5 pl-5 text-[12.5px] text-ink-2">
+            {h.reasons.map((r, i) => (
+              <li key={i}>{r}</li>
+            ))}
+          </ul>
+        )}
+        <dl className="mt-4 grid gap-x-6 gap-y-1.5 text-[12.5px] sm:grid-cols-2 lg:grid-cols-3">
+          {(
+            [
+              ['Último Agent 1 com sucesso', when(h.lastSuccess.agent1)],
+              ['Última coleta de mercado', when(h.lastSuccess.markets)],
+              ['Última coleta macro', when(h.lastSuccess.macro)],
+              ['Última coleta de notícias', when(h.lastSuccess.news)],
+              ['Último Agent 3', when(h.lastSuccess.agent3)],
+              ['Último Agent 2', when(h.lastSuccess.agent2)],
+              ['Último snapshot publicado', h.lastPublished ? `${h.lastPublished.date} v${h.lastPublished.version} (${h.lastPublished.mode})` : 'nenhum'],
+              ['Idade do snapshot', h.lastPublished ? `${h.lastPublished.ageHours.toLocaleString('pt-BR')} h` : '—'],
+              ['Fatos', `${h.facts.VERIFIED} VERIFIED · ${h.facts.UNVERIFIED} UNVERIFIED · ${h.facts.UNAVAILABLE} UNAVAILABLE · ${h.facts.CONFLICT} CONFLICT`],
+              ['Pacote do Agent 2', h.packet.chars !== null ? `${h.packet.chars.toLocaleString('pt-BR')} caracteres ≈ ${h.packet.estimatedTokens?.toLocaleString('pt-BR')} tokens (${h.packet.status ?? 'sem pacote'})` : '—'],
+              ['Provedor de mercado (fatos)', h.marketProviders.map((p) => `${p.source} ${p.facts}`).join(' · ') || '—'],
+              ['Core não verificados', h.core.notVerified.map((n) => `${n.metric} (${n.status}, ${n.method})`).join(' · ') || 'nenhum'],
+            ] as const
+          ).map(([k, v]) => (
+            <div key={k} className="flex min-w-0 flex-col">
+              <dt className="text-[11px] font-bold tracking-wide text-ink-3 uppercase">{k}</dt>
+              <dd className="break-words text-ink tnum">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        {h.providers.length > 0 && (
+          <div className="mt-4 border-t border-line pt-3">
+            <p className="mb-2 text-[11px] font-bold tracking-wide text-ink-3 uppercase">Provedores na última coleta (um provedor secundário fora não derruba o sistema)</p>
+            <ul className="flex flex-wrap gap-1.5">
+              {h.providers.map((p) => (
+                <li key={p.source} title={p.lastError ?? ''}>
+                  <Pill tone={PROVIDER_TONE[p.status]}>
+                    {p.source} {p.ok}/{p.ok + p.failed}
+                  </Pill>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Panel>
+    </section>
+  )
 }

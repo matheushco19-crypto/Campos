@@ -20,6 +20,9 @@ export interface Provenance {
   notes?: string | null
   fallback?: boolean
   stale?: boolean
+  /** How the value was verified (verification_method) and which session it belongs to. */
+  method?: string | null
+  session?: string | null
   /** What kind of item this is (changes which rows are relevant). */
   kind?: 'fact' | 'news' | 'event'
 }
@@ -33,6 +36,18 @@ const META: Record<VStatus, { label: string; explain: string; cls: string; Icon:
 }
 
 const CONFIDENCE: Record<string, string> = { HIGH: 'Alta', MEDIUM: 'Média', LOW: 'Baixa', NONE: '—' }
+
+export const METHOD_LABEL: Record<string, string> = {
+  independent_crosscheck: 'Duas fontes independentes, mesma data',
+  official_crosscheck: 'Fonte oficial conferida com republicação da mesma origem',
+  official_single: 'Fonte oficial única (publicador do dado)',
+  single_source: 'Fonte única, sem validação cruzada',
+  unofficial_vendor: 'Fornecedor não oficial (não conta para VERIFIED)',
+  proxy: 'Aproximação (proxy), não é o valor oficial',
+  derived: 'Cálculo determinístico sobre fatos verificados',
+  unavailable: 'Indisponível',
+  conflict: 'Fontes em conflito',
+}
 
 export function VerificationBadge({ p, compact = false }: { p: Provenance; compact?: boolean }) {
   const [open, setOpen] = useState(false)
@@ -110,6 +125,8 @@ export function VerificationBadge({ p, compact = false }: { p: Provenance; compa
               {kind === 'news' && <Row k="Publicado" v={<span className="tnum">{p.asOf ? fmtDateTimeBRT(p.asOf) : '—'}</span>} />}
               {kind === 'fact' && <Row k="Coletado em" v={<span className="tnum">{p.retrievedAt ? fmtDateTimeBRT(p.retrievedAt) : '—'}</span>} />}
               {kind === 'fact' && <Row k="Confiança" v={CONFIDENCE[p.confidence ?? 'NONE'] ?? p.confidence} />}
+              {kind === 'fact' && p.method && <Row k="Método" v={METHOD_LABEL[p.method] ?? p.method} />}
+              {kind === 'fact' && p.session && <Row k="Sessão" v={p.session} />}
             </dl>
             {(kind === 'news' || links.length > 0) && (
               <span className="mt-3 block border-t border-line pt-2.5">
