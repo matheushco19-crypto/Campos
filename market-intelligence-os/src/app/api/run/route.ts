@@ -15,8 +15,9 @@ export async function POST(req: Request) {
   if (req.headers.get('origin') && new URL(req.headers.get('origin')!).host !== new URL(req.url).host) return Response.json({ error: 'forbidden' }, { status: 403 })
   const repo = getRepository()
   const date = toLocalDate(new Date())
+  const liveQuote = new URL(req.url).searchParams.get('live') === '1'
   const out = await withJobLease(repo, 'MORNING_INTELLIGENCE', runKey('MORNING_INTELLIGENCE', date), async () => {
-    const res = await runMorningIntelligence(repo, { job: 'MORNING_INTELLIGENCE', date })
+    const res = await runMorningIntelligence(repo, { job: 'MORNING_INTELLIGENCE', date, liveQuote })
     return { run_id: res.runId, status: res.status, snapshot: res.snapshot ? `v${res.snapshot.version}` : null, stages: res.stages }
   }, { allowRerunAfterComplete: true, isFailure: (r) => r.status === 'FAILED' })
   if (!out.ran) return Response.json({ error: `Já existe uma execução em andamento (desde ${out.lease.started_at})` }, { status: 409 })
