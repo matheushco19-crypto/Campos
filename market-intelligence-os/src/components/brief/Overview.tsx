@@ -105,7 +105,7 @@ export function Overview(props: {
                         <h3 className="text-[15.5px] leading-snug font-bold text-ink">{w.headline}</h3>
                         {c && <VerificationBadge p={clusterProvenance(c)} compact />}
                       </div>
-                      <p className="prose-brief mt-1">{w.why_it_matters}</p>
+                      <p className="prose-brief mt-1 line-clamp-3">{w.why_it_matters}</p>
                       <FactChips ids={w.fact_ids} factById={factById} />
                     </div>
                   </li>
