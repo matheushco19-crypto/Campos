@@ -329,6 +329,25 @@ export function parseYahooChart(json: unknown): { bars: SeriesPoint[]; lastTrade
   return { bars, lastTrade: res.meta?.regularMarketTime ? new Date(res.meta.regularMarketTime * 1000).toISOString() : null, currency: res.meta?.currency ?? null, timezone: res.meta?.exchangeTimezoneName ?? null }
 }
 
+
+export function parseYahooQuote(json: unknown): { value: number; previous: number | null; changePct: number | null; lastTrade: string | null; currency: string | null; timezone: string | null } {
+  const r = (json as { quoteResponse?: { result?: unknown[]; error?: { description?: string } | null } })?.quoteResponse
+  if (r?.error) throw new Error(`Yahoo quote: ${r.error.description ?? 'error'}`)
+  const q = r?.result?.[0] as
+    | { regularMarketPrice?: number; regularMarketPreviousClose?: number; regularMarketChangePercent?: number; regularMarketTime?: number; currency?: string; exchangeTimezoneName?: string }
+    | undefined
+  if (typeof q?.regularMarketPrice !== 'number' || !Number.isFinite(q.regularMarketPrice)) throw new Error('Yahoo quote: no current price')
+  return {
+    value: q.regularMarketPrice,
+    previous: typeof q.regularMarketPreviousClose === 'number' && Number.isFinite(q.regularMarketPreviousClose) ? q.regularMarketPreviousClose : null,
+    changePct: typeof q.regularMarketChangePercent === 'number' && Number.isFinite(q.regularMarketChangePercent) ? q.regularMarketChangePercent : null,
+    lastTrade: q.regularMarketTime ? new Date(q.regularMarketTime * 1000).toISOString() : null,
+    currency: q.currency ?? null,
+    timezone: q.exchangeTimezoneName ?? null,
+  }
+}
+
+
 /* ------------------------------ B3 Arquivos Públicos ------------------ */
 export interface DiContractRow {
   code: string
