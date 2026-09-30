@@ -9,10 +9,12 @@ import { Panel } from '@/components/ui'
 
 export const dynamic = 'force-dynamic'
 
-type SP = Promise<{ date?: string; v?: string; compare?: string; cv?: string }>
+type SP = Promise<{ [key: string]: string | string[] | undefined }>
 
 export default async function Page({ searchParams }: { searchParams: SP }) {
-  const params = await searchParams
+  const raw = await searchParams
+  const one = (v: string | string[] | undefined) => Array.isArray(v) ? v[0] : v
+  const params = { date: one(raw.date), v: one(raw.v), compare: one(raw.compare), cv: one(raw.cv) }
   const d = await loadDashboard(params)
   return (
     <div className="min-h-screen">
