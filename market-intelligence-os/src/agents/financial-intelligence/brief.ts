@@ -1,7 +1,7 @@
 import { ASSETS, CORE_MARKETS, DERIVED_SPREADS, DI_BUCKETS } from '../../../config/assets'
 import { MACRO_INDICATORS } from '../../../config/macro'
 import { sourceName } from '../../../config/sources'
-import type { AgendaItem, AnalysisOutput, CalendarEvent, ContentLab, ContentLabInput, EventCluster, MacroRow, MarketRow, NewsTopic, RateVertex, RatesSnapshot, SourceReference, VerifiedFact } from '../../core/schemas'
+import type { AgendaItem, AnalysisOutput, CalendarEvent, ContentLab, ContentLabInput, EventCluster, MacroRow, MarketRow, NewsItem, NewsTopic, RateVertex, RatesSnapshot, SourceReference, VerifiedFact } from '../../core/schemas'
 import { addDays, weekdayOf } from '../../core/time'
 import { isCitable } from '../../verification/engine'
 
