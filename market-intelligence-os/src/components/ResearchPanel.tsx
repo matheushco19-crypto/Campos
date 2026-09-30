@@ -68,7 +68,7 @@ export function RunNowButton() {
   const run = async () => {
     setState('running')
     try {
-      const res = await fetch('/api/run', { method: 'POST' })
+      const res = await fetch('/api/run?live=1', { method: 'POST' })
       const j = await res.json()
       if (!res.ok) throw new Error(j.error ?? `HTTP ${res.status}`)
       setState('done')
