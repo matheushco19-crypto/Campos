@@ -18,6 +18,15 @@ describe('collector regressions found in the first real run', () => {
     expect(res.observations[0].referencePeriod).toBe('2026-09-29')
   })
 
+  it('SGS meeting series query a date window ending today (ultimos/N may be all future points)', async () => {
+    const selic = MACRO_INDICATORS.find((m) => m.metric === 'BR_SELIC_TARGET')!
+    const urls: string[] = []
+    const spy = (async (u: string) => (urls.push(String(u)), new Response(JSON.stringify([{ data: '29/09/2026', valor: '13.75' }]), { status: 200 }))) as unknown as typeof fetch
+    await collectMacro(new Date('2026-09-29T15:00:00Z'), [selic], { fetchImpl: spy, retries: 0 })
+    expect(urls[0]).toContain('dataFinal=29/09/2026')
+    expect(urls[0]).not.toContain('ultimos')
+  })
+
   it('official fixings (PTAX) are labelled CLOSED, never "em negociação"', async () => {
     const usd = { ...assetByMetric('USDBRL')!, sources: [{ sourceId: 'bcb-ptax' as const, symbol: '1' }] }
     const body = JSON.stringify([{ data: '28/09/2026', valor: '5.2132' }, { data: '29/09/2026', valor: '5.2204' }])

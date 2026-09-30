@@ -43,10 +43,15 @@ async function fetchSeries(ind: MacroIndicator, ref: MacroSourceRef, now: Date, 
   const env = getEnv()
   switch (ref.sourceId) {
     case 'bcb-sgs': {
-      const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${ref.code}/dados/ultimos/15?formato=json`
       // Daily "meeting" series (e.g. Selic target, 432) are forward-filled by the BCB until the
-      // next Copom date. Only points up to today are observations.
+      // next Copom date, so "ultimos/N" can return only future points. Daily series use an
+      // explicit window ending today; only points up to today are observations.
       const today = toLocalDate(now)
+      const br = (d: string) => d.split('-').reverse().join('/')
+      const daily = ind.frequency === 'meeting' || ind.frequency === 'daily'
+      const url = daily
+        ? `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${ref.code}/dados?formato=json&dataInicial=${br(addDays(today, -30))}&dataFinal=${br(today)}`
+        : `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${ref.code}/dados/ultimos/15?formato=json`
       const points = parseSgs(await fetchJson(url, http), ind.frequency === 'meeting' ? 'daily' : ind.frequency).filter((p) => p.period.length !== 10 || p.period <= today)
       return { points, url }
     }
