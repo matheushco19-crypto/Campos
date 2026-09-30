@@ -73,6 +73,8 @@ export async function loadDashboard(params: Params): Promise<DashboardData> {
     const availableDates = await repo.listSnapshotDates()
     const requested = params.date && isIsoDate(params.date) ? params.date : null
     const date = requested ?? (availableDates.includes(today) ? today : availableDates[0] ?? today)
+    const dayOfWeek = new Date(`${date}T12:00:00Z`).getUTCDay()
+    const weekStart = addDays(date, -dayOfWeek)
     const idx = availableDates.indexOf(date)
     // availableDates is sorted descending.
     const prevDate = idx >= 0 ? availableDates[idx + 1] ?? null : availableDates.find((d) => d < date) ?? null
@@ -83,7 +85,7 @@ export async function loadDashboard(params: Params): Promise<DashboardData> {
       repo.getLatestSnapshot(date),
       repo.getSnapshotVersions(date),
       repo.getLatestFactsForDate(date),
-      repo.getEvents(date, addDays(date, 45)),
+      repo.getEvents(weekStart, addDays(weekStart, 45)),
       repo.getLatestStrategyReport(),
       repo.getSocialPosts(),
     ])
