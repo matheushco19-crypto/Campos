@@ -233,6 +233,8 @@ export async function runFinancialIntelligence(repo: Repository, rawInput: Agent
     analysisHash: hash,
   })
   logger.meta({ provider_calls: llmCalls, retries: 0, elapsed_ms: Date.now() - started })
+  // Rejected submissions are not stored as snapshots: keep the failing checks on the run for diagnosis.
+  if (draft.status === 'FAILED_QC') for (const c of qc.checks.filter((c) => !c.passed && c.severity === 'block')) logger.error('qc', `${c.id}: ${c.detail ?? c.label}`)
   logger.meta({ qc_passed: qc.passed, qc_corrections: qc.corrections.length, word_count: qc.word_count, reading_minutes: qc.reading_minutes })
   logger.counts({ items_collected: facts.length + clusters.length, items_verified: packet.citable_facts.length, items_rejected: qc.corrections.length })
   const awaiting = mode === 'claude_code' && input.submittedAnalysis === undefined
