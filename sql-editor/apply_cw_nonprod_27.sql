@@ -10,7 +10,7 @@ begin;
 -- homologation computes exactly like production. No-op where a 2026 version is already published.
 update cw_nonprod.tax_rule_sets r
    set published_at = now(),
-       source_reference = 'RFB, Tabelas IRPF 2026 (gov.br/receitafederal … /meu-imposto-de-renda/tabelas/2026): tabela mensal × 12, Lei 15.270/2025 art. 11-A (redução anual).'
+       source_reference = left(r.source_reference || ' Conferido em 15/10/2026 com as Tabelas IRPF 2026 da RFB e a Lei 15.270/2025 art. 11-A.', 1000)
  where r.tax = 'IRPF' and r.tax_year = 2026 and r.published_at is null
    and not exists (select 1 from cw_nonprod.tax_rule_sets p where p.tax = r.tax and p.tax_year = 2026 and p.published_at is not null)
    and r.version = (select max(version) from cw_nonprod.tax_rule_sets d where d.tax = r.tax and d.tax_year = 2026);
